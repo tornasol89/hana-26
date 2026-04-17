@@ -8,6 +8,7 @@ import RegisterClient from './pages/RegisterClient'
 import RegisterWorker from './pages/RegisterWorker'
 import WorkerProfile  from './pages/WorkerProfile'
 import Impacto        from './pages/Impacto'
+import Alianzas       from './pages/Alianzas'
 import Compromiso     from './pages/Compromiso'
 
 // Páginas privadas
@@ -28,6 +29,7 @@ function App() {
         <Route path="/login"       element={<Login />} />
         <Route path="/compromiso"  element={<Compromiso />} />
         <Route path="/impacto"     element={<Impacto />} />
+        <Route path="/alianzas"    element={<Alianzas />} />
         <Route path="/worker/:id"  element={<WorkerProfile />} />
 
         {/* Registro — requieren haber aceptado compromiso (guard interno) */}

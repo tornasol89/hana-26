@@ -149,6 +149,7 @@ export default function Footer() {
               <Link to="/#profesionales" className="footer-link">Profesionales</Link>
               <Link to="/#como-funciona" className="footer-link">Cómo funciona</Link>
               <Link to="/impacto" className="footer-link">Por qué Hana</Link>
+              <Link to="/alianzas" className="footer-link">SERCOTEC · ChileValora</Link>
             </div>
           </div>
 
@@ -163,6 +164,7 @@ export default function Footer() {
               </Link>
               <Link to="/login" className="footer-link">Iniciar sesión</Link>
               <Link to="/compromiso" className="footer-link">Compromiso Hana</Link>
+              <Link to="/alianzas" className="footer-link">Certificaciones</Link>
             </div>
           </div>
 

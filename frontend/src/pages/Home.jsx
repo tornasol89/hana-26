@@ -333,6 +333,44 @@ export default function Home() {
     }
     .banner-cta-desc { font-size: 14px; color: rgba(244,238,237,0.55); margin-bottom: 32px; line-height: 1.65; max-width: 460px; margin-left: auto; margin-right: auto; }
 
+    /* Alianzas */
+    .alianzas-strip {
+      background: linear-gradient(135deg, #1a0a10 0%, #2d0a1e 100%);
+      padding: ${isMobile ? '44px 20px' : '56px 48px'};
+    }
+    .alianzas-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px;
+    }
+    .alianzas-pills {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    }
+    .alianzas-pill {
+      border-radius: 50px; padding: 8px 20px;
+      font-size: 12px; font-weight: 800; letter-spacing: 0.5px;
+      border: 2px solid;
+    }
+    .alianzas-cards-row {
+      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; width: 100%;
+    }
+    .alianzas-mini-card {
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px; padding: 16px 22px;
+      display: flex; flex-direction: column; gap: 4px;
+      flex: 1; min-width: 200px; max-width: 260px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .alianzas-cta-btn {
+      background: #d4537e; color: white; border: none;
+      border-radius: 6px; padding: 13px 36px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      text-decoration: none; display: inline-block;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .alianzas-cta-btn:hover { background: #b03060; transform: translateY(-1px); }
+
     /* Categorías */
     .seccion-cats { padding-top: 52px; }
     .cats-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 36px; flex-wrap: wrap; }
@@ -511,6 +549,45 @@ export default function Home() {
             {/* ✅ Apunta al compromiso con destino, NO directo a register-worker */}
             <Link to="/compromiso?destino=trabajadora" className="btn-blanco">
               Comenzar ahora →
+            </Link>
+          </div>
+        </section>
+
+        {/* Alianzas SERCOTEC + ChileValora */}
+        <section className="alianzas-strip">
+          <div className="alianzas-inner">
+            <p style={{ fontSize: '10px', color: '#e8b86d', letterSpacing: '3px', textTransform: 'uppercase', fontWeight: '700', margin: 0 }}>
+              Respaldo institucional
+            </p>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: isMobile ? '24px' : '34px', fontWeight: '900', color: '#fff', margin: 0, lineHeight: 1.2 }}>
+              Formación y certificación<br />para profesionales Hana
+            </h2>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', margin: 0, maxWidth: '560px', lineHeight: 1.7 }}>
+              Las profesionales de Hana pueden certificar sus habilidades con ChileValora y acceder a programas de emprendimiento con SERCOTEC — respaldadas por el Estado chileno.
+            </p>
+            <div className="alianzas-pills">
+              <span className="alianzas-pill" style={{ color: '#e8b86d', borderColor: '#e8b86d', background: 'rgba(232,184,109,0.1)' }}>
+                ChileValora · Certificación laboral
+              </span>
+              <span className="alianzas-pill" style={{ color: '#5DCAA5', borderColor: '#5DCAA5', background: 'rgba(93,202,165,0.1)' }}>
+                SERCOTEC · Capital Abeja y más
+              </span>
+            </div>
+            <div className="alianzas-cards-row">
+              {[
+                { icon: '🎓', titulo: 'Certificación oficial', desc: 'El Estado certifica lo que ya sabes hacer — sin importar dónde lo aprendiste', color: '#e8b86d' },
+                { icon: '💰', titulo: 'Subsidios reales', desc: 'Capital Abeja: hasta $3.500.000 para mujeres emprendedoras', color: '#5DCAA5' },
+                { icon: '⭐', titulo: 'Más confianza en Hana', desc: 'La certificación sube tu índice y aparece como insignia en tu perfil', color: '#d4537e' },
+              ].map(card => (
+                <div key={card.titulo} className="alianzas-mini-card">
+                  <span style={{ fontSize: '24px' }}>{card.icon}</span>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: card.color, margin: 0 }}>{card.titulo}</p>
+                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.5 }}>{card.desc}</p>
+                </div>
+              ))}
+            </div>
+            <Link to="/alianzas" className="alianzas-cta-btn">
+              Ver programas disponibles →
             </Link>
           </div>
         </section>

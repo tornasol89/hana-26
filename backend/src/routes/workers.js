@@ -63,8 +63,25 @@ router.put('/mi-perfil', protegerRuta, async (req, res) => {
   }
 })
 
+// GET /api/workers/featured — top 5 trabajadoras por índice de confianza
+router.get('/featured', async (req, res) => {
+  try {
+    const perfiles = await WorkerProfile.find({ disponible: true })
+      .populate('usuario', 'nombre apellido foto region verificada activa')
+      .sort({ indiceConfianza: -1 })
+      .limit(5)
+
+    const resultado = perfiles.filter(p => p.usuario?.activa !== false)
+    res.json(resultado)
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener destacadas', error: error.message })
+  }
+})
+
 // GET /api/workers/:id — perfil individual público con reseñas y métricas reales
 router.get('/:id', async (req, res) => {
+  if (!req.params.id.match(/^[0-9a-fA-F]{24}$/))
+    return res.status(400).json({ mensaje: 'ID inválido' })
   try {
     const perfil = await WorkerProfile.findById(req.params.id)
       .populate('usuario', 'nombre apellido foto region comuna verificada')

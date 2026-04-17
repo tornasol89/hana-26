@@ -59,6 +59,15 @@ const css = `
     text-transform: uppercase;
   }
   .nav-btn:hover { color: #2D132C; }
+  .nav-btn-alianzas {
+    padding: 7px 14px; color: #5DCAA5;
+    font-size: 12px; font-weight: 700; background: rgba(93,202,165,0.08);
+    border: 1.5px solid rgba(93,202,165,0.35); border-radius: 6px; cursor: pointer;
+    font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px;
+    transition: all 0.2s; text-decoration: none; display: flex; align-items: center;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .nav-btn-alianzas:hover { background: rgba(93,202,165,0.15); border-color: #5DCAA5; color: #3ab88a; }
   .nav-sep { color: rgba(45,19,44,0.15); font-size: 14px; margin: 0 2px; }
 
   /* Botones CTA no logueado */
@@ -286,6 +295,8 @@ function Navbar() {
               <button onClick={() => irASeccion('profesionales')} className="nav-btn">Profesionales</button>
               <span className="nav-sep">·</span>
               <Link to="/impacto" className="nav-btn">Por qué Hana</Link>
+              <span className="nav-sep">·</span>
+              <Link to="/alianzas" className="nav-btn-alianzas">Alianzas</Link>
             </div>
           )}
 
