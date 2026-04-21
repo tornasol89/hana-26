@@ -1,32 +1,133 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --bg:        #F4EEED;
-  --plum:      #2D132C;
-  --magenta:   #C72C41;
-  --gold:      #D4A373;
-  --charcoal:  #4A4A4A;
-  --white:     #FFFFFF;
-  --shadow:    0 2px 16px rgba(45,19,44,0.10);
-  --shadow-md: 0 6px 28px rgba(45,19,44,0.13);
+@layer base {
+  :root {
+    --background: 30 25% 97%;
+    --foreground: 270 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 270 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 30% 15%;
+
+    --primary: 270 50% 30%;
+    --primary-foreground: 40 30% 95%;
+
+    --secondary: 35 40% 92%;
+    --secondary-foreground: 270 30% 20%;
+
+    --muted: 30 20% 94%;
+    --muted-foreground: 270 10% 45%;
+
+    --accent: 40 55% 55%;
+    --accent-foreground: 270 30% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 270 15% 88%;
+    --input: 270 15% 88%;
+    --ring: 270 50% 30%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 270 30% 12%;
+    --sidebar-foreground: 40 30% 95%;
+    --sidebar-primary: 270 50% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 25% 20%;
+    --sidebar-accent-foreground: 40 30% 95%;
+    --sidebar-border: 270 20% 25%;
+    --sidebar-ring: 270 50% 60%;
+
+    /* Custom tokens */
+    --gold: 40 55% 55%;
+    --gold-light: 40 50% 75%;
+    --purple-light: 270 40% 95%;
+    --purple-glow: 270 60% 50%;
+    --gradient-hero: linear-gradient(135deg, hsl(270 50% 30%), hsl(270 60% 45%));
+    --gradient-gold: linear-gradient(135deg, hsl(40 55% 55%), hsl(35 60% 65%));
+    --gradient-warm: linear-gradient(180deg, hsl(30 25% 97%), hsl(40 30% 94%));
+    --shadow-soft: 0 4px 20px -4px hsl(270 50% 30% / 0.12);
+    --shadow-card: 0 2px 12px -2px hsl(270 30% 15% / 0.08);
+    --shadow-gold: 0 4px 20px -4px hsl(40 55% 55% / 0.3);
+
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  .dark {
+    --background: 270 30% 8%;
+    --foreground: 40 30% 95%;
+    --card: 270 25% 12%;
+    --card-foreground: 40 30% 95%;
+    --popover: 270 25% 12%;
+    --popover-foreground: 40 30% 95%;
+    --primary: 270 50% 60%;
+    --primary-foreground: 270 30% 10%;
+    --secondary: 270 20% 18%;
+    --secondary-foreground: 40 30% 95%;
+    --muted: 270 20% 18%;
+    --muted-foreground: 270 15% 60%;
+    --accent: 40 55% 55%;
+    --accent-foreground: 270 30% 10%;
+    --border: 270 20% 22%;
+    --input: 270 20% 22%;
+    --ring: 270 50% 60%;
+  }
 }
 
-html { scroll-behavior: smooth; }
+@layer base {
+  * {
+    @apply border-border;
+  }
 
-body {
-  background: var(--bg);
-  color: var(--charcoal);
-  font-family: 'Montserrat', sans-serif;
-  -webkit-font-smoothing: antialiased;
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
 }
 
-h1, h2, h3, h4 {
-  font-family: 'Playfair Display', serif;
-  color: var(--plum);
-  letter-spacing: -1px;
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-body {
+    font-family: var(--font-body);
+  }
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-hero);
+  }
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-gold);
+  }
+  .bg-gradient-hero {
+    background-image: var(--gradient-hero);
+  }
+  .bg-gradient-gold {
+    background-image: var(--gradient-gold);
+  }
+  .bg-gradient-warm {
+    background-image: var(--gradient-warm);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-gold {
+    box-shadow: var(--shadow-gold);
+  }
 }
-
-button { font-family: 'Montserrat', sans-serif; }
-a { color: inherit; }
