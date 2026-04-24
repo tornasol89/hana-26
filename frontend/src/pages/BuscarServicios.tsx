@@ -175,7 +175,7 @@ const BuscarServicios = () => {
                   <WorkerCard
                     key={w._id}
                     worker={w}
-                    onClick={() => navigate(`/trabajadora/${w._id}`)}
+                    onClick={() => navigate(`/worker/${w._id}`)}
                   />
                 ))}
               </div>

@@ -11,6 +11,7 @@ import Registro from "./pages/Registro.tsx";
 import BuscarServicios from "./pages/BuscarServicios.tsx";
 import MiPerfil from "./pages/MiPerfil";
 import NotFound from "./pages/NotFound.tsx";
+import WorkerProfilePage from "./pages/WorkerProfile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,7 +33,8 @@ const App = () => (
             {/* Públicas */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Registro />} />
+            <Route path="/registro" element={<Registro />} /> 
+            <Route path="/worker/:id" element={<WorkerProfilePage />} />
 
             {/* Requieren sesión */}
             <Route
