@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import type { UserType } from "@/types/auth";
+import type { UserType } from "@/features/auth/types";
 
 interface Props {
   children: React.ReactNode;

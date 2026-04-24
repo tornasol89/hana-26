@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import hanaLogo from "@/assets/hana-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
-import { getErrorMessage } from "@/lib/auth";
+import { getErrorMessage } from "@/features/auth/utils";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -19,9 +19,9 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Si el usuario fue redirigido acá desde una ruta protegida,
-  // lo devolvemos a donde estaba intentando ir.
-  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/";
+  // Si vino redirigido desde una ruta protegida, volvemos a esa ruta.
+  // Si entró directo al /login, lo mandamos a /mi-perfil después del éxito.
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,14 +33,21 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      const usuario = await login({ email: email.trim().toLowerCase(), password });
+      const usuario = await login({
+        email: email.trim().toLowerCase(),
+        password,
+      });
       toast.success(`Bienvenida, ${usuario.nombre}`);
 
-      // Redirección según rol
+      // Redirección según rol y origen
       if (usuario.tipo === "admin") {
         navigate("/admin", { replace: true });
+      } else if (from && from !== "/login") {
+        // Venía redirigido desde una ruta protegida, lo devolvemos ahí
+        navigate(from, { replace: true });
       } else {
-        navigate(from === "/login" ? "/" : from, { replace: true });
+        // Entró directo al /login → lo mandamos a su cuenta
+        navigate("/mi-perfil", { replace: true });
       }
     } catch (error) {
       toast.error(getErrorMessage(error));

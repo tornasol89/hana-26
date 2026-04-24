@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { BookingsList } from "@/features/bookings/components/BookingsList";
 import { useMyBookings } from "@/features/bookings/hooks";
 
+
 interface Props {
   esTrabajadora: boolean;
 }

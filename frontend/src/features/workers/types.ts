@@ -1,9 +1,8 @@
-import type { Usuario } from "./auth";
+import type { Usuario } from "@/features/auth/types";
 
-// Subset de Usuario que llega populado en los listados
 export interface WorkerUsuario
   extends Pick<Usuario, "id" | "nombre" | "apellido" | "foto" | "region" | "comuna" | "verificada"> {
-  _id?: string; // el backend a veces manda _id en vez de id
+  _id?: string;
   activa?: boolean;
   email?: string;
   rut?: string;
@@ -21,6 +20,17 @@ export interface WorkerProfile {
   disponible: boolean;
 }
 
+/** Input para crear o actualizar un perfil profesional */
+export interface WorkerProfileInput {
+  categoria: string;
+  subcategoria?: string;
+  descripcion?: string;
+  tarifaHora: number;
+  modalidad?: string;
+  nivelExperiencia?: string;
+  disponible?: boolean;
+}
+
 export interface Review {
   _id: string;
   autor: {
@@ -29,6 +39,8 @@ export interface Review {
     apellido: string;
     foto: string | null;
   };
+  destinataria?: string;
+  tipo?: "clienta_a_trabajadora" | "trabajadora_a_clienta";
   estrellas: number;
   comentario?: string;
   metricas?: {

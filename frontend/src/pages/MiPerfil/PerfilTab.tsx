@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { REGIONES_CHILE } from "@/config/constants";
 import { useUpdateProfile, useLogout } from "@/features/profile/hooks";
-import type { Usuario } from "@/types/auth";
+import type { Usuario } from "@/features/auth/types";
 import type { Booking } from "@/features/bookings/types";
 
 interface Props {

@@ -1,3 +1,7 @@
+import { Star } from "lucide-react"; // sumar Star al import de lucide si ya existe
+import { ResenasTab } from "./ResenasTab";
+import { Briefcase } from "lucide-react"; // ya puede estar el import de lucide, agrega Briefcase
+import { MisServiciosTab } from "./MisServiciosTab";
 import { Navigate } from "react-router-dom";
 import {
   Calendar,
@@ -117,32 +121,55 @@ export default function MiPerfil() {
         </Card>
 
         <Tabs defaultValue="perfil" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="perfil">
-              <User className="h-4 w-4 mr-2" />
-              Perfil
-            </TabsTrigger>
+            <TabsList className={`grid w-full ${esTrabajadora ? "grid-cols-5" : "grid-cols-3"}`}>
+                <TabsTrigger value="perfil">
+                    <User className="h-4 w-4 mr-2" />
+                    Perfil
+                </TabsTrigger>
+                {esTrabajadora && (
+                <TabsTrigger value="servicios">
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    Mis servicios
+                </TabsTrigger>
+            )}
             <TabsTrigger value="verificacion">
-              <Shield className="h-4 w-4 mr-2" />
-              Verificación
+                <Shield className="h-4 w-4 mr-2" />
+                Verificación
             </TabsTrigger>
             <TabsTrigger value="reservas">
-              <Calendar className="h-4 w-4 mr-2" />
-              Reservas ({reservas.length})
+                <Calendar className="h-4 w-4 mr-2" />
+                Reservas ({reservas.length})
             </TabsTrigger>
-          </TabsList>
+            {esTrabajadora && (
+            <TabsTrigger value="resenas">
+                <Star className="h-4 w-4 mr-2" />
+                Reseñas
+            </TabsTrigger>
+            )}
+        </TabsList>
 
-          <TabsContent value="perfil">
+        <TabsContent value="perfil">
             <PerfilTab user={user} reservas={reservas} />
-          </TabsContent>
+        </TabsContent>
 
-          <TabsContent value="verificacion">
+        {esTrabajadora && (
+            <TabsContent value="servicios">
+                <MisServiciosTab />
+            </TabsContent>
+        )}
+
+        <TabsContent value="verificacion">
             <VerificacionTab user={user} />
-          </TabsContent>
+         </TabsContent>
 
-          <TabsContent value="reservas">
+        <TabsContent value="reservas">
             <ReservasTab esTrabajadora={esTrabajadora} />
-          </TabsContent>
+        </TabsContent>
+        {esTrabajadora && (
+        <TabsContent value="resenas">
+             <ResenasTab />
+        </TabsContent>
+        )}
         </Tabs>
       </div>
 

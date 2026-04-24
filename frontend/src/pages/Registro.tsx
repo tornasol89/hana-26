@@ -16,28 +16,9 @@ import {
 import Navbar from "@/components/Navbar";
 import hanaLogo from "@/assets/hana-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
-import { getErrorMessage } from "@/lib/auth";
-import type { UserType } from "@/types/auth";
-
-// Regiones de Chile (podés moverlas a un archivo aparte si querés)
-const REGIONES_CHILE = [
-  "Arica y Parinacota",
-  "Tarapacá",
-  "Antofagasta",
-  "Atacama",
-  "Coquimbo",
-  "Valparaíso",
-  "Metropolitana de Santiago",
-  "O'Higgins",
-  "Maule",
-  "Ñuble",
-  "Biobío",
-  "La Araucanía",
-  "Los Ríos",
-  "Los Lagos",
-  "Aysén",
-  "Magallanes",
-];
+import { getErrorMessage } from "@/features/auth/utils";
+import { REGIONES_CHILE } from "@/config/constants";
+import type { UserType } from "@/features/auth/types";
 
 const Registro = () => {
   const [tipo, setTipo] = useState<UserType>("clienta");
@@ -57,7 +38,6 @@ const Registro = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validaciones cliente
     if (!nombre.trim() || !apellido.trim()) {
       toast.error("Completa tu nombre y apellido");
       return;
@@ -90,7 +70,14 @@ const Registro = () => {
       });
 
       toast.success(`¡Bienvenida a Hana, ${usuario.nombre}!`);
-      navigate("/", { replace: true });
+
+      // Todos los nuevos usuarios van a su perfil para completar datos
+      // (verificación de identidad, perfil profesional si es trabajadora, etc.)
+      if (usuario.tipo === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/mi-perfil", { replace: true });
+      }
     } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
@@ -113,7 +100,6 @@ const Registro = () => {
             </p>
           </div>
 
-          {/* Selector de rol */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             <button
               type="button"

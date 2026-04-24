@@ -1,5 +1,4 @@
-import type { Usuario } from "@/types/auth";
-import type { WorkerProfile } from "@/types/worker";
+import type { Usuario } from "@/features/auth/types";
 
 export type EstadoBooking =
   | "pendiente"
@@ -8,15 +7,36 @@ export type EstadoBooking =
   | "completada"
   | "cancelada";
 
+export interface BookingClienta
+  extends Pick<Usuario, "nombre" | "apellido" | "foto"> {
+  _id: string;
+  email?: string;
+  verificada?: boolean;
+  estadoVerificacion?: string;
+}
+
+export interface BookingTrabajadora {
+  _id: string;
+  usuario?: {
+    _id: string;
+    nombre: string;
+    apellido: string;
+    foto?: string | null;
+  };
+  categoria?: string;
+  tarifaHora?: number;
+}
+
 export interface Booking {
   _id: string;
   servicio: string;
   fecha?: string;
   estado: EstadoBooking;
+  descripcion?: string;
   precio?: number;
   notas?: string;
-  clienta?: Pick<Usuario, "id" | "nombre" | "apellido" | "foto"> & { _id?: string };
-  trabajadora?: (WorkerProfile & { _id: string }) | string;
+  clienta?: BookingClienta;
+  trabajadora?: BookingTrabajadora | string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,5 +1,5 @@
 import type { Booking, EstadoBooking } from "../types";
-import { BookingRow, ESTADO_LABEL } from "./BookingRow";
+import { BookingCard } from "./BookingCard";
 
 interface Props {
   bookings: Booking[];
@@ -13,6 +13,14 @@ const ORDEN_ESTADOS: EstadoBooking[] = [
   "rechazada",
   "cancelada",
 ];
+
+const ESTADO_LABEL: Record<EstadoBooking, string> = {
+  pendiente: "Pendiente",
+  aceptada: "Aceptada",
+  rechazada: "Rechazada",
+  completada: "Completada",
+  cancelada: "Cancelada",
+};
 
 export function BookingsList({ bookings, esTrabajadora }: Props) {
   return (
@@ -28,7 +36,7 @@ export function BookingsList({ bookings, esTrabajadora }: Props) {
             </p>
             <div className="space-y-2">
               {grupo.map((booking) => (
-                <BookingRow
+                <BookingCard
                   key={booking._id}
                   booking={booking}
                   esTrabajadora={esTrabajadora}

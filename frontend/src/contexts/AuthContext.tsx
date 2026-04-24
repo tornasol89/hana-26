@@ -1,6 +1,17 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { authService } from "@/lib/auth";
-import type { LoginPayload, RegisterPayload, Usuario } from "@/types/auth";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { authApi } from "@/features/auth/api";
+import { session } from "@/features/auth/session";
+import type {
+  LoginPayload,
+  RegisterPayload,
+  Usuario,
+} from "@/features/auth/types";
 
 interface AuthContextValue {
   user: Usuario | null;
@@ -19,31 +30,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const stored = authService.getStoredUser();
-    if (stored && authService.isAuthenticated()) {
+    const stored = session.getUser();
+    if (stored && session.isAuthenticated()) {
       setUser(stored);
     }
     setIsLoading(false);
   }, []);
 
   const login = async (payload: LoginPayload) => {
-    const { usuario } = await authService.login(payload);
-    setUser(usuario);
-    return usuario;
+    const response = await authApi.login(payload);
+    session.save(response);
+    setUser(response.usuario);
+    return response.usuario;
   };
 
   const register = async (payload: RegisterPayload) => {
-    const { usuario } = await authService.register(payload);
-    setUser(usuario);
-    return usuario;
+    const response = await authApi.register(payload);
+    session.save(response);
+    setUser(response.usuario);
+    return response.usuario;
   };
 
   const logout = () => {
-    authService.logout();
+    session.clear();
     setUser(null);
   };
 
   const refreshUser = (updated: Usuario) => {
+    session.updateUser(updated);
     setUser(updated);
   };
 
@@ -51,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        isAuthenticated: Boolean(user),
         isLoading,
         login,
         register,

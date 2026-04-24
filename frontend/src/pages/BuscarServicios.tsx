@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/select";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useWorkers } from "@/hooks/useWorkers";
-import type { WorkerProfile } from "@/types/worker";
+import { useWorkers } from "@/features/workers/hooks";
+import type { WorkerProfile } from "@/features/workers/types";
 
 const categorias = [
   "Todas",

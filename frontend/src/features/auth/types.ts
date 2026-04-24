@@ -1,6 +1,6 @@
 export type UserType = "clienta" | "trabajadora" | "admin";
 
-export type EstadoVerificacion = "pendiente" | "enviado" | "aprobado" | "rechazado";
+export type EstadoVerificacion = "pendiente" | "enviado" | "aprobado" | "rechazado" | "sin_enviar";
 
 export interface Usuario {
   id: string;
