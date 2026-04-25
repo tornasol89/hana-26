@@ -18,6 +18,7 @@ import {
   NIVELES_EXPERIENCIA,
 } from "@/config/constants";
 import type { WorkerProfile, WorkerProfileInput } from "../types";
+import { toast } from "sonner";
 
 interface Props {
   initialData?: WorkerProfile;
@@ -44,9 +45,15 @@ export function WorkerProfileForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.categoria) return;
-    if (!form.tarifaHora || form.tarifaHora <= 0) return;
-    onSubmit(form);
+    if (!form.categoria) {
+      toast.error("Selecciona una categoría");
+      return;
+    }
+    if (!form.tarifaHora || form.tarifaHora <= 0) {
+      toast.error("Indica una tarifa por hora válida");
+      return;
+  }
+  onSubmit(form);
   }
 
   return (

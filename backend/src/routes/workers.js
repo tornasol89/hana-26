@@ -3,6 +3,7 @@ import WorkerProfile from '../models/WorkerProfile.js'
 import Review from '../models/Review.js'
 import Booking from '../models/Booking.js'
 import protegerRuta from '../middleware/auth.js'
+import mongoose from 'mongoose'
 
 const router = express.Router()
 
@@ -109,6 +110,46 @@ router.get('/:id', async (req, res) => {
     res.json({ perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta })
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al obtener perfil', error: error.message })
+  }
+}) 
+
+// GET /api/workers/:id/horarios-ocupados?fecha=YYYY-MM-DD
+router.get('/:id/horarios-ocupados', async (req, res) => {
+  try {
+    const { fecha } = req.query
+    if (!fecha) {
+      return res.status(400).json({ mensaje: 'Falta el parámetro fecha (YYYY-MM-DD)' })
+    }
+
+    // Validar el id antes de query a Mongo
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ mensaje: 'ID de trabajadora inválido' })
+    }
+
+    const inicio = new Date(`${fecha}T00:00:00.000Z`)
+    const fin    = new Date(`${fecha}T23:59:59.999Z`)
+    if (isNaN(inicio.getTime())) {
+      return res.status(400).json({ mensaje: 'Fecha inválida' })
+    }
+
+    const reservas = await Booking.find({
+      trabajadora: new mongoose.Types.ObjectId(req.params.id),
+      fecha: { $gte: inicio, $lte: fin },
+      estado: { $in: ['pendiente', 'aceptada', 'completada'] },
+    }).select('fecha').lean()
+
+    const horasOcupadas = reservas
+      .map(r => {
+        if (!r.fecha) return null
+        const local = new Date(r.fecha.getTime() - 3 * 60 * 60 * 1000)
+        return local.toISOString().slice(11, 16)
+      })
+      .filter(Boolean)
+
+    res.json({ horasOcupadas })
+  } catch (error) {
+    console.error('Error en horarios-ocupados:', error)
+    res.status(500).json({ mensaje: 'Error al obtener horarios ocupados', error: error.message })
   }
 })
 

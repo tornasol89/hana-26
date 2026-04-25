@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Check, Loader2, Star, X, CheckCircle2 } from "lucide-react";
+import {
+  Check,
+  CheckCircle2,
+  Loader2,
+  MessageCircle,
+  Star,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -13,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { EvaluarDialog } from "@/features/reviews/components/EvaluarDialog";
 import { useHasReviewedBooking } from "@/features/reviews/hooks";
+import { ChatDialog } from "@/features/messages/components/ChatDialog";
 import {
   useAcceptBooking,
   useCompleteBooking,
@@ -28,6 +36,7 @@ interface Props {
 export function BookingActions({ booking, esTrabajadora }: Props) {
   const [confirmRechazoOpen, setConfirmRechazoOpen] = useState(false);
   const [evaluarOpen, setEvaluarOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const accept = useAcceptBooking();
   const reject = useRejectBooking();
@@ -35,50 +44,20 @@ export function BookingActions({ booking, esTrabajadora }: Props) {
 
   const estado = booking.estado as EstadoBooking;
 
-  // Solo consultamos "ya evaluó" si está completada (sino no aplica)
+  // Solo consultamos "ya evaluó" si está completada
   const { data: revisionData } = useHasReviewedBooking(
     estado === "completada" ? booking._id : undefined
   );
   const yaEvaluo = revisionData?.yaEvaluo ?? false;
 
-  // ─── Estado completada: ambos lados pueden evaluar ───
-  if (estado === "completada") {
-    if (yaEvaluo) return null;
+  // Otra persona del chat (depende de quién está logueada)
+  const otraPersona = getOtraPersona(booking, esTrabajadora);
+  const puedeChatear =
+    (estado === "aceptada" || estado === "completada") && otraPersona !== null;
 
-    // Determinar destinataria según quién evalúa
-    const destinataria = getDestinataria(booking, esTrabajadora);
-    if (!destinataria) return null;
-
-    const tipo = esTrabajadora ? "trabajadora_a_clienta" : "clienta_a_trabajadora";
-
-    return (
-      <>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={() => setEvaluarOpen(true)}
-          className="w-full sm:w-auto"
-        >
-          <Star className="h-4 w-4" />
-          {esTrabajadora ? "Evaluar clienta" : "Evaluar profesional"}
-        </Button>
-
-        <EvaluarDialog
-          open={evaluarOpen}
-          onOpenChange={setEvaluarOpen}
-          reservaId={booking._id}
-          servicio={booking.servicio}
-          destinataria={destinataria}
-          tipo={tipo}
-        />
-      </>
-    );
-  }
-
-  // ─── Acciones solo para trabajadora ───
-  if (!esTrabajadora) return null;
-
+  // ─── Estado pendiente: solo trabajadora puede aceptar/rechazar ───
   if (estado === "pendiente") {
+    if (!esTrabajadora) return null;
     return (
       <>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -149,47 +128,125 @@ export function BookingActions({ booking, esTrabajadora }: Props) {
     );
   }
 
+  // ─── Estado aceptada: chat para ambos + completar para trabajadora ───
   if (estado === "aceptada") {
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => complete.mutate(booking._id)}
-        disabled={complete.isPending}
-      >
-        {complete.isPending ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Marcando...
-          </>
-        ) : (
-          <>
-            <CheckCircle2 className="h-4 w-4" />
-            Marcar como completada
-          </>
+      <>
+        <div className="flex flex-wrap gap-2">
+          {puedeChatear && otraPersona && (
+            <Button variant="outline" size="sm" onClick={() => setChatOpen(true)}>
+              <MessageCircle className="h-4 w-4" /> Chat
+            </Button>
+          )}
+
+          {esTrabajadora && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => complete.mutate(booking._id)}
+              disabled={complete.isPending}
+            >
+              {complete.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Marcando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4" />
+                  Marcar como completada
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+
+        {puedeChatear && otraPersona && (
+          <ChatDialog
+            open={chatOpen}
+            onOpenChange={setChatOpen}
+            bookingId={booking._id}
+            servicio={booking.servicio}
+            estadoReserva="aceptada"
+            otraPersona={otraPersona}
+          />
         )}
-      </Button>
+      </>
     );
   }
 
+  // ─── Estado completada: chat + evaluar (si aún no evaluó) ───
+  if (estado === "completada") {
+    const destinataria = otraPersona;
+
+    return (
+      <>
+        <div className="flex flex-wrap gap-2">
+          {puedeChatear && otraPersona && (
+            <Button variant="outline" size="sm" onClick={() => setChatOpen(true)}>
+              <MessageCircle className="h-4 w-4" /> Chat
+            </Button>
+          )}
+
+          {!yaEvaluo && destinataria && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setEvaluarOpen(true)}
+            >
+              <Star className="h-4 w-4" />
+              {esTrabajadora ? "Evaluar clienta" : "Evaluar profesional"}
+            </Button>
+          )}
+        </div>
+
+        {puedeChatear && otraPersona && (
+          <ChatDialog
+            open={chatOpen}
+            onOpenChange={setChatOpen}
+            bookingId={booking._id}
+            servicio={booking.servicio}
+            estadoReserva="completada"
+            otraPersona={otraPersona}
+          />
+        )}
+
+        {!yaEvaluo && destinataria && (
+          <EvaluarDialog
+            open={evaluarOpen}
+            onOpenChange={setEvaluarOpen}
+            reservaId={booking._id}
+            servicio={booking.servicio}
+            destinataria={destinataria}
+            tipo={
+              esTrabajadora
+                ? "trabajadora_a_clienta"
+                : "clienta_a_trabajadora"
+            }
+          />
+        )}
+      </>
+    );
+  }
+
+  // rechazada / cancelada → sin acciones
   return null;
 }
 
-// ─── Helper: extraer info de la destinataria ───
+// ─── Helper: extraer info de la otra persona del chat/evaluación ───
 
-interface Destinataria {
+interface OtraPersona {
   _id: string;
   nombre: string;
   apellido: string;
   foto?: string | null;
 }
 
-function getDestinataria(
+function getOtraPersona(
   booking: Booking,
   esTrabajadora: boolean
-): Destinataria | null {
+): OtraPersona | null {
   if (esTrabajadora) {
-    // Trabajadora evalúa a la clienta
     if (!booking.clienta) return null;
     return {
       _id: booking.clienta._id,
@@ -199,7 +256,6 @@ function getDestinataria(
     };
   }
 
-  // Clienta evalúa a la trabajadora — usamos el _id del usuario, no del WorkerProfile
   if (
     typeof booking.trabajadora === "object" &&
     booking.trabajadora?.usuario
