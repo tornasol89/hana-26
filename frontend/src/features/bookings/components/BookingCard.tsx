@@ -48,8 +48,11 @@ export function BookingCard({ booking, esTrabajadora }: Props) {
     : null;
 
   const tieneAcciones =
-    esTrabajadora &&
-    (booking.estado === "pendiente" || booking.estado === "aceptada");
+    (esTrabajadora &&
+    (booking.estado === "pendiente" || 
+      booking.estado === "aceptada" ||
+      booking.estado === "completada")) ||
+    (!esTrabajadora && booking.estado === "completada");
 
   return (
     <Card>

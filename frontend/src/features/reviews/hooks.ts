@@ -1,5 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/features/auth/utils";
 import { reviewsApi } from "./api";
+import type { CreateReviewPayload } from "./api";
 
 export const reviewKeys = {
   all: ["reviews"] as const,
@@ -21,5 +24,24 @@ export function useHasReviewedBooking(bookingId: string | undefined) {
     queryKey: reviewKeys.byBooking(bookingId ?? ""),
     queryFn: () => reviewsApi.hasReviewedBooking(bookingId!),
     enabled: Boolean(bookingId),
+  });
+}
+
+export function useCreateReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateReviewPayload) => reviewsApi.create(payload),
+    onSuccess: (_data, variables) => {
+      // Invalida la review de esa reserva (para que useHasReviewedBooking se entere)
+      queryClient.invalidateQueries({
+        queryKey: reviewKeys.byBooking(variables.reserva),
+      });
+      // Invalida las reviews recibidas por la destinataria
+      queryClient.invalidateQueries({
+        queryKey: reviewKeys.byUser(variables.destinataria),
+      });
+      toast.success("Evaluación enviada. Gracias por contribuir 🙌");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
   });
 }

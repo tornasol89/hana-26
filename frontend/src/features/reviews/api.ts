@@ -1,14 +1,25 @@
 import api from "@/lib/api";
-import type { ReviewsResumen } from "./types";
+import type { ReviewsResumen, Review } from "./types";
 
-/**
- * El backend puede devolver `promedio` como string ("4.5") cuando hay reviews,
- * o como number (0) cuando no. Normalizamos a number siempre.
- */
 function normalizarResumen(raw: ReviewsResumen): ReviewsResumen {
   return {
     ...raw,
     promedio: typeof raw.promedio === "string" ? parseFloat(raw.promedio) : raw.promedio,
+  };
+}
+
+export interface CreateReviewPayload {
+  reserva: string;
+  destinataria: string;
+  tipo: "clienta_a_trabajadora" | "trabajadora_a_clienta";
+  estrellas: number;
+  comentario?: string;
+  metricas?: {
+    puntualidad?: number;
+    confiabilidad?: number;
+    calidad?: number;
+    comunicacion?: number;
+    precio?: number;
   };
 }
 
@@ -20,6 +31,11 @@ export const reviewsApi = {
 
   hasReviewedBooking: async (bookingId: string): Promise<{ yaEvaluo: boolean }> => {
     const { data } = await api.get<{ yaEvaluo: boolean }>(`/reviews/reserva/${bookingId}`);
+    return data;
+  },
+
+  create: async (payload: CreateReviewPayload): Promise<Review> => {
+    const { data } = await api.post<Review>("/reviews", payload);
     return data;
   },
 };

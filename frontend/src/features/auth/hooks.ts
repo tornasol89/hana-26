@@ -101,5 +101,7 @@ export function useLogout() {
     session.clear();
     logout();
     queryClient.clear();
+    localStorage.removeItem("aceptoCompromiso");
+    localStorage.removeItem("fechaAceptacion");
   };
 }

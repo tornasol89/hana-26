@@ -10,8 +10,10 @@ import Login from "./pages/Login.tsx";
 import Registro from "./pages/Registro.tsx";
 import BuscarServicios from "./pages/BuscarServicios.tsx";
 import MiPerfil from "./pages/MiPerfil";
-import NotFound from "./pages/NotFound.tsx";
 import WorkerProfilePage from "./pages/WorkerProfile";
+import Compromiso from "./pages/Compromiso";
+import Impacto from "./pages/Impacto";
+import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,8 +35,10 @@ const App = () => (
             {/* Públicas */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Registro />} /> 
+            <Route path="/registro" element={<Registro />} />
             <Route path="/worker/:id" element={<WorkerProfilePage />} />
+            <Route path="/compromiso" element={<Compromiso />} />
+            <Route path="/impacto" element={<Impacto />} />
 
             {/* Requieren sesión */}
             <Route
@@ -59,7 +63,7 @@ const App = () => (
             <Route path="/perfil/clienta" element={<Navigate to="/mi-perfil" replace />} />
             <Route path="/mi-perfil-profesional" element={<Navigate to="/mi-perfil" replace />} />
 
-            {/* 404 */}
+            {/* 404 - siempre al final */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

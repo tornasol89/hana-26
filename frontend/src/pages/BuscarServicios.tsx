@@ -23,39 +23,22 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useWorkers } from "@/features/workers/hooks";
+import { CATEGORIAS_SERVICIO, REGIONES_CHILE } from "@/config/constants";
 import type { WorkerProfile } from "@/features/workers/types";
 
-const categorias = [
-  "Todas",
-  "Limpieza",
-  "Cuidado de Adultos",
-  "Cuidado Infantil",
-  "Cocina",
-  "Lavado y Planchado",
-  "Asistencia del Hogar",
-];
-
-const regiones = [
-  "Todas",
-  "Metropolitana de Santiago",
-  "Valparaíso",
-  "Biobío",
-  "La Araucanía",
-  "O'Higgins",
-];
+// "todas" en minúscula es nuestro valor centinela: no se envía al backend
+const TODAS = "todas";
 
 const BuscarServicios = () => {
   const [search, setSearch] = useState("");
-  const [categoria, setCategoria] = useState("Todas");
-  const [region, setRegion] = useState("Todas");
+  const [categoria, setCategoria] = useState(TODAS);
+  const [region, setRegion] = useState(TODAS);
 
   const navigate = useNavigate();
 
-  // El hook se re-ejecuta automáticamente cuando cambian categoría o región.
-  // La búsqueda por nombre se hace en cliente porque el backend no la soporta.
   const { data: workers, isLoading, isError, error, refetch } = useWorkers({
-    categoria,
-    region,
+    categoria: categoria === TODAS ? undefined : categoria,
+    region: region === TODAS ? undefined : region,
   });
 
   const filtered = useMemo(() => {
@@ -96,26 +79,30 @@ const BuscarServicios = () => {
                 className="pl-10"
               />
             </div>
+
             <Select value={categoria} onValueChange={setCategoria}>
-              <SelectTrigger className="md:w-52">
+              <SelectTrigger className="md:w-60">
                 <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
                 <SelectValue placeholder="Categoría" />
               </SelectTrigger>
               <SelectContent>
-                {categorias.map((c) => (
+                <SelectItem value={TODAS}>Todas las categorías</SelectItem>
+                {CATEGORIAS_SERVICIO.map((c) => (
                   <SelectItem key={c} value={c}>
                     {c}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+
             <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger className="md:w-52">
+              <SelectTrigger className="md:w-60">
                 <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
                 <SelectValue placeholder="Región" />
               </SelectTrigger>
               <SelectContent>
-                {regiones.map((r) => (
+                <SelectItem value={TODAS}>Todas las regiones</SelectItem>
+                {REGIONES_CHILE.map((r) => (
                   <SelectItem key={r} value={r}>
                     {r}
                   </SelectItem>
@@ -168,7 +155,10 @@ const BuscarServicios = () => {
           {!isLoading && !isError && filtered.length > 0 && (
             <>
               <p className="text-sm text-muted-foreground mb-4">
-                {filtered.length} {filtered.length === 1 ? "profesional encontrada" : "profesionales encontradas"}
+                {filtered.length}{" "}
+                {filtered.length === 1
+                  ? "profesional encontrada"
+                  : "profesionales encontradas"}
               </p>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filtered.map((w) => (
@@ -188,10 +178,6 @@ const BuscarServicios = () => {
   );
 };
 
-/**
- * Card individual de trabajadora.
- * Mientras no tengamos rating/reviews en el listado, mostramos "Nueva" en vez del badge de rating.
- */
 function WorkerCard({
   worker,
   onClick,
@@ -201,6 +187,10 @@ function WorkerCard({
 }) {
   const nombreCompleto = `${worker.usuario?.nombre ?? ""} ${worker.usuario?.apellido ?? ""}`.trim();
   const foto = worker.usuario?.foto || "/placeholder.svg";
+  const tarifaTexto =
+    worker.tarifaHora > 0
+      ? `$${worker.tarifaHora.toLocaleString("es-CL")}`
+      : "A convenir";
 
   return (
     <div
@@ -218,8 +208,6 @@ function WorkerCard({
           }}
         />
 
-        {/* Badge de rating - por ahora placeholder porque el backend
-            no devuelve rating en el listado */}
         <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-lg px-2.5 py-1 flex items-center gap-1">
           <Star className="h-3.5 w-3.5 fill-accent text-accent" />
           <span className="text-xs font-medium text-muted-foreground">Nueva</span>
@@ -241,13 +229,15 @@ function WorkerCard({
             <h3 className="font-semibold text-card-foreground text-lg truncate">
               {nombreCompleto || "Sin nombre"}
             </h3>
-            <p className="text-sm text-primary font-medium">{worker.categoria}</p>
+            <p className="text-sm text-primary font-medium truncate">
+              {worker.categoria}
+            </p>
           </div>
           <div className="text-right shrink-0 ml-2">
-            <p className="text-lg font-bold text-card-foreground">
-              ${worker.tarifaHora.toLocaleString("es-CL")}
-            </p>
-            <p className="text-xs text-muted-foreground">por hora</p>
+            <p className="text-lg font-bold text-card-foreground">{tarifaTexto}</p>
+            {worker.tarifaHora > 0 && (
+              <p className="text-xs text-muted-foreground">por hora</p>
+            )}
           </div>
         </div>
 
@@ -258,7 +248,7 @@ function WorkerCard({
         )}
 
         <div className="flex items-center gap-1 mt-3 text-sm text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5" />
+          <MapPin className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate">
             {worker.usuario?.comuna}
             {worker.usuario?.comuna && worker.usuario?.region ? ", " : ""}

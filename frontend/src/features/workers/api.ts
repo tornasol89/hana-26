@@ -9,15 +9,12 @@ import type {
 export const workersApi = {
   list: async (filters: WorkerFilters = {}): Promise<WorkerProfile[]> => {
     const params: Record<string, string> = {};
-    if (filters.categoria && filters.categoria !== "Todas") {
-      params.categoria = filters.categoria;
-    }
+    if (filters.categoria) params.categoria = filters.categoria;
     if (filters.subcategoria) params.subcategoria = filters.subcategoria;
-    if (filters.region && filters.region !== "Todas") {
-      params.region = filters.region;
-    }
+    if (filters.region) params.region = filters.region;
     const { data } = await api.get<WorkerProfile[]>("/workers", { params });
     return data;
+ 
   },
 
   getById: async (id: string): Promise<WorkerDetail> => {

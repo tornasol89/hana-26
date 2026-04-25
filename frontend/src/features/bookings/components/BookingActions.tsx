@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Loader2, X, CheckCircle2 } from "lucide-react";
+import { Check, Loader2, Star, X, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -11,6 +11,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { EvaluarDialog } from "@/features/reviews/components/EvaluarDialog";
+import { useHasReviewedBooking } from "@/features/reviews/hooks";
 import {
   useAcceptBooking,
   useCompleteBooking,
@@ -24,16 +26,57 @@ interface Props {
 }
 
 export function BookingActions({ booking, esTrabajadora }: Props) {
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmRechazoOpen, setConfirmRechazoOpen] = useState(false);
+  const [evaluarOpen, setEvaluarOpen] = useState(false);
+
   const accept = useAcceptBooking();
   const reject = useRejectBooking();
   const complete = useCompleteBooking();
 
-  // Por ahora solo la trabajadora tiene acciones (Fase C).
- 
-  if (!esTrabajadora) return null;
-
   const estado = booking.estado as EstadoBooking;
+
+  // Solo consultamos "ya evaluó" si está completada (sino no aplica)
+  const { data: revisionData } = useHasReviewedBooking(
+    estado === "completada" ? booking._id : undefined
+  );
+  const yaEvaluo = revisionData?.yaEvaluo ?? false;
+
+  // ─── Estado completada: ambos lados pueden evaluar ───
+  if (estado === "completada") {
+    if (yaEvaluo) return null;
+
+    // Determinar destinataria según quién evalúa
+    const destinataria = getDestinataria(booking, esTrabajadora);
+    if (!destinataria) return null;
+
+    const tipo = esTrabajadora ? "trabajadora_a_clienta" : "clienta_a_trabajadora";
+
+    return (
+      <>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setEvaluarOpen(true)}
+          className="w-full sm:w-auto"
+        >
+          <Star className="h-4 w-4" />
+          {esTrabajadora ? "Evaluar clienta" : "Evaluar profesional"}
+        </Button>
+
+        <EvaluarDialog
+          open={evaluarOpen}
+          onOpenChange={setEvaluarOpen}
+          reservaId={booking._id}
+          servicio={booking.servicio}
+          destinataria={destinataria}
+          tipo={tipo}
+        />
+      </>
+    );
+  }
+
+  // ─── Acciones solo para trabajadora ───
+  if (!esTrabajadora) return null;
 
   if (estado === "pendiente") {
     return (
@@ -61,14 +104,14 @@ export function BookingActions({ booking, esTrabajadora }: Props) {
             variant="outline"
             size="sm"
             className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/5"
-            onClick={() => setConfirmOpen(true)}
+            onClick={() => setConfirmRechazoOpen(true)}
             disabled={accept.isPending || reject.isPending}
           >
             <X className="h-4 w-4" /> Rechazar
           </Button>
         </div>
 
-        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialog open={confirmRechazoOpen} onOpenChange={setConfirmRechazoOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>¿Rechazar esta reserva?</AlertDialogTitle>
@@ -84,7 +127,7 @@ export function BookingActions({ booking, esTrabajadora }: Props) {
               <AlertDialogAction
                 onClick={() => {
                   reject.mutate(booking._id, {
-                    onSuccess: () => setConfirmOpen(false),
+                    onSuccess: () => setConfirmRechazoOpen(false),
                   });
                 }}
                 disabled={reject.isPending}
@@ -129,6 +172,46 @@ export function BookingActions({ booking, esTrabajadora }: Props) {
     );
   }
 
-  // completada / rechazada / cancelada → no hay acciones
+  return null;
+}
+
+// ─── Helper: extraer info de la destinataria ───
+
+interface Destinataria {
+  _id: string;
+  nombre: string;
+  apellido: string;
+  foto?: string | null;
+}
+
+function getDestinataria(
+  booking: Booking,
+  esTrabajadora: boolean
+): Destinataria | null {
+  if (esTrabajadora) {
+    // Trabajadora evalúa a la clienta
+    if (!booking.clienta) return null;
+    return {
+      _id: booking.clienta._id,
+      nombre: booking.clienta.nombre,
+      apellido: booking.clienta.apellido,
+      foto: booking.clienta.foto,
+    };
+  }
+
+  // Clienta evalúa a la trabajadora — usamos el _id del usuario, no del WorkerProfile
+  if (
+    typeof booking.trabajadora === "object" &&
+    booking.trabajadora?.usuario
+  ) {
+    const u = booking.trabajadora.usuario;
+    return {
+      _id: u._id,
+      nombre: u.nombre,
+      apellido: u.apellido,
+      foto: u.foto,
+    };
+  }
+
   return null;
 }
