@@ -14,6 +14,7 @@ import WorkerProfilePage from "./pages/WorkerProfile";
 import Compromiso from "./pages/Compromiso";
 import Impacto from "./pages/Impacto";
 import NotFound from "./pages/NotFound.tsx";
+import PerfilAdmin from "./pages/PerfilAdmin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +55,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <MiPerfil />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/perfil/admin"
+              element={
+                <ProtectedRoute allowedTypes={["admin"]}>
+                  <PerfilAdmin />
                 </ProtectedRoute>
               }
             />

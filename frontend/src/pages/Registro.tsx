@@ -144,7 +144,7 @@ const Registro = () => {
       toast.success(`¡Bienvenida a Hana, ${usuario.nombre}!`);
 
       if (usuario.tipo === "admin") {
-        navigate("/admin", { replace: true });
+        navigate("/perfil/admin", { replace: true });
       } else {
         navigate("/mi-perfil", { replace: true });
       }

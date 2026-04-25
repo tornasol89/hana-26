@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Menu, User, X } from "lucide-react";
+import { LogOut, Menu, ShieldAlert, User, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +45,7 @@ const Navbar = () => {
     ? `${user.nombre?.[0] ?? ""}${user.apellido?.[0] ?? ""}`.toUpperCase()
     : "";
   const nombreCompleto = user ? `${user.nombre} ${user.apellido ?? ""}`.trim() : "";
+  const esAdmin = user?.tipo === "admin";
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -101,6 +102,14 @@ const Navbar = () => {
                     Mi perfil
                   </Link>
                 </DropdownMenuItem>
+                {esAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/perfil/admin" className="cursor-pointer">
+                      <ShieldAlert className="h-4 w-4 mr-2" />
+                      Panel Admin
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
@@ -186,6 +195,20 @@ const Navbar = () => {
                   <User className="h-4 w-4" />
                   Mi perfil
                 </Link>
+                {esAdmin && (
+                  <Link
+                    to="/perfil/admin"
+                    onClick={() => setIsOpen(false)}
+                    className={`py-2.5 text-sm font-medium flex items-center gap-2 transition-colors ${
+                      isActive("/perfil/admin")
+                        ? "text-primary"
+                        : "text-foreground/80 hover:text-foreground"
+                    }`}
+                  >
+                    <ShieldAlert className="h-4 w-4" />
+                    Panel Admin
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="py-2.5 text-sm font-medium text-destructive flex items-center gap-2 text-left"

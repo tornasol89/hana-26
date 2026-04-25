@@ -41,7 +41,7 @@ const Login = () => {
 
       // Redirección según rol y origen
       if (usuario.tipo === "admin") {
-        navigate("/admin", { replace: true });
+        navigate("/perfil/admin", { replace: true });
       } else if (from && from !== "/login") {
         // Venía redirigido desde una ruta protegida, lo devolvemos ahí
         navigate(from, { replace: true });
