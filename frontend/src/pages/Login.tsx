@@ -7,15 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import hanaLogo from "@/assets/hana-logo.png";
-import { useAuth } from "@/contexts/AuthContext";
-import { getErrorMessage } from "@/features/auth/utils";
+import { useLogin } from "@/features/auth/hooks";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const login = useLogin();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,7 +21,7 @@ const Login = () => {
   // Si entró directo al /login, lo mandamos a /mi-perfil después del éxito.
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!email.trim() || !password) {
@@ -31,30 +29,26 @@ const Login = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const usuario = await login({
+    login.mutate(
+      {
         email: email.trim().toLowerCase(),
         password,
-      });
-      toast.success(`Bienvenida, ${usuario.nombre}`);
+      },
+      {
+        onSuccess: ({ usuario }) => {
+          toast.success(`Bienvenida, ${usuario.nombre}`);
 
-      // Redirección según rol y origen
-      if (usuario.tipo === "admin") {
-        navigate("/perfil/admin", { replace: true });
-      } else if (from && from !== "/login") {
-        // Venía redirigido desde una ruta protegida, lo devolvemos ahí
-        navigate(from, { replace: true });
-      } else {
-        // Entró directo al /login → lo mandamos a su cuenta
-        navigate("/mi-perfil", { replace: true });
+          if (usuario.tipo === "admin") {
+            navigate("/perfil/admin", { replace: true });
+          } else if (from && from !== "/login") {
+            navigate(from, { replace: true });
+          } else {
+            navigate("/mi-perfil", { replace: true });
+          }
+        },
       }
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-warm">
@@ -79,7 +73,7 @@ const Login = () => {
                 placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubmitting}
+                disabled={login.isPending}
                 required
               />
             </div>
@@ -93,7 +87,7 @@ const Login = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isSubmitting}
+                disabled={login.isPending}
                 required
               />
             </div>
@@ -103,9 +97,9 @@ const Login = () => {
               className="w-full"
               size="lg"
               type="submit"
-              disabled={isSubmitting}
+              disabled={login.isPending}
             >
-              {isSubmitting ? (
+              {login.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Ingresando...

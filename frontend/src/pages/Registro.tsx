@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/select";
 import Navbar from "@/components/Navbar";
 import hanaLogo from "@/assets/hana-logo.png";
-import { useAuth } from "@/contexts/AuthContext";
-import { getErrorMessage } from "@/features/auth/utils";
+import { useRegister } from "@/features/auth/hooks";
 import { REGIONES_CHILE } from "@/config/constants";
 import type { UserType } from "@/features/auth/types";
 
@@ -66,9 +65,8 @@ const Registro = () => {
   const [region, setRegion] = useState(draft.region);
   const [comuna, setComuna] = useState(draft.comuna);
   const [aceptoCompromiso, setAceptoCompromiso] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { register } = useAuth();
+  const register = useRegister();
   const navigate = useNavigate();
 
   // Al montar, chequeamos si la persona pasó por /compromiso y aceptó (sessionStorage)
@@ -101,7 +99,7 @@ const Registro = () => {
     sessionStorage.removeItem("fechaAceptacion");
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!nombre.trim() || !apellido.trim()) {
@@ -125,9 +123,8 @@ const Registro = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const usuario = await register({
+    register.mutate(
+      {
         nombre: nombre.trim(),
         apellido: apellido.trim(),
         email: email.trim().toLowerCase(),
@@ -137,28 +134,29 @@ const Registro = () => {
         region,
         comuna: comuna.trim(),
         aceptoCompromiso: true,
-      });
+      },
+      {
+        onSuccess: ({ usuario }) => {
+          limpiarTodo();
+          toast.success(`¡Bienvenida a Hana, ${usuario.nombre}!`);
 
-      limpiarTodo();
-
-      toast.success(`¡Bienvenida a Hana, ${usuario.nombre}!`);
-
-      if (usuario.tipo === "admin") {
-        navigate("/perfil/admin", { replace: true });
-      } else {
-        navigate("/mi-perfil", { replace: true });
+          if (usuario.tipo === "admin") {
+            navigate("/perfil/admin", { replace: true });
+          } else {
+            navigate("/mi-perfil", { replace: true });
+          }
+        },
       }
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    );
+  }
 
   // Helpers de UI para feedback en vivo
   const passwordsCoinciden = password === confirmarPassword && password.length >= 6;
   const passwordsNoCoinciden =
     confirmarPassword.length > 0 && password !== confirmarPassword;
+
+  // Atajo para deshabilitar todos los inputs durante el submit
+  const isSubmitting = register.isPending;
 
   return (
     <div className="min-h-screen bg-gradient-warm">
@@ -208,7 +206,7 @@ const Registro = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Nombre + Apellido (grid de 2 columnas, único bloque que comparte fila) */}
+            {/* Nombre + Apellido */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="nombre">Nombre</Label>
