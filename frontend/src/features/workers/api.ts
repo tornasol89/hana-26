@@ -36,4 +36,16 @@ export const workersApi = {
     const { data } = await api.put<WorkerProfile>("/workers/mi-perfil", payload);
     return data;
   },
+
+  agregarCertificado: async (formData: FormData): Promise<WorkerProfile> => {
+    const { data } = await api.post<WorkerProfile>("/workers/mi-perfil/certificados", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  },
+
+  eliminarCertificado: async (certId: string): Promise<WorkerProfile> => {
+    const { data } = await api.delete<WorkerProfile>(`/workers/mi-perfil/certificados/${certId}`);
+    return data;
+  },
 };

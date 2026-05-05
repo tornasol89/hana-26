@@ -13,6 +13,7 @@ import MiPerfil from "./pages/MiPerfil";
 import WorkerProfilePage from "./pages/WorkerProfile";
 import Compromiso from "./pages/Compromiso";
 import Impacto from "./pages/Impacto";
+import Alianza from "./pages/Alianza";
 import NotFound from "./pages/NotFound.tsx";
 import PerfilAdmin from "./pages/PerfilAdmin";
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/worker/:id" element={<WorkerProfilePage />} />
             <Route path="/compromiso" element={<Compromiso />} />
             <Route path="/impacto" element={<Impacto />} />
+            <Route path="/alianza" element={<Alianza />} />
 
             {/* Requieren sesión */}
             <Route

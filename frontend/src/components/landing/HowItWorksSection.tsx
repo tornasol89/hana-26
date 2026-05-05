@@ -38,15 +38,15 @@ const HowItWorksSection = () => {
 
         <div className="grid md:grid-cols-4 gap-8">
           {steps.map((step, i) => (
-            <div key={step.title} className="relative text-center">
-              <div className="w-16 h-16 mx-auto rounded-full bg-gradient-hero flex items-center justify-center mb-5 shadow-soft">
+            <div key={step.title} className="relative text-center group">
+              <div className="w-16 h-16 mx-auto rounded-full bg-gradient-hero flex items-center justify-center mb-5 shadow-soft group-hover:shadow-md-elevated transition-shadow duration-300">
                 <step.icon className="h-7 w-7 text-primary-foreground" />
               </div>
-              <span className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-2 text-xs font-bold text-accent bg-card px-2 py-0.5 rounded-full border border-border">
+              <span className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-2 text-xs font-bold text-accent bg-card px-2 py-0.5 rounded-full border border-border shadow-xs">
                 {i + 1}
               </span>
               <h3 className="text-lg font-semibold font-display text-foreground mb-2">{step.title}</h3>
-              <p className="text-sm text-muted-foreground">{step.description}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
             </div>
           ))}
         </div>

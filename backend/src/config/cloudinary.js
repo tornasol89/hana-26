@@ -29,7 +29,18 @@ const documentoStorage = new CloudinaryStorage({
   },
 })
 
-export const uploadFoto       = multer({ storage: perfilStorage })
-export const uploadDocumento  = multer({ storage: documentoStorage })
+// Para certificados de trabajadoras (PDF o imagen)
+const certificadoStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          'hana_certificados',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
+    resource_type:   'auto',
+  },
+})
+
+export const uploadFoto          = multer({ storage: perfilStorage })
+export const uploadDocumento     = multer({ storage: documentoStorage })
+export const uploadCertificado   = multer({ storage: certificadoStorage })
 
 export default uploadFoto

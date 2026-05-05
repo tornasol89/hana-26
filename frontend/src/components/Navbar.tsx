@@ -19,6 +19,7 @@ import hanaLogo from "@/assets/hana-logo.png";
 const LINKS_PUBLICOS = [
   { to: "/", label: "Inicio" },
   { to: "/buscar", label: "Buscar Servicios" },
+  { to: "/alianza", label: "Alianza" },
   { to: "/impacto", label: "Impacto" },
   { to: "/compromiso", label: "Compromiso" },
 ];

@@ -62,3 +62,27 @@ export function useUpdateWorkerProfile() {
     onError: (error) => toast.error(getErrorMessage(error)),
   });
 }
+
+export function useAgregarCertificado() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => workersApi.agregarCertificado(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: workerKeys.myProfile() });
+      toast.success("Certificado agregado correctamente");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useEliminarCertificado() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (certId: string) => workersApi.eliminarCertificado(certId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: workerKeys.myProfile() });
+      toast.success("Certificado eliminado");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}

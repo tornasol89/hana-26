@@ -43,12 +43,14 @@ const TrustSection = () => {
           {features.map((f) => (
             <div
               key={f.title}
-              className="relative bg-card rounded-2xl p-6 border border-border hover:border-primary/30 hover:shadow-soft transition-all duration-300 group"
+              className="relative bg-card rounded-2xl p-6 border border-border hover:border-primary/25 hover:shadow-soft hover:-translate-y-1 transition-all duration-300 group shadow-xs"
             >
-              <div className="w-12 h-12 rounded-xl bg-purple-light flex items-center justify-center mb-5 group-hover:bg-primary transition-colors duration-300">
+              {/* Línea de acento superior al hover */}
+              <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="w-12 h-12 rounded-xl bg-purple-light flex items-center justify-center mb-5 group-hover:bg-primary group-hover:shadow-soft transition-all duration-300">
                 <f.icon className="h-6 w-6 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
               </div>
-              <h3 className="font-semibold text-card-foreground text-lg mb-2">{f.title}</h3>
+              <h3 className="font-semibold text-card-foreground text-lg mb-2 font-display">{f.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{f.description}</p>
             </div>
           ))}

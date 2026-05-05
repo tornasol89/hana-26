@@ -1,4 +1,4 @@
-import { MapPin, Star, CircleCheck, CircleX } from "lucide-react";
+import { Award, CircleCheck, CircleX, MapPin, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ interface Props {
   promedio: number;
   cantidadResenas: number;
   mostrarBotonReservar: boolean;
+  certificadaChilevalora: boolean;
   onReservarClick: () => void;
 }
 
@@ -18,6 +19,7 @@ export function WorkerHero({
   promedio,
   cantidadResenas,
   mostrarBotonReservar,
+  certificadaChilevalora,
   onReservarClick,
 }: Props) {
   const usuario = perfil.usuario;
@@ -25,8 +27,9 @@ export function WorkerHero({
   const iniciales = `${usuario?.nombre?.[0] ?? ""}${usuario?.apellido?.[0] ?? ""}`.toUpperCase() || "H";
   const ubicacion = [usuario?.comuna, usuario?.region].filter(Boolean).join(", ") || "Ubicación no disponible";
 
-  // Índice Hana: promedio (0-5) escalado a 0-100
-  const indiceHana = promedio > 0 ? Math.round(promedio * 20) : 0;
+  // Índice Hana: promedio (0-5) escalado a 0-100; +10 si tiene certificado Chilevalora
+  const indiceBase = promedio > 0 ? Math.round(promedio * 20) : 0;
+  const indiceHana = Math.min(100, indiceBase + (certificadaChilevalora ? 10 : 0));
 
   return (
     <Card className="overflow-hidden">
@@ -94,7 +97,7 @@ export function WorkerHero({
               </span>
             </div>
 
-            {/* Badges: disponibilidad + verificada */}
+            {/* Badges: disponibilidad + verificada + Chilevalora */}
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               {perfil.disponible ? (
                 <Badge className="bg-green-500/15 text-green-700 border border-green-500/30 hover:bg-green-500/20">
@@ -106,6 +109,12 @@ export function WorkerHero({
               {usuario?.verificada && (
                 <Badge className="bg-primary/15 text-primary border border-primary/30 hover:bg-primary/20">
                   Verificada
+                </Badge>
+              )}
+              {certificadaChilevalora && (
+                <Badge className="gap-1 bg-amber-500/15 text-amber-700 border border-amber-500/30 hover:bg-amber-500/20">
+                  <Award className="h-3 w-3" />
+                  Certificada Chilevalora
                 </Badge>
               )}
             </div>
@@ -123,6 +132,11 @@ export function WorkerHero({
               <p className="text-xs text-muted-foreground mt-1">
                 {indiceHana >= 70 ? "Confiable" : "Por evaluar"}
               </p>
+              {certificadaChilevalora && (
+                <p className="text-[10px] text-amber-600 font-medium mt-1">
+                  +10 pts Chilevalora
+                </p>
+              )}
             </div>
           </div>
         </div>

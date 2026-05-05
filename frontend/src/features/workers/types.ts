@@ -8,6 +8,13 @@ export interface WorkerUsuario
   rut?: string;
 }
 
+export interface Certificado {
+  _id: string;
+  nombre: string;
+  institucion: string;
+  urlImagen: string;
+}
+
 export interface WorkerProfile {
   _id: string;
   usuario: WorkerUsuario;
@@ -18,6 +25,8 @@ export interface WorkerProfile {
   modalidad: string;
   nivelExperiencia: string;
   disponible: boolean;
+  certificados?: Certificado[];
+  certificadaChilevalora?: boolean;
 }
 
 /** Input para crear o actualizar un perfil profesional */
@@ -68,6 +77,7 @@ export interface WorkerDetail {
   metricasPromedio: MetricasPromedio;
   serviciosCompletados: number;
   tasaRespuesta: number;
+  certificadaChilevalora: boolean;
 }
 
 export interface WorkerFilters {

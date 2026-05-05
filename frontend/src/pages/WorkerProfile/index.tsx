@@ -78,7 +78,7 @@ export default function WorkerProfilePage() {
     );
   }
 
-  const { perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta } = data;
+  const { perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta, certificadaChilevalora } = data;
 
   // ─── Lógica de "¿puede reservar?" ───
 
@@ -126,6 +126,7 @@ export default function WorkerProfilePage() {
           promedio={promedio}
           cantidadResenas={reviews.length}
           mostrarBotonReservar={mostrarBotonReservar}
+          certificadaChilevalora={certificadaChilevalora ?? false}
           onReservarClick={handleReservarClick}
         />
 

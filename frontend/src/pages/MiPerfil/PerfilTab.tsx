@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, Loader2 } from "lucide-react";
+import { CertificadosSection } from "@/features/workers/components/CertificadosSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -215,6 +216,8 @@ export function PerfilTab({ user, reservas }: Props) {
           </div>
         </CardContent>
       </Card>
+
+      {esTrabajadora && <CertificadosSection />}
 
       {esTrabajadora && (
         <div className="text-center">
