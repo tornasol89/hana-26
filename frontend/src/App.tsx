@@ -14,8 +14,12 @@ import WorkerProfilePage from "./pages/WorkerProfile";
 import Compromiso from "./pages/Compromiso";
 import Impacto from "./pages/Impacto";
 import Alianza from "./pages/Alianza";
+import Contacto from "./pages/Contacto";
+import Sugerencias from "./pages/Sugerencias";
+import DashboardTrabajadora from "./pages/DashboardTrabajadora";
 import NotFound from "./pages/NotFound.tsx";
 import PerfilAdmin from "./pages/PerfilAdmin";
+import PerfilClientaPublico from "./pages/PerfilClientaPublico";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,20 +42,15 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />
+            <Route path="/buscar" element={<BuscarServicios />} />
             <Route path="/worker/:id" element={<WorkerProfilePage />} />
             <Route path="/compromiso" element={<Compromiso />} />
             <Route path="/impacto" element={<Impacto />} />
             <Route path="/alianza" element={<Alianza />} />
+            <Route path="/contacto" element={<Contacto />} />
+            <Route path="/sugerencias" element={<Sugerencias />} />
 
             {/* Requieren sesión */}
-            <Route
-              path="/buscar"
-              element={
-                <ProtectedRoute>
-                  <BuscarServicios />
-                </ProtectedRoute>
-              }
-            />
             <Route
               path="/mi-perfil"
               element={
@@ -61,10 +60,26 @@ const App = () => (
               }
             />
             <Route
+              path="/dashboard-trabajadora"
+              element={
+                <ProtectedRoute allowedTypes={["trabajadora"]}>
+                  <DashboardTrabajadora />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/perfil/admin"
               element={
                 <ProtectedRoute allowedTypes={["admin"]}>
                   <PerfilAdmin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clienta/:id"
+              element={
+                <ProtectedRoute allowedTypes={["trabajadora", "admin"]}>
+                  <PerfilClientaPublico />
                 </ProtectedRoute>
               }
             />

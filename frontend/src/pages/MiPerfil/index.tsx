@@ -1,11 +1,15 @@
-import { Star } from "lucide-react"; // sumar Star al import de lucide si ya existe
+import { useEffect, useState } from "react";
+import { Star } from "lucide-react";
 import { ResenasTab } from "./ResenasTab";
-import { Briefcase } from "lucide-react"; // ya puede estar el import de lucide, agrega Briefcase
+import { Briefcase } from "lucide-react";
 import { MisServiciosTab } from "./MisServiciosTab";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import {
+  BarChart3,
   Calendar,
+  ChevronRight,
   Clock,
+  Images,
   MapPin,
   Shield,
   ShieldAlert,
@@ -13,6 +17,7 @@ import {
   User,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
@@ -24,16 +29,46 @@ import { useMyBookings } from "@/features/bookings/hooks";
 import { PerfilTab } from "./PerfilTab";
 import { VerificacionTab } from "./VerificacionTab";
 import { ReservasTab } from "./ReservasTab";
+import { PortafolioTab } from "./PortafolioTab";
+import { RespaldoPendiente } from "@/features/portfolio/components/RespaldoPendiente";
 
 export default function MiPerfil() {
   const { user } = useAuth();
   const uploadPhoto = useUploadPhoto();
-  const { data: reservas = [] } = useMyBookings();
+  const [searchParams] = useSearchParams();
+  const reservaDestacada = searchParams.get("reserva") ?? undefined;
+
+  // Todos los hooks ANTES del early return (Rules of Hooks)
+  const tieneRolClienta =
+    user?.tipo === "clienta" || !!user?.rolesAdicionales?.includes("clienta");
+  const tieneRolTrabajadora =
+    user?.tipo === "trabajadora" || !!user?.rolesAdicionales?.includes("trabajadora");
+  const perfilDual = tieneRolClienta && tieneRolTrabajadora;
+
+  const [modoPerfil, setModoPerfil] = useState<"clienta" | "trabajadora">(
+    user?.tipo === "trabajadora" ? "trabajadora" : "clienta"
+  );
+
+  const tabInicial = searchParams.get("tab") ?? "perfil";
+  const [activeTab, setActiveTab] = useState(tabInicial);
+
+  // Sincroniza el modo cuando el user llega tarde (race condition post-registro)
+  useEffect(() => {
+    if (user && !perfilDual) {
+      setModoPerfil(user.tipo === "trabajadora" ? "trabajadora" : "clienta");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  const modoActivo = (perfilDual ? modoPerfil : (user?.tipo ?? "clienta")) as "clienta" | "trabajadora";
+  const esTrabajadoraActiva = modoActivo === "trabajadora";
+  const esClientaActiva = modoActivo === "clienta";
+
+  const { data: reservas = [] } = useMyBookings(modoActivo);
 
   if (!user) return <Navigate to="/login" replace />;
 
   const iniciales = `${user.nombre?.[0] ?? ""}${user.apellido?.[0] ?? ""}`.toUpperCase();
-  const esTrabajadora = user.tipo === "trabajadora";
   const verificada = user.estadoVerificacion === "aprobado";
   const enRevision = user.estadoVerificacion === "enviado";
 
@@ -73,9 +108,17 @@ export default function MiPerfil() {
                     </Badge>
                   )}
 
-                  <Badge variant="secondary" className="gap-1">
-                    🌸 {esTrabajadora ? "Trabajadora" : "Clienta"}
-                  </Badge>
+                  {/* Badges de roles — uno o ambos */}
+                  {tieneRolTrabajadora && (
+                    <Badge variant="secondary" className="gap-1">
+                      🌸 Trabajadora
+                    </Badge>
+                  )}
+                  {tieneRolClienta && (
+                    <Badge variant="secondary" className="gap-1">
+                      🌸 Clienta
+                    </Badge>
+                  )}
 
                   {user.region && (
                     <Badge variant="outline" className="gap-1">
@@ -105,9 +148,7 @@ export default function MiPerfil() {
                       enRevision ? "text-amber-900" : "text-destructive"
                     }`}
                   >
-                    {enRevision
-                      ? "Verificación en proceso"
-                      : "Verificación de identidad pendiente"}
+                    {enRevision ? "Verificación en proceso" : "Verificación de identidad pendiente"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {enRevision
@@ -120,56 +161,124 @@ export default function MiPerfil() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="perfil" className="space-y-6">
-            <TabsList className={`grid w-full ${esTrabajadora ? "grid-cols-5" : "grid-cols-3"}`}>
-                <TabsTrigger value="perfil">
-                    <User className="h-4 w-4 mr-2" />
-                    Perfil
-                </TabsTrigger>
-                {esTrabajadora && (
-                <TabsTrigger value="servicios">
-                    <Briefcase className="h-4 w-4 mr-2" />
-                    Mis servicios
-                </TabsTrigger>
+        {/* Banner dashboard trabajadora */}
+        {esTrabajadoraActiva && (
+          <Link
+            to="/dashboard-trabajadora"
+            className="group flex items-center justify-between gap-4 mb-4 px-5 py-4 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-accent/8 border border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                <BarChart3 className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-foreground">Panel de trabajadora</p>
+                <p className="text-xs text-muted-foreground">Tendencias, consejos de servicio y guía de tarifas</p>
+              </div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform duration-200 shrink-0" />
+          </Link>
+        )}
+
+        {/* Selector de modo para perfiles duales */}
+        {perfilDual && (
+          <div className="flex gap-2 mb-4 p-1 bg-muted rounded-xl w-fit mx-auto">
+            <Button
+              variant={modoPerfil === "trabajadora" ? "default" : "ghost"}
+              size="sm"
+              className="rounded-lg px-5"
+              onClick={() => setModoPerfil("trabajadora")}
+            >
+              🌸 Perfil trabajadora
+            </Button>
+            <Button
+              variant={modoPerfil === "clienta" ? "default" : "ghost"}
+              size="sm"
+              className="rounded-lg px-5"
+              onClick={() => setModoPerfil("clienta")}
+            >
+              🌸 Perfil clienta
+            </Button>
+          </div>
+        )}
+
+        {/* Respaldos pendientes (solo visible en modo clienta) */}
+        {esClientaActiva && <RespaldoPendiente />}
+
+        <Tabs
+          key={modoActivo}
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
+          <TabsList
+            className={`grid w-full ${esTrabajadoraActiva ? "grid-cols-6" : "grid-cols-3"}`}
+          >
+            <TabsTrigger value="perfil">
+              <User className="h-4 w-4 mr-2" />
+              Perfil
+            </TabsTrigger>
+            {esTrabajadoraActiva && (
+              <TabsTrigger value="servicios">
+                <Briefcase className="h-4 w-4 mr-2" />
+                Mis servicios
+              </TabsTrigger>
             )}
             <TabsTrigger value="verificacion">
-                <Shield className="h-4 w-4 mr-2" />
-                Verificación
+              <Shield className="h-4 w-4 mr-2" />
+              Verificación
             </TabsTrigger>
             <TabsTrigger value="reservas">
-                <Calendar className="h-4 w-4 mr-2" />
-                Reservas ({reservas.length})
+              <Calendar className="h-4 w-4 mr-2" />
+              Reservas ({reservas.length})
             </TabsTrigger>
-            {esTrabajadora && (
-            <TabsTrigger value="resenas">
+            {esTrabajadoraActiva && (
+              <TabsTrigger value="portafolio">
+                <Images className="h-4 w-4 mr-2" />
+                Portafolio
+              </TabsTrigger>
+            )}
+            {esTrabajadoraActiva && (
+              <TabsTrigger value="resenas">
                 <Star className="h-4 w-4 mr-2" />
                 Reseñas
-            </TabsTrigger>
+              </TabsTrigger>
             )}
-        </TabsList>
+          </TabsList>
 
-        <TabsContent value="perfil">
-            <PerfilTab user={user} reservas={reservas} />
-        </TabsContent>
+          <TabsContent value="perfil">
+            <PerfilTab user={user} reservas={reservas} modoActivo={modoActivo} />
+          </TabsContent>
 
-        {esTrabajadora && (
+          {esTrabajadoraActiva && (
             <TabsContent value="servicios">
-                <MisServiciosTab />
+              <MisServiciosTab />
             </TabsContent>
-        )}
+          )}
 
-        <TabsContent value="verificacion">
+          <TabsContent value="verificacion">
             <VerificacionTab user={user} />
-         </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="reservas">
-            <ReservasTab esTrabajadora={esTrabajadora} />
-        </TabsContent>
-        {esTrabajadora && (
-        <TabsContent value="resenas">
-             <ResenasTab />
-        </TabsContent>
-        )}
+          <TabsContent value="reservas">
+            <ReservasTab
+              esTrabajadora={esTrabajadoraActiva}
+              modo={modoActivo}
+              reservaDestacada={reservaDestacada}
+            />
+          </TabsContent>
+
+          {esTrabajadoraActiva && (
+            <TabsContent value="portafolio">
+              <PortafolioTab />
+            </TabsContent>
+          )}
+
+          {esTrabajadoraActiva && (
+            <TabsContent value="resenas">
+              <ResenasTab />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 

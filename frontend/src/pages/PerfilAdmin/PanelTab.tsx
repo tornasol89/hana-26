@@ -2,6 +2,7 @@ import {
   Briefcase,
   Calendar,
   CheckCircle,
+  MessageSquare,
   ShieldAlert,
   Users,
   UsersRound,
@@ -15,7 +16,7 @@ import { TopList } from "@/features/admin/components/TopList";
 import { useAdminStats } from "@/features/admin/hooks";
 
 interface Props {
-  onNavigate: (tab: "panel" | "usuarios" | "verificacion") => void;
+  onNavigate: (tab: "panel" | "usuarios" | "verificacion" | "disputas" | "sugerencias") => void;
 }
 
 const ESTADO_LABEL: Record<string, string> = {
@@ -162,6 +163,14 @@ export function PanelTab({ onNavigate }: Props) {
             >
               <ShieldAlert className="h-4 w-4" />
               Revisar verificaciones ({data.pendientesVerif})
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => onNavigate("sugerencias")}
+            >
+              <MessageSquare className="h-4 w-4" />
+              Ver sugerencias y reclamos
             </Button>
           </CardContent>
         </Card>
