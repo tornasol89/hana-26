@@ -4,7 +4,6 @@ import {
   Star,
   MapPin,
   Search,
-  Filter,
   Shield,
   ChevronRight,
   Loader2,
@@ -23,7 +22,8 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useWorkers } from "@/features/workers/hooks";
-import { CATEGORIAS_SERVICIO, REGIONES_CHILE } from "@/config/constants";
+import { CategoriaSubcategoriaPicker } from "@/features/workers/components/CategoriaSubcategoriaPicker";
+import { REGIONES_CHILE } from "@/config/constants";
 import type { WorkerProfile } from "@/features/workers/types";
 
 // "todas" en minúscula es nuestro valor centinela: no se envía al backend
@@ -32,12 +32,14 @@ const TODAS = "todas";
 const BuscarServicios = () => {
   const [search, setSearch] = useState("");
   const [categoria, setCategoria] = useState(TODAS);
+  const [subcategoria, setSubcategoria] = useState(TODAS);
   const [region, setRegion] = useState(TODAS);
 
   const navigate = useNavigate();
 
   const { data: workers, isLoading, isError, error, refetch } = useWorkers({
     categoria: categoria === TODAS ? undefined : categoria,
+    subcategoria: subcategoria === TODAS ? undefined : subcategoria,
     region: region === TODAS ? undefined : region,
   });
 
@@ -69,8 +71,9 @@ const BuscarServicios = () => {
 
         {/* Filtros */}
         <div className="container mx-auto px-4 -mt-6">
-          <div className="bg-card rounded-xl shadow-soft p-4 flex flex-col md:flex-row gap-3">
-            <div className="relative flex-1">
+          <div className="bg-card rounded-xl shadow-soft p-4 space-y-3">
+            {/* Búsqueda por nombre */}
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por nombre..."
@@ -80,35 +83,34 @@ const BuscarServicios = () => {
               />
             </div>
 
-            <Select value={categoria} onValueChange={setCategoria}>
-              <SelectTrigger className="md:w-60">
-                <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Categoría" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={TODAS}>Todas las categorías</SelectItem>
-                {CATEGORIAS_SERVICIO.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Categoría + Subcategoría + Región */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="md:col-span-2">
+                <CategoriaSubcategoriaPicker
+                  categoria={categoria}
+                  subcategoria={subcategoria}
+                  onCategoriaChange={setCategoria}
+                  onSubcategoriaChange={setSubcategoria}
+                  emptyValue={TODAS}
+                  layout="horizontal"
+                />
+              </div>
 
-            <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger className="md:w-60">
-                <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Región" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={TODAS}>Todas las regiones</SelectItem>
-                {REGIONES_CHILE.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Select value={region} onValueChange={setRegion}>
+                <SelectTrigger>
+                  <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Región" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TODAS}>Todas las regiones</SelectItem>
+                  {REGIONES_CHILE.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -146,7 +148,7 @@ const BuscarServicios = () => {
                 No hay profesionales con esos filtros
               </p>
               <p className="text-sm text-muted-foreground">
-                Probá ajustando la categoría, la región o el nombre.
+                Probá ajustando la categoría, la especialidad, la región o el nombre.
               </p>
             </div>
           )}
@@ -232,6 +234,11 @@ function WorkerCard({
             <p className="text-sm text-primary font-medium truncate">
               {worker.categoria}
             </p>
+            {worker.subcategoria && (
+              <p className="text-xs text-muted-foreground truncate">
+                {worker.subcategoria}
+              </p>
+            )}
           </div>
           <div className="text-right shrink-0 ml-2">
             <p className="text-lg font-bold text-card-foreground">{tarifaTexto}</p>

@@ -13,10 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  CATEGORIAS_SERVICIO,
   MODALIDADES,
   NIVELES_EXPERIENCIA,
 } from "@/config/constants";
+import { CategoriaSubcategoriaPicker } from "./CategoriaSubcategoriaPicker";
 import type { WorkerProfile, WorkerProfileInput } from "../types";
 import { toast } from "sonner";
 
@@ -52,46 +52,24 @@ export function WorkerProfileForm({
     if (!form.tarifaHora || form.tarifaHora <= 0) {
       toast.error("Indica una tarifa por hora válida");
       return;
-  }
-  onSubmit(form);
+    }
+    onSubmit(form);
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      <div className="space-y-2">
-        <Label htmlFor="categoria">
-          Categoría <span className="text-destructive">*</span>
-        </Label>
-        <Select
-          value={form.categoria}
-          onValueChange={(v) => setForm((p) => ({ ...p, categoria: v }))}
-          disabled={isSubmitting}
-        >
-          <SelectTrigger id="categoria">
-            <SelectValue placeholder="¿Qué tipo de servicio ofreces?" />
-          </SelectTrigger>
-          <SelectContent>
-            {CATEGORIAS_SERVICIO.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="subcategoria">
-          Subcategoría <span className="text-muted-foreground text-xs">(opcional)</span>
-        </Label>
-        <Input
-          id="subcategoria"
-          placeholder="Ej: Aseo profundo, Post-obra, Vacaciones..."
-          value={form.subcategoria}
-          onChange={(e) => setForm((p) => ({ ...p, subcategoria: e.target.value }))}
-          disabled={isSubmitting}
-        />
-      </div>
+      {/* Categoría + Especialidad — componente reusable */}
+      <CategoriaSubcategoriaPicker
+        categoria={form.categoria}
+        subcategoria={form.subcategoria}
+        onCategoriaChange={(v) =>
+          setForm((p) => ({ ...p, categoria: v, subcategoria: "" }))
+        }
+        onSubcategoriaChange={(v) => setForm((p) => ({ ...p, subcategoria: v }))}
+        showLabels
+        requiredCategoria
+        disabled={isSubmitting}
+      />
 
       <div className="space-y-2">
         <Label htmlFor="descripcion">
