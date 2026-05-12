@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import upload, { uploadDocumento } from '../config/cloudinary.js'
 import protegerRuta from '../middleware/auth.js'
+import { validarFechaNacimiento, calcularEdad } from '../utils/validators.js'
 
 const router = express.Router()
 
@@ -19,40 +20,62 @@ function formatearUsuario(u) {
     region:   u.region  || '',
     comuna:   u.comuna  || '',
     rut:      u.rut     || '',
-    verificada:         u.verificada,
-    estadoVerificacion: u.estadoVerificacion,
-    aceptoCompromiso:   u.aceptoCompromiso,
-    carnetFrenteUrl:    u.carnetFrenteUrl || null,
-    carnetDorsoUrl:     u.carnetDorsoUrl  || null,
+    fechaNacimiento:          u.fechaNacimiento,
+    fechaNacimientoCorregida: u.fechaNacimientoCorregida,
+    edad:                     u.fechaNacimiento ? calcularEdad(u.fechaNacimiento) : null,
+    verificada:               u.verificada,
+    estadoVerificacion:       u.estadoVerificacion,
+    aceptoCompromiso:         u.aceptoCompromiso,
+    carnetFrenteUrl:          u.carnetFrenteUrl || null,
+    carnetDorsoUrl:           u.carnetDorsoUrl  || null,
   }
 }
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { nombre, apellido, email, password, tipo, region, comuna, rut, aceptoCompromiso, fechaAceptacion } = req.body
+    const {
+      nombre, apellido, email, password, tipo,
+      region, comuna, rut,
+      fechaNacimiento,
+      aceptoCompromiso, fechaAceptacion,
+    } = req.body
 
+    // 1. Compromiso obligatorio
     if (!aceptoCompromiso) {
       return res.status(400).json({ mensaje: 'Debes aceptar el Compromiso Hana' })
     }
 
+    // 2. Email único
     const usuarioExiste = await User.findOne({ email })
     if (usuarioExiste) {
       return res.status(400).json({ mensaje: 'El email ya está registrado' })
     }
 
+    // 3. Validar fecha de nacimiento (incluye edad mínima 18)
+    const resFecha = validarFechaNacimiento(fechaNacimiento)
+    if (!resFecha.valida) {
+      return res.status(400).json({ mensaje: resFecha.mensaje })
+    }
+
+    // 4. Hashear password
     const salt = await bcrypt.genSalt(10)
     const passwordEncriptada = await bcrypt.hash(password, salt)
 
+    // 5. Crear usuario (los setters del modelo aplican capitalización y normalización de RUT)
+    //    Si el RUT es inválido, falla aquí con error de validación de Mongoose
     const usuario = await User.create({
       nombre, apellido, email,
       password: passwordEncriptada,
       tipo, region, comuna, rut,
+      fechaNacimiento: new Date(fechaNacimiento),
+      fechaNacimientoCorregida: true, // registros nuevos siempre tienen fecha real
       aceptoCompromiso: true,
       fechaAceptacion:  fechaAceptacion ? new Date(fechaAceptacion) : new Date(),
       foto: '',
     })
 
+    // 6. Generar JWT
     const token = jwt.sign(
       { id: usuario._id, tipo: usuario.tipo },
       process.env.JWT_SECRET,
@@ -62,6 +85,13 @@ router.post('/register', async (req, res) => {
     res.status(201).json({ token, usuario: formatearUsuario(usuario) })
   } catch (error) {
     console.error('Error en register:', error)
+
+    // Errores de validación de Mongoose (RUT inválido, etc.)
+    if (error.name === 'ValidationError') {
+      const primerError = Object.values(error.errors)[0]
+      return res.status(400).json({ mensaje: primerError.message })
+    }
+
     res.status(500).json({ mensaje: 'Error en el servidor', error: error.message })
   }
 })
@@ -76,7 +106,6 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ mensaje: 'Email o contraseña incorrectos' })
     }
 
-    // ✅ Verificar que la cuenta esté activa
     if (usuario.activa === false) {
       return res.status(403).json({ mensaje: 'Esta cuenta ha sido desactivada. Contacta a soporte.' })
     }
@@ -102,17 +131,35 @@ router.post('/login', async (req, res) => {
 // PUT /api/auth/me — actualizar datos propios
 router.put('/me', protegerRuta, async (req, res) => {
   try {
-    const { nombre, apellido, region, comuna } = req.body
+    const { nombre, apellido, region, comuna, fechaNacimiento } = req.body
+
+    // Si la usuaria está enviando fechaNacimiento, validamos antes
+    const actualizacion = { nombre, apellido, region, comuna }
+    if (fechaNacimiento !== undefined) {
+      const resFecha = validarFechaNacimiento(fechaNacimiento)
+      if (!resFecha.valida) {
+        return res.status(400).json({ mensaje: resFecha.mensaje })
+      }
+      actualizacion.fechaNacimiento = new Date(fechaNacimiento)
+      // Al editar la fecha, marcamos como "corregida" → el banner desaparece
+      actualizacion.fechaNacimientoCorregida = true
+    }
 
     const usuario = await User.findByIdAndUpdate(
       req.usuario.id,
-      { nombre, apellido, region, comuna },
-      { new: true }
+      actualizacion,
+      { new: true, runValidators: true } // runValidators: para que se apliquen los validators del schema
     ).select('-password')
 
     res.json(formatearUsuario(usuario))
   } catch (error) {
     console.error('Error al actualizar perfil:', error)
+
+    if (error.name === 'ValidationError') {
+      const primerError = Object.values(error.errors)[0]
+      return res.status(400).json({ mensaje: primerError.message })
+    }
+
     res.status(500).json({ mensaje: 'Error al actualizar perfil' })
   }
 })
@@ -165,8 +212,6 @@ router.post('/upload-carnet', protegerRuta, uploadDocumento.single('image'), asy
 })
 
 // GET /api/auth/clienta/:id — perfil público seguro de una clienta
-// Solo datos no sensibles: nombre, foto, región, comuna, verificada
-// Accesible solo para trabajadoras logueadas (para saber con quién van a trabajar)
 router.get('/clienta/:id', protegerRuta, async (req, res) => {
   try {
     const clienta = await User.findOne({ _id: req.params.id, tipo: 'clienta' })
@@ -174,7 +219,6 @@ router.get('/clienta/:id', protegerRuta, async (req, res) => {
 
     if (!clienta) return res.status(404).json({ mensaje: 'Clienta no encontrada' })
 
-    // Solo trabajadoras o admins pueden ver perfiles de clientas
     if (!['trabajadora', 'admin'].includes(req.usuario.tipo)) {
       return res.status(403).json({ mensaje: 'Sin permiso para ver este perfil' })
     }

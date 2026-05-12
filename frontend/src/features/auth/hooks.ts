@@ -5,7 +5,7 @@ import { authApi } from "./api";
 import { session } from "./session";
 import { getErrorMessage } from "./utils";
 import { bookingKeys } from "@/features/bookings/hooks";
-import type { LoginPayload, RegisterPayload, Usuario } from "./types";
+import type { LoginPayload, RegisterPayload, UpdateProfilePayload, Usuario } from "./types";
 
 /** Login: guarda sesión + actualiza contexto */
 export function useLogin() {
@@ -44,7 +44,7 @@ export function useUpdateProfile() {
   const { refreshUser } = useAuth();
 
   return useMutation({
-    mutationFn: (payload: Partial<Usuario>) => authApi.updateProfile(payload),
+    mutationFn: (payload: UpdateProfilePayload) => authApi.updateProfile(payload),
     onSuccess: (usuario) => {
       refreshUser(usuario);
       toast.success("Datos actualizados correctamente");

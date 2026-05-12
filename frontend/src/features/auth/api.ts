@@ -3,6 +3,7 @@ import type {
   AuthResponse,
   LoginPayload,
   RegisterPayload,
+  UpdateProfilePayload,  
   Usuario,
 } from "./types";
 
@@ -21,7 +22,7 @@ export const authApi = {
     return data;
   },
 
-  updateProfile: async (payload: Partial<Usuario>): Promise<Usuario> => {
+  updateProfile: async (payload: UpdateProfilePayload): Promise<Usuario> => {
     const { data } = await api.put<Usuario>("/auth/me", payload);
     return data;
   },
