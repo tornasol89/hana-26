@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { authApi } from "./api";
 import { session } from "./session";
 import { getErrorMessage } from "./utils";
+import { bookingKeys } from "@/features/bookings/hooks";
 import type { LoginPayload, RegisterPayload, Usuario } from "./types";
 
 /** Login: guarda sesión + actualiza contexto */
@@ -45,7 +46,6 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: (payload: Partial<Usuario>) => authApi.updateProfile(payload),
     onSuccess: (usuario) => {
-      session.updateUser(usuario);
       refreshUser(usuario);
       toast.success("Datos actualizados correctamente");
     },
@@ -62,7 +62,6 @@ export function useUploadPhoto() {
   return useMutation({
     mutationFn: (file: File) => authApi.uploadPhoto(file),
     onSuccess: (usuario) => {
-      session.updateUser(usuario);
       refreshUser(usuario);
       toast.success("Foto de perfil actualizada");
     },
@@ -80,7 +79,6 @@ export function useUploadCarnet() {
     mutationFn: ({ file, lado }: { file: File; lado: "frente" | "dorso" }) =>
       authApi.uploadCarnet(file, lado),
     onSuccess: (usuario, variables) => {
-      session.updateUser(usuario);
       refreshUser(usuario);
       toast.success(
         `${variables.lado === "frente" ? "Frente" : "Dorso"} del carnet enviado`
@@ -92,15 +90,22 @@ export function useUploadCarnet() {
   });
 }
 
-/** Logout: limpia sesión, contexto y cache */
+/** Logout: limpia sesión, contexto, cache de bookings y compromiso */
 export function useLogout() {
   const { logout } = useAuth();
   const queryClient = useQueryClient();
 
   return () => {
-    session.clear();
+    // 1. Limpiar contexto (esto ya hace session.clear internamente)
     logout();
+
+    // 2. Limpiar cache de TanStack Query
+    //    Primero las bookings explícitamente (UX más rápida si vuelve a loguearse)
+    queryClient.removeQueries({ queryKey: bookingKeys.all });
+    //    Después todo el resto
     queryClient.clear();
+
+    // 3. Limpiar flags del compromiso
     localStorage.removeItem("aceptoCompromiso");
     localStorage.removeItem("fechaAceptacion");
   };

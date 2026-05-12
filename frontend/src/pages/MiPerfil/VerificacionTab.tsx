@@ -1,7 +1,7 @@
 import { Clock, IdCard, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CarnetUploader } from "@/features/profile/components/CarnetUploader";
-import { useUploadCarnet } from "@/features/profile/hooks";
+import { useUploadCarnet } from "@/features/auth/hooks";
 import type { Usuario } from "@/features/auth/types";
 
 interface Props {

@@ -19,7 +19,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { AvatarUploader } from "@/features/profile/components/AvatarUploader";
-import { useUploadPhoto } from "@/features/profile/hooks";
+import { useUploadPhoto } from "@/features/auth/hooks";
 import { useMyBookings } from "@/features/bookings/hooks";
 import { PerfilTab } from "./PerfilTab";
 import { VerificacionTab } from "./VerificacionTab";
