@@ -1,9 +1,14 @@
 import axios, { AxiosError } from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
+// La env var VITE_API_URL debe contener SOLO la URL del servidor (sin /api)
+// Ejemplos:
+//   Local:      http://localhost:5001
+//   Staging:    https://hana-api-staging.onrender.com
+//   Producción: https://api.hana.cl
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5001";
 
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: `${BASE_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },
