@@ -14,12 +14,15 @@ import {
   Shield,
   ShieldAlert,
   ShieldCheck,
+  Sparkles,
+  TrendingUp,
   User,
 } from "lucide-react";
+import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -163,20 +166,40 @@ export default function MiPerfil() {
 
         {/* Banner dashboard trabajadora */}
         {esTrabajadoraActiva && (
-          <Link
-            to="/dashboard-trabajadora"
-            className="group flex items-center justify-between gap-4 mb-4 px-5 py-4 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-accent/8 border border-primary/20 hover:border-primary/40 hover:shadow-soft transition-all duration-300"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                <BarChart3 className="h-4 w-4 text-primary" />
+          <Link to="/dashboard-trabajadora" className="block mb-5">
+            <motion.div
+              whileHover={{ y: -2, scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1a0533] via-[#2d0f52] to-[#1e0b3a] border border-primary/30 shadow-lg px-6 py-5"
+            >
+              {/* Orbes decorativos */}
+              <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-accent/15 blur-2xl pointer-events-none" />
+              <div className="absolute bottom-0 left-1/3 w-24 h-24 rounded-full bg-primary/20 blur-xl pointer-events-none" />
+
+              <div className="relative z-10 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                    <TrendingUp className="h-5 w-5 text-accent" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="font-display font-bold text-white text-base">Panel de trabajadora</p>
+                      <span className="inline-flex items-center gap-1 bg-accent/20 border border-accent/30 rounded-full px-2 py-0.5">
+                        <Sparkles className="h-2.5 w-2.5 text-accent" />
+                        <span className="text-[10px] font-semibold text-accent">Nuevo</span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/55">Tendencias del mercado · consejos · guía de tarifas</p>
+                  </div>
+                </div>
+                <div className="shrink-0 flex items-center gap-2">
+                  <span className="hidden sm:block text-xs text-white/50 font-medium">Ver panel</span>
+                  <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                    <ChevronRight className="h-4 w-4 text-white/70" />
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold text-sm text-foreground">Panel de trabajadora</p>
-                <p className="text-xs text-muted-foreground">Tendencias, consejos de servicio y guía de tarifas</p>
-              </div>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform duration-200 shrink-0" />
+            </motion.div>
           </Link>
         )}
 
@@ -211,40 +234,28 @@ export default function MiPerfil() {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList
-            className={`grid w-full ${esTrabajadoraActiva ? "grid-cols-6" : "grid-cols-3"}`}
-          >
-            <TabsTrigger value="perfil">
-              <User className="h-4 w-4 mr-2" />
-              Perfil
-            </TabsTrigger>
+          {/* Tabs custom */}
+          <div className="flex gap-2 flex-wrap">
+            <TabItem value="perfil" active={activeTab} onClick={setActiveTab}
+              icon={User} label="Perfil" color="#7c3aed" bg="#f5f3ff" />
             {esTrabajadoraActiva && (
-              <TabsTrigger value="servicios">
-                <Briefcase className="h-4 w-4 mr-2" />
-                Mis servicios
-              </TabsTrigger>
+              <TabItem value="servicios" active={activeTab} onClick={setActiveTab}
+                icon={Briefcase} label="Mis servicios" color="#b45309" bg="#fffbeb" />
             )}
-            <TabsTrigger value="verificacion">
-              <Shield className="h-4 w-4 mr-2" />
-              Verificación
-            </TabsTrigger>
-            <TabsTrigger value="reservas">
-              <Calendar className="h-4 w-4 mr-2" />
-              Reservas ({reservas.length})
-            </TabsTrigger>
+            <TabItem value="verificacion" active={activeTab} onClick={setActiveTab}
+              icon={Shield} label="Verificación" color="#be123c" bg="#fff1f2" />
+            <TabItem value="reservas" active={activeTab} onClick={setActiveTab}
+              icon={Calendar} label="Reservas" color="#9333ea" bg="#faf5ff"
+              badge={reservas.length > 0 ? reservas.length : undefined} />
             {esTrabajadoraActiva && (
-              <TabsTrigger value="portafolio">
-                <Images className="h-4 w-4 mr-2" />
-                Portafolio
-              </TabsTrigger>
+              <TabItem value="portafolio" active={activeTab} onClick={setActiveTab}
+                icon={Images} label="Portafolio" color="#7c3aed" bg="#f5f3ff" />
             )}
             {esTrabajadoraActiva && (
-              <TabsTrigger value="resenas">
-                <Star className="h-4 w-4 mr-2" />
-                Reseñas
-              </TabsTrigger>
+              <TabItem value="resenas" active={activeTab} onClick={setActiveTab}
+                icon={Star} label="Reseñas" color="#b45309" bg="#fffbeb" />
             )}
-          </TabsList>
+          </div>
 
           <TabsContent value="perfil">
             <PerfilTab user={user} reservas={reservas} modoActivo={modoActivo} />
@@ -284,5 +295,61 @@ export default function MiPerfil() {
 
       <Footer />
     </div>
+  );
+}
+
+// ── Tab item custom ────────────────────────────────────────────────────────
+
+function TabItem({
+  value,
+  active,
+  onClick,
+  icon: Icon,
+  label,
+  color,
+  bg,
+  badge,
+}: {
+  value: string;
+  active: string;
+  onClick: (v: string) => void;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  label: string;
+  color: string;
+  bg: string;
+  badge?: number;
+}) {
+  const isActive = active === value;
+  return (
+    <motion.button
+      type="button"
+      onClick={() => onClick(value)}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+      className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all duration-200"
+      style={{
+        backgroundColor: isActive ? bg : "transparent",
+        borderColor: isActive ? color : "#e2e8f0",
+        color: isActive ? color : "#64748b",
+        boxShadow: isActive ? `0 2px 12px ${color}25` : "none",
+      }}
+    >
+      <div
+        className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
+        style={{ backgroundColor: isActive ? color + "20" : "#f1f5f9" }}
+      >
+        <Icon className="h-3.5 w-3.5" style={{ color: isActive ? color : "#94a3b8" }} />
+      </div>
+      {label}
+      {badge !== undefined && badge > 0 && (
+        <span
+          className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] rounded-full text-[10px] font-bold flex items-center justify-center px-1 text-white"
+          style={{ backgroundColor: color }}
+        >
+          {badge}
+        </span>
+      )}
+    </motion.button>
   );
 }

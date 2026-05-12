@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -81,8 +81,8 @@
     --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 380ms cubic-bezier(0.4, 0, 0.2, 1);
 
-    --font-display: 'Playfair Display', serif;
-    --font-body: 'Inter', sans-serif;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
   .dark {
@@ -130,23 +130,82 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
-    line-height: 1.6;
+    font-size: 15px;
+    line-height: 1.65;
+    letter-spacing: -0.01em;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  /* Escala tipográfica — display para títulos */
+  h1 {
     font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight: 700;
     line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
+  h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  h4, h5, h6 {
+    font-family: var(--font-body);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    line-height: 1.7;
+  }
+
+  /* Etiquetas y navegación más nítidas */
+  label, button, a {
+    font-family: var(--font-body);
+    letter-spacing: -0.005em;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  /* Scrollbar sutil */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary-lighter));
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+
+  /* Selección de texto con colores de marca */
+  ::selection {
+    background: hsl(var(--primary) / 0.18);
+    color: hsl(var(--primary));
   }
 
   /* Focus ring global mejorado */
   :focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 
@@ -157,6 +216,48 @@
   }
   .font-body {
     font-family: var(--font-body);
+  }
+
+  /* Títulos de sección hero */
+  .hero-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  /* Eyebrow — etiqueta pequeña sobre títulos */
+  .eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* Texto de lead / subtítulo */
+  .lead {
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    font-weight: 400;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Número grande estilo KPI */
+  .kpi-number {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  /* Etiqueta de categoría */
+  .category-label {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   /* Gradientes de texto */
@@ -306,6 +407,30 @@ input:focus,
 textarea:focus,
 select:focus {
   box-shadow: 0 0 0 3px hsl(var(--primary-lighter));
+}
+
+/* Inputs con tipografía coherente */
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  letter-spacing: -0.005em;
+}
+
+/* Placeholder más suave */
+input::placeholder, textarea::placeholder {
+  color: hsl(var(--muted-foreground) / 0.6);
+  font-weight: 400;
+}
+
+/* Botones con mejor tipografía */
+button {
+  font-family: var(--font-body);
+  letter-spacing: -0.01em;
+}
+
+/* Links más elegantes */
+a {
+  transition: color var(--transition-fast), opacity var(--transition-fast);
 }
 
 /* Shimmer animado para títulos */

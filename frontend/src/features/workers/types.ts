@@ -27,6 +27,8 @@ export interface WorkerProfile {
   disponible: boolean;
   certificados?: Certificado[];
   certificadaChilevalora?: boolean;
+  promedio?: number;
+  totalReviews?: number;
 }
 
 /** Input para crear o actualizar un perfil profesional */

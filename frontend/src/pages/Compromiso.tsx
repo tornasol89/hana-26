@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { TopBlur, BottomBlur } from "@/components/ui/edge-blur";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
@@ -180,15 +181,19 @@ export default function Compromiso() {
 
         {/* Contenido */}
         {modoAceptacion ? (
-          <div
-            ref={contenidoRef}
-            onScroll={handleScroll}
-            className={`max-h-[560px] overflow-y-auto rounded-2xl border transition-colors duration-500 ${
-              leido ? "border-green-500/40 shadow-[0_0_0_1px_rgba(34,197,94,0.15)]" : "border-border"
-            } bg-card/60 backdrop-blur-sm p-6 space-y-3`}
-            style={{ scrollbarWidth: "thin" }}
-          >
-            <SeccionesCompromiso />
+          <div className="relative">
+            <div
+              ref={contenidoRef}
+              onScroll={handleScroll}
+              className={`max-h-[560px] overflow-y-auto rounded-2xl border transition-colors duration-500 ${
+                leido ? "border-green-500/40 shadow-[0_0_0_1px_rgba(34,197,94,0.15)]" : "border-border"
+              } bg-card/60 backdrop-blur-sm p-6 space-y-3`}
+              style={{ scrollbarWidth: "thin" }}
+            >
+              <SeccionesCompromiso />
+            </div>
+            {/* Blur solo en borde inferior, y solo mientras no se ha leído todo */}
+            {!leido && <BottomBlur height={64} />}
           </div>
         ) : (
           <div className="space-y-3">
