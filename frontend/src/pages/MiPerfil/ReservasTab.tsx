@@ -7,13 +7,14 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { BookingsList } from "@/features/bookings/components/BookingsList";
 import { useMyBookings } from "@/features/bookings/hooks";
 
-
 interface Props {
   esTrabajadora: boolean;
+  modo: "clienta" | "trabajadora";
+  reservaDestacada?: string;
 }
 
-export function ReservasTab({ esTrabajadora }: Props) {
-  const { data: reservas = [], isLoading, isError, refetch } = useMyBookings();
+export function ReservasTab({ esTrabajadora, modo, reservaDestacada }: Props) {
+  const { data: reservas = [], isLoading, isError, refetch } = useMyBookings(modo);
 
   if (isLoading) return <LoadingState message="Cargando tus reservas..." />;
 
@@ -41,7 +42,7 @@ export function ReservasTab({ esTrabajadora }: Props) {
             title="Aún no tienes reservas"
             description={
               esTrabajadora
-                ? "Cuando recibas solicitudes aparecerán aquí."
+                ? "Cuando recibas solicitudes de clientas aparecerán aquí."
                 : "Busca una profesional y agenda tu primer servicio."
             }
             action={
@@ -57,5 +58,11 @@ export function ReservasTab({ esTrabajadora }: Props) {
     );
   }
 
-  return <BookingsList bookings={reservas} esTrabajadora={esTrabajadora} />;
+  return (
+    <BookingsList
+      bookings={reservas}
+      esTrabajadora={esTrabajadora}
+      reservaDestacada={reservaDestacada}
+    />
+  );
 }

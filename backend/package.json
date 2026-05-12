@@ -5,9 +5,10 @@
   "description": "Backend de Hana - plataforma de servicios entre mujeres",
   "main": "server.js",
   
-    "scripts": {
+  "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "predev": "node scripts/kill-port.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -7,8 +7,9 @@ import workerRoutes  from './routes/workers.js'
 import bookingRoutes from './routes/bookings.js'
 import reviewRoutes  from './routes/reviews.js'
 import messageRoutes from './routes/messages.js'
-import adminRoutes   from './routes/admin.js'
-import statsRoutes   from './routes/stats.js'
+import adminRoutes     from './routes/admin.js'
+import statsRoutes     from './routes/stats.js'
+import portfolioRoutes from './routes/portfolio.js'
 import mongoose from 'mongoose'
 
 dotenv.config()
@@ -39,8 +40,9 @@ app.use('/api/workers',  workerRoutes)
 app.use('/api/bookings', bookingRoutes)
 app.use('/api/reviews',  reviewRoutes)
 app.use('/api/messages', messageRoutes)
-app.use('/api/admin',    adminRoutes)
-app.use('/api/stats',    statsRoutes)
+app.use('/api/admin',     adminRoutes)
+app.use('/api/stats',     statsRoutes)
+app.use('/api/portfolio', portfolioRoutes)
 
 app.get('/', (req, res) => res.json({ mensaje: 'API de Hana funcionando ✅' }))
 
@@ -49,7 +51,15 @@ const PORT = process.env.PORT || 5000
 connectDB()
   .then(() => {
     console.log('📦 Conectado a DB:', mongoose.connection.name)
-    app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`))
+    const server = app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT} ✅`))
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`\n❌ Puerto ${PORT} ya está en uso. Cierra el proceso que lo ocupa y reinicia.\n`)
+      } else {
+        console.error('Error del servidor:', err)
+      }
+      process.exit(1)
+    })
   })
   .catch(error => {
     console.error('Error al conectar la base de datos:', error)

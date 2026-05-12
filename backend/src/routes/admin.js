@@ -18,6 +18,74 @@ function soloAdmin(req, res, next) {
 // Aplicar autenticación + rol admin a todas las rutas de este archivo
 router.use(protegerRuta, soloAdmin)
 
+// ── DISPUTAS ──────────────────────────────────────────────────────────────────
+
+// GET /api/admin/disputas — listar todas las reservas en disputa
+router.get('/disputas', async (req, res) => {
+  try {
+    const disputas = await Booking.find({ estado: 'en_disputa' })
+      .populate('clienta', 'nombre apellido email foto')
+      .populate({ path: 'trabajadora', populate: { path: 'usuario', select: 'nombre apellido email foto' } })
+      .sort({ 'disputa.creadaEn': -1 })
+    res.json(disputas)
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener disputas', error: error.message })
+  }
+})
+
+// PUT /api/admin/bookings/:id/resolver-disputa
+// accion: 'confirmar_inicio' | 'confirmar_fin' | 'cancelar' | 'reactivar'
+router.put('/bookings/:id/resolver-disputa', async (req, res) => {
+  try {
+    const { accion, nota } = req.body
+    const reserva = await Booking.findById(req.params.id)
+    if (!reserva) return res.status(404).json({ mensaje: 'Reserva no encontrada' })
+    if (reserva.estado !== 'en_disputa') {
+      return res.status(400).json({ mensaje: 'Solo se pueden resolver reservas en disputa' })
+    }
+
+    const ahora = new Date()
+
+    switch (accion) {
+      case 'confirmar_inicio':
+        reserva.inicioConfirmadoPor.trabajadora = reserva.inicioConfirmadoPor.trabajadora || ahora
+        reserva.inicioConfirmadoPor.clienta     = reserva.inicioConfirmadoPor.clienta     || ahora
+        reserva.estado = 'en_curso'
+        break
+      case 'confirmar_fin':
+        reserva.finConfirmadoPor.trabajadora = reserva.finConfirmadoPor.trabajadora || ahora
+        reserva.finConfirmadoPor.clienta     = reserva.finConfirmadoPor.clienta     || ahora
+        reserva.estado = 'completada'
+        break
+      case 'cancelar':
+        reserva.estado = 'cancelada'
+        break
+      case 'reactivar':
+        // Vuelve al estado antes de la disputa según la fase
+        reserva.estado = reserva.disputa?.fase === 'fin' ? 'en_curso' : 'aceptada'
+        break
+      default:
+        return res.status(400).json({ mensaje: 'Acción inválida' })
+    }
+
+    reserva.disputa.activa = false
+    if (nota?.trim()) {
+      // Guardamos la nota del admin en el campo motivoClienta si no hay (campo auxiliar)
+      reserva.disputa.motivoClienta = reserva.disputa.motivoClienta || `[Admin] ${nota.trim()}`
+    }
+
+    await reserva.save()
+
+    const reservaActualizada = await Booking.findById(reserva._id)
+      .populate('clienta', 'nombre apellido email foto')
+      .populate({ path: 'trabajadora', populate: { path: 'usuario', select: 'nombre apellido email foto' } })
+
+    res.json(reservaActualizada)
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al resolver disputa', error: error.message })
+  }
+})
+
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 

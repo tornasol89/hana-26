@@ -1,41 +1,56 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Calendar,
   ChevronDown,
+  MapPin,
   MessageSquare,
   ShieldCheck,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Booking, EstadoBooking } from "../types";
 import { BookingActions } from "./BookingActions";
 
 const ESTADO_LABEL: Record<EstadoBooking, string> = {
-  pendiente: "Pendiente",
-  aceptada: "Aceptada",
-  rechazada: "Rechazada",
-  completada: "Completada",
-  cancelada: "Cancelada",
+  pendiente:   "Pendiente",
+  aceptada:    "Aceptada",
+  en_curso:    "En curso",
+  completada:  "Completada",
+  rechazada:   "Rechazada",
+  cancelada:   "Cancelada",
+  en_disputa:  "En disputa",
 };
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 const ESTADO_VARIANT: Record<EstadoBooking, BadgeVariant> = {
-  pendiente: "outline",
-  aceptada: "default",
-  rechazada: "destructive",
-  completada: "secondary",
-  cancelada: "outline",
+  pendiente:   "outline",
+  aceptada:    "default",
+  en_curso:    "default",
+  completada:  "secondary",
+  rechazada:   "destructive",
+  cancelada:   "outline",
+  en_disputa:  "destructive",
 };
 
 interface Props {
   booking: Booking;
   esTrabajadora: boolean;
+  destacada?: boolean;
 }
 
-export function BookingCard({ booking, esTrabajadora }: Props) {
-  const [expanded, setExpanded] = useState(false);
+export function BookingCard({ booking, esTrabajadora, destacada = false }: Props) {
+  const [expanded, setExpanded] = useState(destacada);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (destacada && cardRef.current) {
+      cardRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [destacada]);
 
   const contraparteInfo = getContraparteInfo(booking, esTrabajadora);
   const fechaFormateada = booking.fecha
@@ -47,15 +62,15 @@ export function BookingCard({ booking, esTrabajadora }: Props) {
       })
     : null;
 
-  const tieneAcciones =
-    (esTrabajadora &&
-    (booking.estado === "pendiente" || 
-      booking.estado === "aceptada" ||
-      booking.estado === "completada")) ||
-    (!esTrabajadora && booking.estado === "completada");
+  const tieneAcciones = ["pendiente", "aceptada", "en_curso", "en_disputa", "completada"].includes(
+    booking.estado
+  );
 
   return (
-    <Card>
+    <Card
+      ref={cardRef}
+      className={destacada ? "ring-2 ring-primary/50 ring-offset-2" : undefined}
+    >
       <CardContent className="p-4">
         <button
           type="button"
@@ -129,6 +144,21 @@ export function BookingCard({ booking, esTrabajadora }: Props) {
               </div>
             </div>
 
+            {(booking.regionServicio || booking.comunaServicio) && (
+              <div className="rounded-lg bg-muted/50 p-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  Lugar del servicio
+                </p>
+                <p className="text-sm text-card-foreground">
+                  {[booking.regionServicio, booking.comunaServicio]
+                    .filter(Boolean)
+                    .join(", ")}
+                  {booking.direccionServicio && ` — ${booking.direccionServicio}`}
+                </p>
+              </div>
+            )}
+
             {booking.descripcion && (
               <div className="rounded-lg bg-muted/50 p-3">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
@@ -138,6 +168,24 @@ export function BookingCard({ booking, esTrabajadora }: Props) {
                 <p className="text-sm text-card-foreground">{booking.descripcion}</p>
               </div>
             )}
+
+            {esTrabajadora && booking.clienta && (
+              <Button asChild variant="outline" size="sm" className="w-full">
+                <Link to={`/clienta/${booking.clienta._id}`}>
+                  Ver perfil de la clienta
+                </Link>
+              </Button>
+            )}
+
+            {!esTrabajadora &&
+              typeof booking.trabajadora === "object" &&
+              booking.trabajadora?._id && (
+                <Button asChild variant="outline" size="sm" className="w-full">
+                  <Link to={`/worker/${booking.trabajadora._id}`}>
+                    Ver perfil de la trabajadora
+                  </Link>
+                </Button>
+              )}
 
             {tieneAcciones && (
               <div className="pt-1">

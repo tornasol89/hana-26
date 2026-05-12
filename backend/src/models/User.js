@@ -99,6 +99,9 @@ const userSchema = new mongoose.Schema({
 
   notasAdmin: { type: String, default: '' },
 
+  // Roles adicionales para perfiles duales (ej: trabajadora con perfil de clienta)
+  rolesAdicionales: [{ type: String, enum: ['clienta', 'trabajadora'] }],
+
 }, { timestamps: true })
 
 // Índice para queries frecuentes

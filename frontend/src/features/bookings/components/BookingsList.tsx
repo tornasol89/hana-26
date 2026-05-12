@@ -4,25 +4,30 @@ import { BookingCard } from "./BookingCard";
 interface Props {
   bookings: Booking[];
   esTrabajadora: boolean;
+  reservaDestacada?: string;
 }
 
 const ORDEN_ESTADOS: EstadoBooking[] = [
+  "en_disputa",
   "pendiente",
   "aceptada",
+  "en_curso",
   "completada",
   "rechazada",
   "cancelada",
 ];
 
 const ESTADO_LABEL: Record<EstadoBooking, string> = {
-  pendiente: "Pendiente",
-  aceptada: "Aceptada",
-  rechazada: "Rechazada",
+  en_disputa: "En disputa",
+  pendiente:  "Pendiente",
+  aceptada:   "Aceptada",
+  en_curso:   "En curso",
   completada: "Completada",
-  cancelada: "Cancelada",
+  rechazada:  "Rechazada",
+  cancelada:  "Cancelada",
 };
 
-export function BookingsList({ bookings, esTrabajadora }: Props) {
+export function BookingsList({ bookings, esTrabajadora, reservaDestacada }: Props) {
   return (
     <div className="space-y-6">
       {ORDEN_ESTADOS.map((estado) => {
@@ -40,6 +45,7 @@ export function BookingsList({ bookings, esTrabajadora }: Props) {
                   key={booking._id}
                   booking={booking}
                   esTrabajadora={esTrabajadora}
+                  destacada={booking._id === reservaDestacada}
                 />
               ))}
             </div>

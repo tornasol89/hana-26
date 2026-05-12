@@ -23,7 +23,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   bookingId: string;
   servicio: string;
-  estadoReserva: "aceptada" | "completada";
+  estadoReserva: "aceptada" | "en_curso" | "en_disputa" | "completada";
   otraPersona: OtraPersona;
 }
 

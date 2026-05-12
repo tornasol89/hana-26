@@ -6,13 +6,13 @@ import type { CreateBookingPayload } from "./api";
 
 export const bookingKeys = {
   all: ["bookings"] as const,
-  mine: () => [...bookingKeys.all, "mine"] as const,
+  mine: (modo?: string) => [...bookingKeys.all, "mine", modo ?? "default"] as const,
 };
 
-export function useMyBookings() {
+export function useMyBookings(modo?: "clienta" | "trabajadora") {
   return useQuery({
-    queryKey: bookingKeys.mine(),
-    queryFn: bookingsApi.getMine,
+    queryKey: bookingKeys.mine(modo),
+    queryFn: () => bookingsApi.getMine(modo),
     staleTime: 1000 * 30,
   });
 }
@@ -22,7 +22,7 @@ export function useCreateBooking() {
   return useMutation({
     mutationFn: (payload: CreateBookingPayload) => bookingsApi.create(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.all });
       toast.success("Reserva enviada. La profesional la revisará pronto.");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
@@ -34,7 +34,7 @@ export function useAcceptBooking() {
   return useMutation({
     mutationFn: (id: string) => bookingsApi.accept(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.all });
       toast.success("Reserva aceptada");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
@@ -46,7 +46,7 @@ export function useRejectBooking() {
   return useMutation({
     mutationFn: (id: string) => bookingsApi.reject(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.all });
       toast.success("Reserva rechazada");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
@@ -58,8 +58,51 @@ export function useCompleteBooking() {
   return useMutation({
     mutationFn: (id: string) => bookingsApi.complete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.all });
       toast.success("Reserva marcada como completada");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useConfirmarInicio() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => bookingsApi.confirmarInicio(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: bookingKeys.all });
+      toast.success("Inicio del servicio confirmado");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useConfirmarFin() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => bookingsApi.confirmarFin(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: bookingKeys.all });
+      toast.success("Fin del servicio confirmado");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useDisputar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...payload
+    }: {
+      id: string;
+      fase: "inicio" | "fin";
+      motivo: string;
+    }) => bookingsApi.disputar(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: bookingKeys.all });
+      toast.warning("Disputa registrada. Ambas partes pueden explicar su versión.");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   });

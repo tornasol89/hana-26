@@ -39,8 +39,19 @@ const certificadoStorage = new CloudinaryStorage({
   },
 })
 
+// Para fotos de portafolio (paisaje 4:3, buena resolución)
+const portfolioStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          'hana_portfolio',
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    transformation:  [{ width: 900, height: 675, crop: 'fill' }],
+  },
+})
+
 export const uploadFoto          = multer({ storage: perfilStorage })
 export const uploadDocumento     = multer({ storage: documentoStorage })
 export const uploadCertificado   = multer({ storage: certificadoStorage })
+export const uploadPortfolio     = multer({ storage: portfolioStorage })
 
 export default uploadFoto

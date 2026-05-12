@@ -5,6 +5,7 @@ import type {
   RegisterPayload,
   UpdateProfilePayload,  
   Usuario,
+  UserType,
 } from "./types";
 
 export const authApi = {
@@ -50,5 +51,15 @@ export const authApi = {
       { headers: { "Content-Type": "multipart/form-data" } }
     );
     return data.usuario;
+  },
+
+  agregarRol: async (rol: UserType): Promise<AuthResponse> => {
+    const { data } = await api.post<AuthResponse>("/auth/agregar-rol", { rol });
+    return data;
+  },
+
+  getClientaPublico: async (id: string): Promise<Partial<Usuario>> => {
+    const { data } = await api.get<Partial<Usuario>>(`/auth/clienta/${id}`);
+    return data;
   },
 };

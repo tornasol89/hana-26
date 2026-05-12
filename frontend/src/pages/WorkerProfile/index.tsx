@@ -16,6 +16,8 @@ import { WorkerStats } from "@/features/workers/components/WorkerStats";
 import { ReviewsList } from "@/features/reviews/components/ReviewsList";
 import { ReservarDialog } from "@/features/bookings/components/ReservarDialog";
 import { WorkerHero } from "./WorkerHero";
+import { useWorkerPortfolio } from "@/features/portfolio/hooks";
+import { PortfolioGrid } from "@/features/portfolio/components/PortfolioGrid";
 
 export default function WorkerProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +28,8 @@ export default function WorkerProfilePage() {
 
   const { data, isLoading, isError, error, refetch } = useWorker(id);
 
-  // ─── Estados ───
+  // Hook must be called unconditionally — before any early returns
+  const { data: portfolioItems = [] } = useWorkerPortfolio(id);
 
   if (isLoading) {
     return (
@@ -150,6 +153,23 @@ export default function WorkerProfilePage() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Portafolio */}
+        {portfolioItems.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center justify-between">
+                Portafolio de trabajos
+                <span className="text-sm font-normal text-muted-foreground">
+                  {portfolioItems.filter((i) => i.respaldada).length} respaldados por clientas
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PortfolioGrid items={portfolioItems} />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Valoraciones detalladas */}
         {reviews.length > 0 && (

@@ -3,9 +3,19 @@ import type { Usuario } from "@/features/auth/types";
 export type EstadoBooking =
   | "pendiente"
   | "aceptada"
-  | "rechazada"
+  | "en_curso"
   | "completada"
-  | "cancelada";
+  | "rechazada"
+  | "cancelada"
+  | "en_disputa";
+
+export interface Disputa {
+  activa: boolean;
+  fase: "inicio" | "fin" | null;
+  motivoTrabajadora: string;
+  motivoClienta: string;
+  creadaEn: string | null;
+}
 
 export interface BookingClienta
   extends Pick<Usuario, "nombre" | "apellido" | "foto"> {
@@ -27,6 +37,11 @@ export interface BookingTrabajadora {
   tarifaHora?: number;
 }
 
+export interface ConfirmacionPor {
+  trabajadora: string | null;
+  clienta: string | null;
+}
+
 export interface Booking {
   _id: string;
   servicio: string;
@@ -37,6 +52,12 @@ export interface Booking {
   notas?: string;
   clienta?: BookingClienta;
   trabajadora?: BookingTrabajadora | string;
+  regionServicio?: string;
+  comunaServicio?: string;
+  direccionServicio?: string;
+  inicioConfirmadoPor?: ConfirmacionPor;
+  finConfirmadoPor?: ConfirmacionPor;
+  disputa?: Disputa;
   createdAt: string;
   updatedAt: string;
 }

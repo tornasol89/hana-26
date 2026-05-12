@@ -19,8 +19,11 @@ export function ProtectedRoute({ children, allowedTypes }: Props) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (allowedTypes && user && !allowedTypes.includes(user.tipo)) {
-    return <Navigate to="/" replace />;
+  if (allowedTypes && user) {
+    const todosLosRoles = [user.tipo, ...(user.rolesAdicionales ?? [])];
+    if (!allowedTypes.some((t) => todosLosRoles.includes(t))) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return <>{children}</>;
