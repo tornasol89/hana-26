@@ -170,7 +170,7 @@ export default function Impacto() {
                 text="Hana"
                 gifUrl={HANA_GIFS.galaxy}
                 fallbackColor="hsl(262 45% 35%)"
-                className="text-6xl md:text-8xl font-black italic leading-none"
+                className="text-[6rem] md:text-[10rem] lg:text-[13rem] font-black italic leading-none"
               />
             </span>
             <span className="block text-2xl md:text-3xl font-bold text-card-foreground/70 mt-2">

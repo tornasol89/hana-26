@@ -180,7 +180,7 @@ export default function Alianza() {
                   text="respaldado"
                   gifUrl={HANA_GIFS.shimmer}
                   fallbackColor="hsl(262 45% 35%)"
-                  className="text-5xl md:text-7xl font-black italic leading-none"
+                  className="text-[4rem] md:text-[6.5rem] lg:text-[8.5rem] font-black italic leading-none"
                 />
               </span>
               <span className="block text-2xl md:text-3xl font-bold text-foreground/70 mt-2">

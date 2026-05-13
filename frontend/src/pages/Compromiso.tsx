@@ -116,7 +116,7 @@ export default function Compromiso() {
                   text="Compromiso"
                   gifUrl={HANA_GIFS.flowers}
                   fallbackColor="white"
-                  className="text-5xl md:text-7xl font-bold italic leading-none"
+                  className="text-[3.5rem] md:text-[5.5rem] lg:text-[7.5rem] font-bold italic leading-none"
                 />
               </span>
               <span className="block text-3xl md:text-4xl font-bold mt-3 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
