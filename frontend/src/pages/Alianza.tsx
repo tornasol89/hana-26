@@ -8,6 +8,7 @@ import { motion, useInView } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnimatedButtonWrapper } from "@/components/ui/bg-animate-button";
+import { TextGif, HANA_GIFS } from "@/components/ui/text-gif";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import logoChilevalora from "@/assets/logo-chilevalora.jpg";
@@ -171,13 +172,18 @@ export default function Alianza() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <span className="block text-xl md:text-2xl font-medium text-foreground/50">
+              <span className="block text-xl md:text-2xl font-medium text-foreground/50 mb-2">
                 Tu trabajo,
               </span>
-              <span className="block text-5xl md:text-6xl font-black italic text-gradient-primary leading-none">
-                respaldado
+              <span className="block mb-2">
+                <TextGif
+                  text="respaldado"
+                  gifUrl={HANA_GIFS.shimmer}
+                  fallbackColor="hsl(262 45% 35%)"
+                  className="text-5xl md:text-7xl font-black italic leading-none"
+                />
               </span>
-              <span className="block text-2xl md:text-3xl font-bold text-foreground/70 mt-1">
+              <span className="block text-2xl md:text-3xl font-bold text-foreground/70 mt-2">
                 por el Estado
               </span>
             </motion.h1>

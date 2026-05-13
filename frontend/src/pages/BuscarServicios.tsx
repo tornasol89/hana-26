@@ -110,20 +110,23 @@ const BuscarServicios = () => {
               </span>
             </div>
 
-            <h1 className="font-display leading-none mb-4">
-              <span className="block">
+            <h1 className="font-display leading-none mb-6">
+              <span className="block text-sm font-semibold uppercase tracking-[0.22em] text-white/40 mb-4">
+                Plataforma Hana
+              </span>
+              <span className="block mb-3">
                 <TextGif
                   text="Encuentra"
                   gifUrl={HANA_GIFS.aurora}
                   fallbackColor="white"
-                  className="text-5xl md:text-6xl font-bold italic leading-none"
+                  className="text-[4.5rem] md:text-[6rem] lg:text-[7rem] font-black italic leading-none"
                 />
               </span>
-              <span className="block text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
+              <span className="block text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent leading-snug">
                 a tu profesional ideal
               </span>
             </h1>
-            <p className="text-white/55 text-base max-w-md mx-auto mt-3">
+            <p className="text-white/50 text-base max-w-sm mx-auto mt-2 leading-relaxed">
               Mujeres verificadas, con experiencia comprobada y reseñas reales de otras clientas.
             </p>
           </motion.div>

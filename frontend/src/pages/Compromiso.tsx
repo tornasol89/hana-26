@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { TopBlur, BottomBlur } from "@/components/ui/edge-blur";
+import { TextGif, HANA_GIFS } from "@/components/ui/text-gif";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
@@ -107,13 +108,18 @@ export default function Compromiso() {
             </div>
 
             <h1 className="font-display leading-none mb-5">
-              <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/40 mb-3">
+              <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/40 mb-4">
                 Plataforma Hana
               </span>
-              <span className="block text-5xl md:text-7xl font-bold italic text-white leading-none">
-                Compromiso
+              <span className="block mb-2">
+                <TextGif
+                  text="Compromiso"
+                  gifUrl={HANA_GIFS.flowers}
+                  fallbackColor="white"
+                  className="text-5xl md:text-7xl font-bold italic leading-none"
+                />
               </span>
-              <span className="block text-3xl md:text-4xl font-bold mt-1 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
+              <span className="block text-3xl md:text-4xl font-bold mt-3 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 Hana
               </span>
             </h1>

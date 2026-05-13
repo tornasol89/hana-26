@@ -4,6 +4,7 @@ import { Heart, Shield, TrendingUp, Users } from "lucide-react";
 import { motion, useInView } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TextGif, HANA_GIFS } from "@/components/ui/text-gif";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -161,13 +162,18 @@ export default function Impacto() {
             Datos que lo demuestran
           </motion.div>
           <h1 className="font-display leading-none mb-4">
-            <span className="block text-xl md:text-2xl font-medium text-card-foreground/50">
+            <span className="block text-xl md:text-2xl font-medium text-card-foreground/50 mb-2">
               Por qué
             </span>
-            <span className="block text-5xl md:text-6xl font-black italic text-gradient-primary leading-none">
-              Hana
+            <span className="block mb-2">
+              <TextGif
+                text="Hana"
+                gifUrl={HANA_GIFS.galaxy}
+                fallbackColor="hsl(262 45% 35%)"
+                className="text-6xl md:text-8xl font-black italic leading-none"
+              />
             </span>
-            <span className="block text-2xl md:text-3xl font-bold text-card-foreground/70 mt-1">
+            <span className="block text-2xl md:text-3xl font-bold text-card-foreground/70 mt-2">
               existe
             </span>
           </h1>
