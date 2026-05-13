@@ -53,7 +53,7 @@ const HeroSection = () => {
 
             {/* Línea 2 — protagonista, italic enorme */}
             <motion.span
-              className="block leading-none pr-2"
+              className="block leading-none pr-2 mt-1.5"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.55, delay: 0.36 }}
@@ -68,7 +68,7 @@ const HeroSection = () => {
 
             {/* Separador sutil */}
             <motion.span
-              className="block w-10 h-px bg-gradient-to-r from-primary/30 to-transparent my-3"
+              className="block w-10 h-px bg-gradient-to-r from-primary/30 to-transparent my-5"
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
               style={{ originX: 0 }}
@@ -87,7 +87,7 @@ const HeroSection = () => {
 
             {/* Línea 4 — protagonista, bold grande */}
             <motion.span
-              className="block leading-none"
+              className="block leading-none mt-1.5"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.55, delay: 0.68 }}
