@@ -91,7 +91,7 @@ const BuscarServicios = () => {
       <Navbar />
 
       {/* ── Hero ── */}
-      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-32 pb-24 px-4">
+      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-24 pb-16 px-4">
         <div className="absolute top-0 left-1/4 w-96 h-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
         <div className="absolute top-[35%] left-[6%] w-28 h-28 rounded-full bg-white/5 blur-2xl animate-float pointer-events-none" />
@@ -103,37 +103,37 @@ const BuscarServicios = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-5">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
               <span className="text-xs font-medium text-white/80 uppercase tracking-widest">
                 Profesionales verificadas
               </span>
             </div>
 
-            <h1 className="font-display leading-none mb-5">
-              <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/40 mb-4">
+            <h1 className="font-display leading-none mb-3">
+              <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-2">
                 Buscar Servicios
               </span>
-              <span className="block mb-3">
+              <span className="block">
                 <TextGif
                   text="Encuentra"
-                  gifUrl={HANA_GIFS.flowers}
+                  gifUrl={HANA_GIFS.aurora}
                   fallbackColor="white"
-                  className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic leading-none"
+                  className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic"
                 />
               </span>
-              <span className="block text-2xl md:text-3xl font-bold mt-3 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
+              <span className="block text-xl md:text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 a tu profesional ideal
               </span>
             </h1>
-            <p className="text-white/50 text-base max-w-sm mx-auto mt-2 leading-relaxed">
+            <p className="text-white/50 text-sm max-w-sm mx-auto mt-3 leading-relaxed">
               Mujeres verificadas, con experiencia comprobada y reseñas reales de otras clientas.
             </p>
           </motion.div>
 
           {/* Stats */}
           <motion.div
-            className="flex justify-center gap-8 mt-10"
+            className="flex justify-center gap-8 mt-8"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}

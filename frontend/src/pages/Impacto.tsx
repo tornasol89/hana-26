@@ -144,7 +144,7 @@ export default function Impacto() {
       <Navbar />
 
       {/* ── Hero ── */}
-      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-32 pb-24 px-4">
+      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-24 pb-16 px-4">
         <div className="absolute top-0 left-1/4 w-96 h-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 right-[10%] w-32 h-32 rounded-full bg-white/5 blur-2xl animate-float pointer-events-none" />
@@ -155,31 +155,31 @@ export default function Impacto() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-5">
               <TrendingUp className="h-3.5 w-3.5 text-accent" />
               <span className="text-xs font-medium text-white/80 uppercase tracking-widest">
                 Datos que lo demuestran
               </span>
             </div>
 
-            <h1 className="font-display leading-none mb-5">
-              <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/40 mb-4">
+            <h1 className="font-display leading-none mb-3">
+              <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-2">
                 Por qué
               </span>
-              <span className="block mb-3">
+              <span className="block">
                 <TextGif
                   text="Hana"
-                  gifUrl={HANA_GIFS.flowers}
+                  gifUrl={HANA_GIFS.galaxy}
                   fallbackColor="white"
-                  className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-black italic leading-none"
+                  className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic"
                 />
               </span>
-              <span className="block text-2xl md:text-3xl font-bold mt-3 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
+              <span className="block text-xl md:text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 existe
               </span>
             </h1>
 
-            <p className="text-white/50 text-sm max-w-md mx-auto mt-4">
+            <p className="text-white/50 text-sm max-w-md mx-auto mt-3">
               Cifras reales de Chile · INE · CASEN · Fundación Sol · Corporación Humanas · ChileMujeres 2024–2025
             </p>
           </motion.div>

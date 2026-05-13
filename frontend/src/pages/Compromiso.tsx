@@ -88,7 +88,7 @@ export default function Compromiso() {
       <Navbar />
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
-      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-32 pb-24 px-4">
+      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-24 pb-16 px-4">
         {/* Orbes decorativos */}
         <div className="absolute top-0 left-1/4 w-96 h-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
@@ -100,31 +100,31 @@ export default function Compromiso() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-5">
               <Shield className="h-3.5 w-3.5 text-accent" />
               <span className="text-xs font-medium text-white/80 uppercase tracking-widest">
                 Documento oficial
               </span>
             </div>
 
-            <h1 className="font-display leading-none mb-5">
-              <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/40 mb-4">
+            <h1 className="font-display leading-none mb-3">
+              <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-2">
                 Plataforma Hana
               </span>
-              <span className="block mb-2">
+              <span className="block">
                 <TextGif
                   text="Compromiso"
                   gifUrl={HANA_GIFS.flowers}
                   fallbackColor="white"
-                  className="text-[3.5rem] md:text-[5.5rem] lg:text-[7.5rem] font-bold italic leading-none"
+                  className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-bold italic"
                 />
               </span>
-              <span className="block text-3xl md:text-4xl font-bold mt-3 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
+              <span className="block text-xl md:text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 Hana
               </span>
             </h1>
 
-            <p className="text-white/55 text-base max-w-md mx-auto mt-4">
+            <p className="text-white/55 text-sm max-w-md mx-auto mt-3">
               {modoAceptacion
                 ? "Antes de crear tu cuenta, lee y acepta este compromiso de comunidad."
                 : "Los principios que sostienen nuestra comunidad de mujeres."}
@@ -133,7 +133,7 @@ export default function Compromiso() {
 
           {/* Stats decorativos */}
           <motion.div
-            className="flex justify-center gap-8 mt-10"
+            className="flex justify-center gap-8 mt-8"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
