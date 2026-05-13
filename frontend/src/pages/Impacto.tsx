@@ -4,7 +4,6 @@ import { Heart, Shield, TrendingUp, Users } from "lucide-react";
 import { motion, useInView } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TextGif, HANA_GIFS } from "@/components/ui/text-gif";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -166,13 +165,8 @@ export default function Impacto() {
               <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-2">
                 Por qué
               </span>
-              <span className="block">
-                <TextGif
-                  text="Hana"
-                  gifUrl={HANA_GIFS.galaxy}
-                  fallbackColor="white"
-                  className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic"
-                />
+              <span className="block text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic text-white leading-none">
+                Hana
               </span>
               <span className="block text-xl md:text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 existe
