@@ -193,7 +193,7 @@ function ThreeDPhotoCarousel({ workers, onWorkerClick, compact = false }: ThreeD
   }
 
   const heightClass = compact
-    ? "h-[220px] sm:h-[280px]"
+    ? "h-[300px] sm:h-[360px]"
     : "h-[300px] sm:h-[400px] lg:h-[500px]"
 
   return (
