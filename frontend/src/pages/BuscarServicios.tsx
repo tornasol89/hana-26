@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import fotoPerfilDefault from "@/assets/foto_perfil.jpg";
 import { useNavigate } from "react-router-dom";
+import ThreeDPhotoCarousel, { type WorkerCarouselItem } from "@/components/ui/three-d-carousel";
 import {
   Star,
   MapPin,
@@ -85,6 +86,15 @@ const BuscarServicios = () => {
     if (orden === "tarifa_desc") result.sort((a, b) => b.tarifaHora - a.tarifaHora);
     return result;
   }, [workers, search, orden]);
+
+  const topWorkers = useMemo<WorkerCarouselItem[]>(() => {
+    if (orden !== "evaluadas" || !filtered.length) return [];
+    return filtered.slice(0, 12).map((w) => ({
+      id: w._id,
+      url: w.usuario?.foto || fotoPerfilDefault,
+      label: `${w.usuario?.nombre ?? ""} ${w.usuario?.apellido ?? ""}`.trim() || "Profesional",
+    }));
+  }, [orden, filtered]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -270,6 +280,35 @@ const BuscarServicios = () => {
                 )}
               </div>
             </div>
+
+            {/* Carrusel "Mejor evaluadas" */}
+            <AnimatePresence>
+              {orden === "evaluadas" && topWorkers.length > 0 && (
+                <motion.div
+                  key="carousel-evaluadas"
+                  initial={{ opacity: 0, y: -12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="mb-10 rounded-2xl overflow-hidden border border-border bg-gradient-to-br from-[#1a0533]/5 via-background to-[#160c2e]/5 shadow-sm"
+                >
+                  <div className="px-6 pt-6 pb-2 text-center">
+                    <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1 mb-2">
+                      <Star className="h-3.5 w-3.5 fill-accent text-accent" />
+                      <span className="text-xs font-semibold text-primary uppercase tracking-widest">Mejor evaluadas</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Gira el carrusel · haz click en una foto para ver el perfil
+                    </p>
+                  </div>
+                  <ThreeDPhotoCarousel
+                    workers={topWorkers}
+                    onWorkerClick={(id) => navigate(`/worker/${id}`)}
+                    compact
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filtered.map((w, i) => (

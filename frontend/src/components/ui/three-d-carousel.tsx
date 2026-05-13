@@ -13,6 +13,12 @@ import worker4 from "@/assets/worker-4.jpg"
 import worker5 from "@/assets/worker-5.jpg"
 import worker6 from "@/assets/worker-6.jpg"
 
+export interface WorkerCarouselItem {
+  id: string
+  url: string
+  label: string
+}
+
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect
 
@@ -129,13 +135,27 @@ const Carousel = memo(function Carousel({
 
 // ─── Componente principal ──────────────────────────────────────────────────────
 
-function ThreeDPhotoCarousel() {
+interface ThreeDPhotoCarouselProps {
+  workers?: WorkerCarouselItem[]
+  onWorkerClick?: (id: string) => void
+  compact?: boolean
+}
+
+function ThreeDPhotoCarousel({ workers, onWorkerClick, compact = false }: ThreeDPhotoCarouselProps = {}) {
+  const workerMode = !!workers && !!onWorkerClick
   const [activeImg, setActiveImg] = useState<string | null>(null)
   const [isCarouselActive, setIsCarouselActive] = useState(true)
   const controls = useAnimation()
-  const cards = useMemo(() => HANA_IMAGES, [])
+  const cards = useMemo(
+    () => (workerMode ? workers!.map((w) => w.url) : HANA_IMAGES),
+    [workerMode, workers]
+  )
 
-  const handleClick = (imgUrl: string) => {
+  const handleClick = (imgUrl: string, index: number) => {
+    if (workerMode) {
+      onWorkerClick!(workers![index]?.id ?? "")
+      return
+    }
     setActiveImg(imgUrl)
     setIsCarouselActive(false)
     controls.stop()
@@ -146,38 +166,44 @@ function ThreeDPhotoCarousel() {
     setIsCarouselActive(true)
   }
 
+  const heightClass = compact
+    ? "h-[220px] sm:h-[280px]"
+    : "h-[300px] sm:h-[400px] lg:h-[500px]"
+
   return (
     <motion.div layout className="relative">
-      {/* Overlay al hacer clic en una imagen */}
-      <AnimatePresence mode="sync">
-        {activeImg && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            layoutId={`img-container-${activeImg}`}
-            layout="position"
-            onClick={handleClose}
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-8 md:p-24 rounded-3xl cursor-pointer"
-            style={{ willChange: "opacity" }}
-            transition={transitionOverlay}
-          >
-            <motion.img
-              layoutId={`img-${activeImg}`}
-              src={activeImg}
-              alt="Profesional Hana"
-              className="max-w-full max-h-full rounded-2xl shadow-2xl object-cover"
-              initial={{ scale: 0.5 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.5, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const }}
-              style={{ willChange: "transform" }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Overlay (solo modo estático) */}
+      {!workerMode && (
+        <AnimatePresence mode="sync">
+          {activeImg && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              layoutId={`img-container-${activeImg}`}
+              layout="position"
+              onClick={handleClose}
+              className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-8 md:p-24 rounded-3xl cursor-pointer"
+              style={{ willChange: "opacity" }}
+              transition={transitionOverlay}
+            >
+              <motion.img
+                layoutId={`img-${activeImg}`}
+                src={activeImg}
+                alt="Profesional Hana"
+                className="max-w-full max-h-full rounded-2xl shadow-2xl object-cover"
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.5, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const }}
+                style={{ willChange: "transform" }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
 
       {/* Carrusel */}
-      <div className="relative h-[300px] sm:h-[400px] lg:h-[500px] w-full overflow-hidden">
+      <div className={`relative ${heightClass} w-full overflow-hidden`}>
         <Carousel
           handleClick={handleClick}
           controls={controls}
