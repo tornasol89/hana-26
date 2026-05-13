@@ -34,6 +34,7 @@ import {
   ExpandableContent,
   ExpandableTrigger,
 } from "@/components/ui/expandable";
+import { TextGif, HANA_GIFS } from "@/components/ui/text-gif";
 
 const TODAS = "todas";
 
@@ -110,8 +111,13 @@ const BuscarServicios = () => {
             </div>
 
             <h1 className="font-display leading-none mb-4">
-              <span className="block text-5xl md:text-6xl font-bold italic text-white">
-                Encuentra
+              <span className="block">
+                <TextGif
+                  text="Encuentra"
+                  gifUrl={HANA_GIFS.aurora}
+                  fallbackColor="white"
+                  className="text-5xl md:text-6xl font-bold italic leading-none"
+                />
               </span>
               <span className="block text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 a tu profesional ideal

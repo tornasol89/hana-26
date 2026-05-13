@@ -5,6 +5,7 @@ import { Search, Shield, Star, ArrowRight } from "lucide-react";
 import ThreeDPhotoCarousel from "@/components/ui/three-d-carousel";
 import { AnimatedButtonWrapper } from "@/components/ui/bg-animate-button";
 import { TextureOverlay } from "@/components/ui/texture-overlay";
+import { TextGif, HANA_GIFS } from "@/components/ui/text-gif";
 
 const HeroSection = () => {
   return (
@@ -52,12 +53,17 @@ const HeroSection = () => {
 
             {/* Línea 2 — protagonista, italic enorme */}
             <motion.span
-              className="block text-[3.2rem] md:text-[4rem] lg:text-[5rem] font-bold italic text-gradient-primary leading-none pr-2"
+              className="block leading-none pr-2"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.55, delay: 0.36 }}
             >
-              ser visto.
+              <TextGif
+                text="ser visto."
+                gifUrl={HANA_GIFS.galaxy}
+                fallbackColor="hsl(270 50% 70%)"
+                className="text-[3.2rem] md:text-[4rem] lg:text-[5rem] font-bold italic leading-none"
+              />
             </motion.span>
 
             {/* Separador sutil */}
@@ -81,12 +87,17 @@ const HeroSection = () => {
 
             {/* Línea 4 — protagonista, bold grande */}
             <motion.span
-              className="block text-[2.8rem] md:text-[3.5rem] lg:text-[4.5rem] font-bold text-gradient-gold leading-none"
+              className="block leading-none"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.55, delay: 0.68 }}
             >
-              lo mejor.
+              <TextGif
+                text="lo mejor."
+                gifUrl={HANA_GIFS.shimmer}
+                fallbackColor="hsl(38 52% 60%)"
+                className="text-[2.8rem] md:text-[3.5rem] lg:text-[4.5rem] font-bold leading-none"
+              />
             </motion.span>
           </h1>
 

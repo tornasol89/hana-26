@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TextGif, HANA_GIFS } from "@/components/ui/text-gif";
 import { Link } from "react-router-dom";
 import {
   Award,
@@ -175,7 +176,13 @@ export default function DashboardTrabajadora() {
 
             <h1 className="font-display leading-none mb-4">
               <span className="block text-4xl md:text-5xl font-bold text-white">
-                Hola, <em className="not-italic bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">{nombre}</em>
+                Hola,{" "}
+                <TextGif
+                  text={nombre}
+                  gifUrl={HANA_GIFS.flowers}
+                  fallbackColor="hsl(270 50% 80%)"
+                  className="text-4xl md:text-5xl font-bold italic leading-none"
+                />
               </span>
               <span className="block text-xl font-semibold mt-2 text-white/60">
                 Tu espacio para crecer como profesional independiente
