@@ -68,7 +68,7 @@ const HeroSection = () => {
 
             {/* Separador sutil */}
             <motion.span
-              className="block w-10 h-px bg-gradient-to-r from-primary/30 to-transparent my-5"
+              className="block w-10 h-px bg-gradient-to-r from-primary/30 to-transparent my-2"
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
               style={{ originX: 0 }}

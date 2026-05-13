@@ -79,7 +79,7 @@ const TextGif = React.memo(function TextGifComponent({
       backgroundRepeat: "no-repeat",
       WebkitBackgroundClip: "text",
       // lineHeight forzado en style para ganar sobre cualquier clase leading-*
-      lineHeight: 1.3,
+      lineHeight: 1.1,
       color: fallbackColor,
       WebkitTextFillColor: fallbackColor,
       transition: `opacity ${transitionDuration}ms ease-in-out`,

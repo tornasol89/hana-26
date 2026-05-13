@@ -175,16 +175,16 @@ export default function DashboardTrabajadora() {
             </div>
 
             <h1 className="font-display leading-none mb-4">
-              <span className="block text-4xl md:text-5xl font-bold text-white">
-                Hola,{" "}
-                <TextGif
-                  text={nombre}
-                  gifUrl={HANA_GIFS.flowers}
-                  fallbackColor="hsl(270 50% 80%)"
-                  className="text-4xl md:text-5xl font-bold italic leading-none"
-                />
+              <span className="block text-lg md:text-xl font-medium text-white/50 mb-1">
+                Hola,
               </span>
-              <span className="block text-xl font-semibold mt-2 text-white/60">
+              <TextGif
+                text={nombre}
+                gifUrl={HANA_GIFS.flowers}
+                fallbackColor="hsl(270 50% 80%)"
+                className="text-[2.8rem] md:text-[3.8rem] font-bold italic"
+              />
+              <span className="block text-base md:text-lg font-medium mt-2 text-white/55">
                 Tu espacio para crecer como profesional independiente
               </span>
             </h1>
