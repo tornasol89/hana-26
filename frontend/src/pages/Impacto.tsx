@@ -143,44 +143,50 @@ export default function Impacto() {
     <div className="min-h-screen bg-gradient-warm">
       <Navbar />
 
-      <div className="pt-20 pb-12 container mx-auto px-4 max-w-5xl">
+      {/* ── Hero ── */}
+      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-32 pb-24 px-4">
+        <div className="absolute top-0 left-1/4 w-96 h-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 right-[10%] w-32 h-32 rounded-full bg-white/5 blur-2xl animate-float pointer-events-none" />
 
-        {/* Encabezado */}
-        <motion.div
-          className="text-center mb-14"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div className="container mx-auto max-w-3xl text-center relative z-10">
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold uppercase tracking-wider mb-5"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <TrendingUp className="h-3.5 w-3.5" />
-            Datos que lo demuestran
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+              <TrendingUp className="h-3.5 w-3.5 text-accent" />
+              <span className="text-xs font-medium text-white/80 uppercase tracking-widest">
+                Datos que lo demuestran
+              </span>
+            </div>
+
+            <h1 className="font-display leading-none mb-5">
+              <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/40 mb-4">
+                Por qué
+              </span>
+              <span className="block mb-3">
+                <TextGif
+                  text="Hana"
+                  gifUrl={HANA_GIFS.galaxy}
+                  fallbackColor="white"
+                  className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-black italic leading-none"
+                />
+              </span>
+              <span className="block text-2xl md:text-3xl font-bold mt-3 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
+                existe
+              </span>
+            </h1>
+
+            <p className="text-white/50 text-sm max-w-md mx-auto mt-4">
+              Cifras reales de Chile · INE · CASEN · Fundación Sol · Corporación Humanas · ChileMujeres 2024–2025
+            </p>
           </motion.div>
-          <h1 className="font-display leading-none mb-4">
-            <span className="block text-xl md:text-2xl font-medium text-card-foreground/50 mb-2">
-              Por qué
-            </span>
-            <span className="block mb-2">
-              <TextGif
-                text="Hana"
-                gifUrl={HANA_GIFS.galaxy}
-                fallbackColor="hsl(262 45% 35%)"
-                className="text-[6rem] md:text-[10rem] lg:text-[13rem] font-black italic leading-none"
-              />
-            </span>
-            <span className="block text-2xl md:text-3xl font-bold text-card-foreground/70 mt-2">
-              existe
-            </span>
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-sm">
-            Cifras reales de Chile · INE · CASEN · Fundación Sol · Corporación Humanas · ChileMujeres 2024–2025
-          </p>
-        </motion.div>
+        </div>
+      </div>
+
+      <div className="pb-12 container mx-auto px-4 max-w-5xl pt-12">
 
         {/* Stats principales */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

@@ -117,108 +117,94 @@ export default function Alianza() {
     <div className="min-h-screen bg-gradient-warm">
       <Navbar />
 
-      <div className="pt-20">
+      {/* ── Hero ── */}
+      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-32 pb-24 px-4">
+        <div className="absolute top-0 left-1/4 w-96 h-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 right-[10%] w-32 h-32 rounded-full bg-white/5 blur-2xl animate-float pointer-events-none" />
 
-        {/* ── Hero ── */}
-        <section className="relative overflow-hidden py-20">
-          {/* Glow decorativo */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/4 left-1/3 w-80 h-80 rounded-full bg-primary/8 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-64 h-48 rounded-full bg-amber-400/8 blur-3xl" />
-          </div>
+        <div className="container mx-auto max-w-3xl text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+              <HandshakeIcon className="h-3.5 w-3.5 text-accent" />
+              <span className="text-xs font-medium text-white/80 uppercase tracking-widest">
+                Alianzas estratégicas
+              </span>
+            </div>
 
-          <div className="container mx-auto px-4 max-w-4xl text-center space-y-8 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold border border-primary/20"
-            >
-              <HandshakeIcon className="h-3.5 w-3.5" />
-              Alianzas estratégicas
-            </motion.div>
-
-            {/* Logos en fila */}
-            <motion.div
-              className="flex flex-wrap items-center justify-center gap-4 md:gap-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              {/* Hana badge */}
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-card border border-border rounded-xl shadow-soft">
-                <div className="w-7 h-7 rounded-full bg-gradient-hero flex items-center justify-center">
-                  <Sparkles className="h-3.5 w-3.5 text-white" />
-                </div>
-                <span className="font-black text-foreground text-sm">HANA</span>
-              </div>
-
-              <span className="text-2xl font-light text-muted-foreground">×</span>
-
-              <div className="px-4 py-2.5 bg-white border border-amber-200 rounded-xl shadow-soft">
-                <LogoChilevalora size="sm" />
-              </div>
-
-              <span className="text-2xl font-light text-muted-foreground">×</span>
-
-              <div className="px-4 py-2.5 bg-white border border-red-200 rounded-xl shadow-soft">
-                <LogoSercotec size="sm" />
-              </div>
-            </motion.div>
-
-            <motion.h1
-              className="font-display leading-none"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <span className="block text-xl md:text-2xl font-medium text-foreground/50 mb-2">
+            <h1 className="font-display leading-none mb-5">
+              <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/40 mb-4">
                 Tu trabajo,
               </span>
-              <span className="block mb-2">
+              <span className="block mb-3">
                 <TextGif
                   text="respaldado"
                   gifUrl={HANA_GIFS.shimmer}
-                  fallbackColor="hsl(262 45% 35%)"
-                  className="text-[4rem] md:text-[6.5rem] lg:text-[8.5rem] font-black italic leading-none"
+                  fallbackColor="white"
+                  className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic leading-none"
                 />
               </span>
-              <span className="block text-2xl md:text-3xl font-bold text-foreground/70 mt-2">
+              <span className="block text-2xl md:text-3xl font-bold mt-3 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 por el Estado
               </span>
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
+            <p className="text-white/55 text-base max-w-md mx-auto mt-4">
               Trabajamos junto a dos organismos del Estado para que las mujeres que
               ofrecen servicios a través de Hana tengan acceso a certificación oficial,
               financiamiento y capacitación gratuita.
-            </motion.p>
+            </p>
+          </motion.div>
 
-            {/* Stats rápidas */}
-            <motion.div
-              className="flex flex-wrap justify-center gap-6 pt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-            >
-              {[
-                { val: "+50", label: "competencias certificadas" },
-                { val: "100%", label: "gratuito para trabajadoras" },
-                { val: "16", label: "regiones de Chile" },
-              ].map((s) => (
-                <div key={s.val} className="text-center">
-                  <p className="text-2xl font-black text-primary">{s.val}</p>
-                  <p className="text-xs text-muted-foreground">{s.label}</p>
-                </div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
+          {/* Logos */}
+          <motion.div
+            className="flex flex-wrap items-center justify-center gap-4 mt-10"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl backdrop-blur-sm">
+              <div className="w-6 h-6 rounded-full bg-gradient-hero flex items-center justify-center">
+                <Sparkles className="h-3 w-3 text-white" />
+              </div>
+              <span className="font-black text-white text-sm">HANA</span>
+            </div>
+            <span className="text-xl font-light text-white/40">×</span>
+            <div className="px-4 py-2.5 bg-white rounded-xl">
+              <LogoChilevalora size="sm" />
+            </div>
+            <span className="text-xl font-light text-white/40">×</span>
+            <div className="px-4 py-2.5 bg-white rounded-xl">
+              <LogoSercotec size="sm" />
+            </div>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div
+            className="flex flex-wrap justify-center gap-8 mt-10"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
+          >
+            {[
+              { val: "+50", label: "competencias certificadas" },
+              { val: "100%", label: "gratuito para trabajadoras" },
+              { val: "16", label: "regiones de Chile" },
+            ].map((s) => (
+              <div key={s.val} className="text-center">
+                <p className="font-display text-2xl font-bold text-white">{s.val}</p>
+                <p className="text-white/45 text-xs mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="pt-0">
 
         {/* ── Chilevalora ── */}
         <section className="bg-card border-y border-border py-16">
