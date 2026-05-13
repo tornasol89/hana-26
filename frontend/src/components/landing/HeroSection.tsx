@@ -60,7 +60,7 @@ const HeroSection = () => {
             >
               <TextGif
                 text="ser visto."
-                gifUrl={HANA_GIFS.flowers}
+                gifUrl={HANA_GIFS.galaxy}
                 fallbackColor="hsl(270 50% 70%)"
                 className="text-[3.2rem] md:text-[4rem] lg:text-[5rem] font-bold italic"
               />
@@ -94,7 +94,7 @@ const HeroSection = () => {
             >
               <TextGif
                 text="lo mejor."
-                gifUrl={HANA_GIFS.flowers}
+                gifUrl={HANA_GIFS.shimmer}
                 fallbackColor="hsl(38 52% 60%)"
                 className="text-[2.8rem] md:text-[3.5rem] lg:text-[4.5rem] font-bold"
               />
