@@ -17,6 +17,13 @@ export interface WorkerCarouselItem {
   id: string
   url: string
   label: string
+  sublabel?: string
+}
+
+interface CarouselItem {
+  url: string
+  label?: string
+  sublabel?: string
 }
 
 const useIsomorphicLayoutEffect =
@@ -49,18 +56,18 @@ const transitionOverlay = { duration: 0.5, ease: [0.32, 0.72, 0, 1] as const }
 const Carousel = memo(function Carousel({
   handleClick,
   controls,
-  cards,
+  items,
   isCarouselActive,
 }: {
-  handleClick: (imgUrl: string, index: number) => void
+  handleClick: (url: string, index: number) => void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   controls: any
-  cards: string[]
+  items: CarouselItem[]
   isCarouselActive: boolean
 }) {
   const isSmall = useMediaQuery("(max-width: 640px)")
   const cylinderWidth = isSmall ? 1100 : 1800
-  const faceCount = cards.length
+  const faceCount = items.length
   const faceWidth = cylinderWidth / faceCount
   const radius = cylinderWidth / (2 * Math.PI)
   const rotation = useMotionValue(0)
@@ -106,26 +113,42 @@ const Carousel = memo(function Carousel({
         }}
         animate={controls}
       >
-        {cards.map((imgUrl, i) => (
+        {items.map((item, i) => (
           <motion.div
-            key={`${imgUrl}-${i}`}
+            key={`${item.url}-${i}`}
             className="absolute flex h-full origin-center items-center justify-center rounded-xl p-2"
             style={{
               width: `${faceWidth}px`,
               transform: `rotateY(${i * (360 / faceCount)}deg) translateZ(${radius}px)`,
             }}
-            onClick={() => handleClick(imgUrl, i)}
+            onClick={() => handleClick(item.url, i)}
           >
-            <motion.img
-              src={imgUrl}
-              alt={`Profesional Hana ${i + 1}`}
-              layoutId={`img-${imgUrl}`}
-              className="pointer-events-none w-full rounded-xl object-cover aspect-[4/5] shadow-md"
-              initial={{ filter: "blur(4px)" }}
-              layout="position"
-              animate={{ filter: "blur(0px)" }}
-              transition={transition}
-            />
+            <div className="relative w-full">
+              <motion.img
+                src={item.url}
+                alt={item.label ?? `Profesional Hana ${i + 1}`}
+                layoutId={`img-${item.url}`}
+                className="pointer-events-none w-full rounded-xl object-cover aspect-[4/5] shadow-md"
+                initial={{ filter: "blur(4px)" }}
+                layout="position"
+                animate={{ filter: "blur(0px)" }}
+                transition={transition}
+              />
+              {(item.label || item.sublabel) && (
+                <div className="absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-black/80 via-black/50 to-transparent px-3 pb-3 pt-8 pointer-events-none">
+                  {item.label && (
+                    <p className="text-white text-[11px] font-bold leading-tight truncate drop-shadow-sm">
+                      {item.label}
+                    </p>
+                  )}
+                  {item.sublabel && (
+                    <p className="text-white/75 text-[10px] truncate drop-shadow-sm">
+                      {item.sublabel}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           </motion.div>
         ))}
       </motion.div>
@@ -146,8 +169,11 @@ function ThreeDPhotoCarousel({ workers, onWorkerClick, compact = false }: ThreeD
   const [activeImg, setActiveImg] = useState<string | null>(null)
   const [isCarouselActive, setIsCarouselActive] = useState(true)
   const controls = useAnimation()
-  const cards = useMemo(
-    () => (workerMode ? workers!.map((w) => w.url) : HANA_IMAGES),
+  const items = useMemo<CarouselItem[]>(
+    () =>
+      workerMode
+        ? workers!.map((w) => ({ url: w.url, label: w.label, sublabel: w.sublabel }))
+        : HANA_IMAGES.map((url) => ({ url })),
     [workerMode, workers]
   )
 
@@ -207,7 +233,7 @@ function ThreeDPhotoCarousel({ workers, onWorkerClick, compact = false }: ThreeD
         <Carousel
           handleClick={handleClick}
           controls={controls}
-          cards={cards}
+          items={items}
           isCarouselActive={isCarouselActive}
         />
       </div>

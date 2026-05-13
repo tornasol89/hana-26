@@ -42,8 +42,8 @@ const TODAS = "todas";
 type Orden = "relevancia" | "evaluadas" | "tarifa_asc" | "tarifa_desc";
 
 const ORDEN_OPTS: { value: Orden; label: string }[] = [
-  { value: "relevancia",  label: "Relevancia" },
   { value: "evaluadas",   label: "⭐ Mejor evaluadas" },
+  { value: "relevancia",  label: "Relevancia" },
   { value: "tarifa_asc",  label: "↑ Menor tarifa" },
   { value: "tarifa_desc", label: "↓ Mayor tarifa" },
 ];
@@ -93,6 +93,7 @@ const BuscarServicios = () => {
       id: w._id,
       url: w.usuario?.foto || fotoPerfilDefault,
       label: `${w.usuario?.nombre ?? ""} ${w.usuario?.apellido ?? ""}`.trim() || "Profesional",
+      sublabel: w.subcategoria || w.categoria || undefined,
     }));
   }, [orden, filtered]);
 
