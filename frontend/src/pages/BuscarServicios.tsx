@@ -117,7 +117,7 @@ const BuscarServicios = () => {
               <span className="block mb-3">
                 <TextGif
                   text="Encuentra"
-                  gifUrl={HANA_GIFS.aurora}
+                  gifUrl={HANA_GIFS.flowers}
                   fallbackColor="white"
                   className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic leading-none"
                 />

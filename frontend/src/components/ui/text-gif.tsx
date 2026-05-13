@@ -78,6 +78,8 @@ const TextGif = React.memo(function TextGifComponent({
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
       WebkitBackgroundClip: "text",
+      // lineHeight forzado en style para ganar sobre cualquier clase leading-*
+      lineHeight: 1.3,
       color: fallbackColor,
       WebkitTextFillColor: fallbackColor,
       transition: `opacity ${transitionDuration}ms ease-in-out`,
@@ -91,7 +93,8 @@ const TextGif = React.memo(function TextGifComponent({
   }, [loaded, error, gifUrl, transitionDuration, fallbackColor])
 
   return (
-    <span className="relative inline-block">
+    // block + overflow-hidden contiene los ascendentes de Playfair Display italic
+    <span className="relative block w-full overflow-hidden">
       {gifUrl && (
         <img
           src={gifUrl}

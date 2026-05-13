@@ -143,7 +143,7 @@ export default function Alianza() {
               <span className="block mb-3">
                 <TextGif
                   text="respaldado"
-                  gifUrl={HANA_GIFS.shimmer}
+                  gifUrl={HANA_GIFS.flowers}
                   fallbackColor="white"
                   className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic leading-none"
                 />

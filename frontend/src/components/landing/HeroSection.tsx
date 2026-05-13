@@ -53,16 +53,16 @@ const HeroSection = () => {
 
             {/* Línea 2 — protagonista, italic enorme */}
             <motion.span
-              className="block leading-none pr-2 mt-1.5"
+              className="block pr-2"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.55, delay: 0.36 }}
             >
               <TextGif
                 text="ser visto."
-                gifUrl={HANA_GIFS.galaxy}
+                gifUrl={HANA_GIFS.flowers}
                 fallbackColor="hsl(270 50% 70%)"
-                className="text-[3.2rem] md:text-[4rem] lg:text-[5rem] font-bold italic leading-none"
+                className="text-[3.2rem] md:text-[4rem] lg:text-[5rem] font-bold italic"
               />
             </motion.span>
 
@@ -87,16 +87,16 @@ const HeroSection = () => {
 
             {/* Línea 4 — protagonista, bold grande */}
             <motion.span
-              className="block leading-none mt-1.5"
+              className="block"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.55, delay: 0.68 }}
             >
               <TextGif
                 text="lo mejor."
-                gifUrl={HANA_GIFS.shimmer}
+                gifUrl={HANA_GIFS.flowers}
                 fallbackColor="hsl(38 52% 60%)"
-                className="text-[2.8rem] md:text-[3.5rem] lg:text-[4.5rem] font-bold leading-none"
+                className="text-[2.8rem] md:text-[3.5rem] lg:text-[4.5rem] font-bold"
               />
             </motion.span>
           </h1>

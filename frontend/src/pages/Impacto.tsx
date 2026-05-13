@@ -169,7 +169,7 @@ export default function Impacto() {
               <span className="block mb-3">
                 <TextGif
                   text="Hana"
-                  gifUrl={HANA_GIFS.galaxy}
+                  gifUrl={HANA_GIFS.flowers}
                   fallbackColor="white"
                   className="text-[5rem] md:text-[8rem] lg:text-[11rem] font-black italic leading-none"
                 />
