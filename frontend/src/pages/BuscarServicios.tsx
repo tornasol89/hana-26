@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import fotoPerfilDefault from "@/assets/foto_perfil.jpg";
 import { useNavigate } from "react-router-dom";
 import {
   Star,
@@ -307,7 +308,6 @@ function WorkerCard({
   onClick: () => void;
 }) {
   const nombreCompleto = `${worker.usuario?.nombre ?? ""} ${worker.usuario?.apellido ?? ""}`.trim();
-  const iniciales = `${worker.usuario?.nombre?.[0] ?? ""}${worker.usuario?.apellido?.[0] ?? ""}`.toUpperCase() || "H";
   const tieneFoto  = !!worker.usuario?.foto;
   const palette    = CAT_PALETTES[paletteIndex % CAT_PALETTES.length];
   const tarifaTexto = worker.tarifaHora > 0
@@ -330,30 +330,12 @@ function WorkerCard({
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                 />
               ) : (
-                <div
-                  className="w-full h-full flex flex-col items-center justify-center gap-3"
-                  style={{ background: `linear-gradient(135deg, ${palette.bg}, #f8f4ff)` }}
-                >
-                  {/* Anillos decorativos */}
-                  <div className="relative flex items-center justify-center">
-                    <div
-                      className="absolute w-24 h-24 rounded-full opacity-20 animate-ping"
-                      style={{ backgroundColor: palette.color, animationDuration: "2.5s" }}
-                    />
-                    <div
-                      className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"
-                      style={{ background: `linear-gradient(135deg, ${palette.color}, ${palette.color}cc)` }}
-                    >
-                      <span className="text-2xl font-bold font-display text-white">{iniciales}</span>
-                    </div>
-                  </div>
-                  <span
-                    className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{ backgroundColor: palette.border, color: palette.color }}
-                  >
-                    {worker.categoria}
-                  </span>
-                </div>
+                <img
+                  src={fotoPerfilDefault}
+                  alt={nombreCompleto}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
               )}
 
               {/* Badges */}
@@ -378,9 +360,7 @@ function WorkerCard({
                 </div>
               )}
 
-              {tieneFoto && (
-                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-card to-transparent" />
-              )}
+              <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-card to-transparent" />
             </div>
 
             {/* Info principal */}
