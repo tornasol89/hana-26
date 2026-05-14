@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Eye, EyeOff, FileText, Loader2, Search, Sparkles } from "lucide-react";
+import {
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  FileText,
+  Loader2,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +25,13 @@ import hanaLogo from "@/assets/hana-logo.png";
 import { useRegister } from "@/features/auth/hooks";
 import { REGIONES_CHILE, COMUNAS_POR_REGION } from "@/config/constants";
 import type { UserType } from "@/features/auth/types";
+import {
+  capitalizarNombre,
+  validarRut,
+  formatearRutVisual,
+  validarFechaNacimiento,
+  EDAD_MINIMA,
+} from "@/lib/validators";
 
 const DRAFT_KEY = "registro_draft";
 
@@ -26,6 +41,7 @@ interface RegistroDraft {
   apellido: string;
   email: string;
   rut: string;
+  fechaNacimiento: string;
   region: string;
   comuna: string;
   // ⚠️ no guardamos password ni confirmarPassword — por seguridad la persona los vuelve a tipear
@@ -37,6 +53,7 @@ const DRAFT_INICIAL: RegistroDraft = {
   apellido: "",
   email: "",
   rut: "",
+  fechaNacimiento: "",
   region: "",
   comuna: "",
 };
@@ -52,9 +69,41 @@ function leerDraft(): RegistroDraft {
   }
 }
 
-const TIPOS: { value: UserType; label: string; desc: string; Icon: React.ElementType }[] = [
+/**
+ * Fecha máxima permitida: exactamente EDAD_MINIMA años atrás desde hoy.
+ */
+function getFechaMaxima(): string {
+  const hoy = new Date();
+  const max = new Date(
+    hoy.getFullYear() - EDAD_MINIMA,
+    hoy.getMonth(),
+    hoy.getDate(),
+  );
+  return max.toISOString().split("T")[0];
+}
+
+/**
+ * Fecha mínima razonable: hace 120 años.
+ */
+function getFechaMinima(): string {
+  const hoy = new Date();
+  const min = new Date(hoy.getFullYear() - 120, hoy.getMonth(), hoy.getDate());
+  return min.toISOString().split("T")[0];
+}
+
+const TIPOS: {
+  value: UserType;
+  label: string;
+  desc: string;
+  Icon: React.ElementType;
+}[] = [
   { value: "clienta", label: "Soy Clienta", desc: "Busco servicios", Icon: Search },
-  { value: "trabajadora", label: "Soy Trabajadora", desc: "Ofrezco servicios", Icon: Sparkles },
+  {
+    value: "trabajadora",
+    label: "Soy Trabajadora",
+    desc: "Ofrezco servicios",
+    Icon: Sparkles,
+  },
 ];
 
 const Registro = () => {
@@ -69,6 +118,7 @@ const Registro = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmar, setShowConfirmar] = useState(false);
   const [rut, setRut] = useState(draft.rut);
+  const [fechaNacimiento, setFechaNacimiento] = useState(draft.fechaNacimiento);
   const [region, setRegion] = useState(draft.region);
   const [comuna, setComuna] = useState(draft.comuna);
   const [aceptoCompromiso, setAceptoCompromiso] = useState(false);
@@ -82,7 +132,16 @@ const Registro = () => {
   }, []);
 
   function guardarDraft() {
-    const data: RegistroDraft = { tipo, nombre, apellido, email, rut, region, comuna };
+    const data: RegistroDraft = {
+      tipo,
+      nombre,
+      apellido,
+      email,
+      rut,
+      fechaNacimiento,
+      region,
+      comuna,
+    };
     sessionStorage.setItem(DRAFT_KEY, JSON.stringify(data));
   }
 
@@ -95,6 +154,22 @@ const Registro = () => {
     sessionStorage.removeItem(DRAFT_KEY);
     sessionStorage.removeItem("aceptoCompromiso");
     sessionStorage.removeItem("fechaAceptacion");
+  }
+
+  // Capitalizar nombre/apellido al perder foco
+  function handleNombreBlur() {
+    if (nombre) setNombre(capitalizarNombre(nombre));
+  }
+  function handleApellidoBlur() {
+    if (apellido) setApellido(capitalizarNombre(apellido));
+  }
+
+  // Formatear RUT visualmente al perder foco
+  function handleRutBlur() {
+    if (rut) {
+      const formateado = formatearRutVisual(rut);
+      if (formateado) setRut(formateado);
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -116,6 +191,22 @@ const Registro = () => {
       toast.error("Selecciona tu región y comuna");
       return;
     }
+
+    // Validación de fecha de nacimiento + edad mínima
+    const resFecha = validarFechaNacimiento(fechaNacimiento);
+    if (!resFecha.valida) {
+      toast.error(resFecha.mensaje ?? "Fecha de nacimiento inválida");
+      return;
+    }
+
+    // Validación de RUT si fue ingresado (opcional)
+    if (rut.trim() && !validarRut(rut)) {
+      toast.error(
+        "RUT inválido. Verifica el número y el dígito verificador.",
+      );
+      return;
+    }
+
     if (!aceptoCompromiso) {
       toast.error("Debes leer y aceptar el Compromiso Hana");
       return;
@@ -123,12 +214,13 @@ const Registro = () => {
 
     register.mutate(
       {
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
+        nombre: capitalizarNombre(nombre.trim()),
+        apellido: capitalizarNombre(apellido.trim()),
         email: email.trim().toLowerCase(),
         password,
         tipo,
         rut: rut.trim(),
+        fechaNacimiento,
         region,
         comuna: comuna.trim(),
         aceptoCompromiso: true,
@@ -137,15 +229,22 @@ const Registro = () => {
         onSuccess: ({ usuario }) => {
           limpiarTodo();
           toast.success(`¡Bienvenida a Hana, ${usuario.nombre}!`);
-          if (usuario.tipo === "admin") navigate("/perfil/admin", { replace: true });
+          if (usuario.tipo === "admin")
+            navigate("/perfil/admin", { replace: true });
           else navigate("/mi-perfil", { replace: true });
         },
-      }
+      },
     );
   }
 
-  const passwordsCoinciden = password === confirmarPassword && password.length >= 6;
-  const passwordsNoCoinciden = confirmarPassword.length > 0 && password !== confirmarPassword;
+  const passwordsCoinciden =
+    password === confirmarPassword && password.length >= 6;
+  const passwordsNoCoinciden =
+    confirmarPassword.length > 0 && password !== confirmarPassword;
+
+  // Validación de RUT en vivo (solo si tiene contenido)
+  const rutValido = rut.trim() ? validarRut(rut) : null;
+
   const isSubmitting = register.isPending;
 
   return (
@@ -170,8 +269,7 @@ const Registro = () => {
                 className="h-14 mx-auto mb-5 brightness-0 invert opacity-90 relative z-10"
               />
               <h1 className="font-display text-3xl font-bold text-white leading-tight animate-fade-up relative z-10">
-                Únete a{" "}
-                <em className="not-italic text-shimmer">Hana</em>
+                Únete a <em className="not-italic text-shimmer">Hana</em>
               </h1>
               <p className="text-white/60 text-sm mt-2 relative z-10">
                 Forma parte de nuestra comunidad
@@ -195,11 +293,17 @@ const Registro = () => {
                   >
                     <Icon
                       className={`h-4 w-4 mb-2 ${
-                        tipo === value ? "text-primary" : "text-muted-foreground"
+                        tipo === value
+                          ? "text-primary"
+                          : "text-muted-foreground"
                       }`}
                     />
-                    <p className="font-semibold text-sm text-card-foreground">{label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                    <p className="font-semibold text-sm text-card-foreground">
+                      {label}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {desc}
+                    </p>
                   </button>
                 ))}
               </div>
@@ -214,6 +318,7 @@ const Registro = () => {
                       placeholder="Tu nombre"
                       value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
+                      onBlur={handleNombreBlur}
                       disabled={isSubmitting}
                       required
                       className="h-11"
@@ -226,6 +331,7 @@ const Registro = () => {
                       placeholder="Tu apellido"
                       value={apellido}
                       onChange={(e) => setApellido(e.target.value)}
+                      onBlur={handleApellidoBlur}
                       disabled={isSubmitting}
                       required
                       className="h-11"
@@ -251,15 +357,55 @@ const Registro = () => {
 
                 {/* RUT */}
                 <div className="space-y-2">
-                  <Label htmlFor="rut">RUT</Label>
+                  <Label htmlFor="rut">
+                    RUT{" "}
+                    <span className="text-muted-foreground text-xs">
+                      (opcional)
+                    </span>
+                  </Label>
                   <Input
                     id="rut"
                     placeholder="12.345.678-9"
                     value={rut}
                     onChange={(e) => setRut(e.target.value)}
+                    onBlur={handleRutBlur}
                     disabled={isSubmitting}
+                    aria-invalid={rutValido === false}
+                    className={`h-11 ${
+                      rutValido === false
+                        ? "border-destructive focus-visible:ring-destructive"
+                        : rutValido === true
+                          ? "border-green-500 focus-visible:ring-green-500"
+                          : ""
+                    }`}
+                  />
+                  {rutValido === false && (
+                    <p className="text-xs text-destructive">
+                      RUT inválido. Verifica el número y el dígito verificador.
+                    </p>
+                  )}
+                  {rutValido === true && (
+                    <p className="text-xs text-success">RUT válido ✓</p>
+                  )}
+                </div>
+
+                {/* Fecha de nacimiento */}
+                <div className="space-y-2">
+                  <Label htmlFor="fechaNacimiento">Fecha de nacimiento</Label>
+                  <Input
+                    id="fechaNacimiento"
+                    type="date"
+                    value={fechaNacimiento}
+                    onChange={(e) => setFechaNacimiento(e.target.value)}
+                    disabled={isSubmitting}
+                    min={getFechaMinima()}
+                    max={getFechaMaxima()}
+                    required
                     className="h-11"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Debes tener al menos {EDAD_MINIMA} años para registrarte.
+                  </p>
                 </div>
 
                 {/* Región */}
@@ -267,7 +413,10 @@ const Registro = () => {
                   <Label htmlFor="region">Región</Label>
                   <Select
                     value={region}
-                    onValueChange={(v) => { setRegion(v); setComuna(""); }}
+                    onValueChange={(v) => {
+                      setRegion(v);
+                      setComuna("");
+                    }}
                     disabled={isSubmitting}
                   >
                     <SelectTrigger id="region" className="h-11">
@@ -275,7 +424,9 @@ const Registro = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {REGIONES_CHILE.map((r) => (
-                        <SelectItem key={r} value={r}>{r}</SelectItem>
+                        <SelectItem key={r} value={r}>
+                          {r}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -298,12 +449,18 @@ const Registro = () => {
                   >
                     <SelectTrigger id="comuna" className="h-11">
                       <SelectValue
-                        placeholder={region ? "Selecciona tu comuna" : "Primero selecciona una región"}
+                        placeholder={
+                          region
+                            ? "Selecciona tu comuna"
+                            : "Primero selecciona una región"
+                        }
                       />
                     </SelectTrigger>
                     <SelectContent>
                       {(COMUNAS_POR_REGION[region] ?? []).map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -329,10 +486,16 @@ const Registro = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       tabIndex={-1}
-                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      aria-label={
+                        showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -357,17 +520,27 @@ const Registro = () => {
                       type="button"
                       onClick={() => setShowConfirmar(!showConfirmar)}
                       tabIndex={-1}
-                      aria-label={showConfirmar ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      aria-label={
+                        showConfirmar ? "Ocultar contraseña" : "Mostrar contraseña"
+                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {showConfirmar ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showConfirmar ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   {passwordsNoCoinciden && (
-                    <p className="text-xs text-destructive">Las contraseñas no coinciden</p>
+                    <p className="text-xs text-destructive">
+                      Las contraseñas no coinciden
+                    </p>
                   )}
                   {passwordsCoinciden && (
-                    <p className="text-xs text-success">Las contraseñas coinciden</p>
+                    <p className="text-xs text-success">
+                      Las contraseñas coinciden
+                    </p>
                   )}
                 </div>
 
@@ -442,7 +615,10 @@ const Registro = () => {
 
               <p className="text-center text-sm text-muted-foreground mt-6">
                 ¿Ya tienes cuenta?{" "}
-                <Link to="/login" className="text-primary font-semibold hover:underline transition-colors">
+                <Link
+                  to="/login"
+                  className="text-primary font-semibold hover:underline transition-colors"
+                >
                   Inicia sesión
                 </Link>
               </p>
