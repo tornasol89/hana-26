@@ -45,8 +45,11 @@ export function validarRegistro(data: RegistroFormData): string | null {
     return resFecha.mensaje ?? "Fecha de nacimiento inválida";
   }
 
-  // RUT es opcional: solo se valida si tiene contenido
-  if (data.rut.trim() && !validarRut(data.rut)) {
+  // RUT obligatorio
+  if (!data.rut.trim()) {
+    return "Ingresa tu RUT";
+  }
+  if (!validarRut(data.rut)) {
     return "RUT inválido. Verifica el número y el dígito verificador.";
   }
 

@@ -57,6 +57,10 @@ router.post('/register', async (req, res) => {
     if (!resFecha.valida) {
       return res.status(400).json({ mensaje: resFecha.mensaje })
     }
+    // 3.5. RUT obligatorio
+    if (!rut || !rut.trim()) {
+      return res.status(400).json({ mensaje: 'El RUT es obligatorio' })
+    }
 
     // 4. Hashear password
     const salt = await bcrypt.genSalt(10)

@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
 
   rut: {
     type: String,
-    default: '',
+    required: [true, 'El RUT es obligatorio'],
     trim: true,
     // Normalizar al formato sin puntos: "12.345.678-9" → "12345678-9"
     set: function (rut) {

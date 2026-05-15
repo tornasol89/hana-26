@@ -12,17 +12,14 @@ interface Props {
  * Input de RUT con:
  * - Formateo visual al perder foco
  * - Validación en vivo (rojo si inválido, verde si válido)
- * - Es opcional (no se valida cuando está vacío)
+ * - Obligatorio
  */
 export function RutInput({ value, onChange, disabled }: Props) {
   const rutValido = value.trim() ? validarRut(value) : null;
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="rut">
-        RUT{" "}
-        <span className="text-muted-foreground text-xs">(opcional)</span>
-      </Label>
+      <Label htmlFor="rut">RUT</Label>
       <Input
         id="rut"
         placeholder="12.345.678-9"
@@ -35,6 +32,7 @@ export function RutInput({ value, onChange, disabled }: Props) {
           }
         }}
         disabled={disabled}
+        required
         aria-invalid={rutValido === false}
         className={`h-11 ${
           rutValido === false
