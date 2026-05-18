@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
 
   rut: {
     type: String,
-    required: [true, 'El RUT es obligatorio'],
+    default: '',
     trim: true,
     // Normalizar al formato sin puntos: "12.345.678-9" → "12345678-9"
     set: function (rut) {
@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
     },
   },
 
-  // ✅ NUEVO: fecha de nacimiento
+  // NUEVO: fecha de nacimiento
   fechaNacimiento: {
     type: Date,
     required: true,
@@ -77,7 +77,7 @@ const userSchema = new mongoose.Schema({
     },
   },
 
-  // ✅ NUEVO: flag para mostrar banner a usuarias migradas con fecha ficticia
+  // NUEVO: flag para mostrar banner a usuarias migradas con fecha ficticia
   // Se setea a `false` para las 10 cuentas viejas durante la migración,
   // y a `true` para registros nuevos o cuando la usuaria edita su perfil.
   fechaNacimientoCorregida: {
@@ -104,8 +104,67 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
-// Índice para queries frecuentes
+// ─────────────────────────────────────────────────────────────────────────
+// Índices
+// ─────────────────────────────────────────────────────────────────────────
+
+// Para queries frecuentes en el buscador
 userSchema.index({ tipo: 1, region: 1 })
-userSchema.index({ rut: 1 }, { sparse: true })  // sparse: ignora documentos sin rut
+
+//  MODIFICADO: índice único + parcial en rut.
+// - partialFilterExpression: el índice solo aplica a RUTs con contenido real,
+//   ignorando los strings vacíos '' (que son el default del schema).
+//   Sin este filtro, MongoDB consideraría '' como un valor único e impediría
+//   que más de una usuaria se registre sin RUT.
+userSchema.index(
+  { rut: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { rut: { $type: 'string', $gt: '' } },
+  }
+)
+
+// ─────────────────────────────────────────────────────────────────────────
+// Métodos estáticos: lógica de negocio reutilizable
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Verifica que los campos únicos (email, rut) no estén ya tomados por otra
+ * usuaria. Centraliza la lógica de unicidad para que el register, el endpoint
+ * de admin y futuros endpoints (signup social, importación) la usen igual.
+ *
+ * @param {Object} opciones
+ * @param {string} [opciones.email]    - Email a verificar (opcional).
+ * @param {string} [opciones.rut]      - RUT a verificar (opcional, se normaliza).
+ * @param {string} [opciones.ignorarId] - ID de usuaria a ignorar (útil al editar:
+ *                                        permite "guardar sin cambios").
+ * @returns {Promise<null | { campo: 'email' | 'rut', mensaje: string }>}
+ *          null si no hay conflicto; objeto con detalle del campo en conflicto si lo hay.
+ */
+userSchema.statics.verificarUnicidad = async function ({ email, rut, ignorarId } = {}) {
+  const baseQuery = ignorarId ? { _id: { $ne: ignorarId } } : {}
+
+  if (email) {
+    const emailNormalizado = String(email).trim().toLowerCase()
+    if (emailNormalizado) {
+      const existe = await this.findOne({ ...baseQuery, email: emailNormalizado })
+      if (existe) {
+        return { campo: 'email', mensaje: 'El email ya está registrado' }
+      }
+    }
+  }
+
+  if (rut && String(rut).trim()) {
+    const rutNormalizado = normalizarRut(rut)
+    if (rutNormalizado) {
+      const existe = await this.findOne({ ...baseQuery, rut: rutNormalizado })
+      if (existe) {
+        return { campo: 'rut', mensaje: 'El RUT ya está registrado' }
+      }
+    }
+  }
+
+  return null
+}
 
 export default mongoose.model('User', userSchema)
