@@ -31,6 +31,12 @@ function formatearUsuario(u) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Reemplazo del POST /api/auth/register en backend/src/routes/auth.js
+// (los imports de arriba y el resto del archivo NO cambian — solo se
+//  reemplaza el handler de register completo)
+// ─────────────────────────────────────────────────────────────────────────
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
@@ -46,20 +52,18 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ mensaje: 'Debes aceptar el Compromiso Hana' })
     }
 
-    // 2. Email único
-    const usuarioExiste = await User.findOne({ email })
-    if (usuarioExiste) {
-      return res.status(400).json({ mensaje: 'El email ya está registrado' })
+    // 2. ✅ MODIFICADO: unicidad de email + rut centralizada en el modelo.
+    //    Si en el futuro agregamos otro campo único (teléfono, etc.) se añade
+    //    en User.verificarUnicidad y este código no cambia.
+    const conflicto = await User.verificarUnicidad({ email, rut })
+    if (conflicto) {
+      return res.status(400).json({ mensaje: conflicto.mensaje })
     }
 
     // 3. Validar fecha de nacimiento (incluye edad mínima 18)
     const resFecha = validarFechaNacimiento(fechaNacimiento)
     if (!resFecha.valida) {
       return res.status(400).json({ mensaje: resFecha.mensaje })
-    }
-    // 3.5. RUT obligatorio
-    if (!rut || !rut.trim()) {
-      return res.status(400).json({ mensaje: 'El RUT es obligatorio' })
     }
 
     // 4. Hashear password
@@ -90,7 +94,18 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     console.error('Error en register:', error)
 
-    // Errores de validación de Mongoose (RUT inválido, etc.)
+    // ✅ NUEVO: error de índice único (race condition entre verificarUnicidad y create).
+    //    Es defensa en profundidad: si dos requests llegan a la vez, una pasa el
+    //    verificarUnicidad y choca contra el índice único de Mongo. Devolvemos
+    //    el mismo mensaje que devolvería la verificación previa.
+    if (error.code === 11000) {
+      const campo = Object.keys(error.keyPattern || {})[0]
+      if (campo === 'rut')   return res.status(400).json({ mensaje: 'El RUT ya está registrado' })
+      if (campo === 'email') return res.status(400).json({ mensaje: 'El email ya está registrado' })
+      return res.status(400).json({ mensaje: 'Ya existe una cuenta con esos datos' })
+    }
+
+    // Errores de validación de Mongoose (RUT inválido, fecha de nacimiento, etc.)
     if (error.name === 'ValidationError') {
       const primerError = Object.values(error.errors)[0]
       return res.status(400).json({ mensaje: primerError.message })
