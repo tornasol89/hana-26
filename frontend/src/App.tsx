@@ -20,6 +20,8 @@ import DashboardTrabajadora from "./pages/DashboardTrabajadora";
 import NotFound from "./pages/NotFound.tsx";
 import PerfilAdmin from "./pages/PerfilAdmin";
 import PerfilClientaPublico from "./pages/PerfilClientaPublico";
+import VerificarEmail from "./pages/VerificarEmail";
+import RegistroEmailEnviado from "./pages/RegistroEmailEnviado";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +44,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />
+            <Route path="/verificar-email" element={<VerificarEmail />} />
             <Route path="/buscar" element={<BuscarServicios />} />
             <Route path="/worker/:id" element={<WorkerProfilePage />} />
             <Route path="/compromiso" element={<Compromiso />} />
@@ -49,6 +52,8 @@ const App = () => (
             <Route path="/alianza" element={<Alianza />} />
             <Route path="/contacto" element={<Contacto />} />
             <Route path="/sugerencias" element={<Sugerencias />} />
+            <Route path="/registro/email-enviado" element={<RegistroEmailEnviado />} />
+            
 
             {/* Requieren sesión */}
             <Route

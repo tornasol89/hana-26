@@ -17,11 +17,12 @@ export interface Usuario {
   aceptoCompromiso: boolean;
   carnetFrenteUrl: string | null;
   carnetDorsoUrl: string | null;
+  emailVerificado: boolean;
 }
 
-export interface AuthResponse {
-  token: string;
-  usuario: Usuario;
+export interface RegisterResponse {
+  mensaje: string;
+  email: string;
 }
 
 export interface LoginPayload {
@@ -39,7 +40,9 @@ export interface RegisterPayload {
   comuna?: string;
   rut?: string;
   aceptoCompromiso: boolean;
+  fechaNacimiento: string;
   fechaAceptacion?: string;
+  
 }
 
 export interface ApiError {

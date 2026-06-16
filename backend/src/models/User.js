@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
     },
   },
 
-  // NUEVO: fecha de nacimiento
+  //  fecha de nacimiento
   fechaNacimiento: {
     type: Date,
     required: true,
@@ -89,6 +89,10 @@ const userSchema = new mongoose.Schema({
   disponible: { type: Boolean, default: true },
   region:     { type: String, default: '' },
   comuna:     { type: String, default: '' },
+  // NUEVO: verificación de email por link
+  emailVerificado:          { type: Boolean, default: false },
+  tokenVerificacion:        { type: String,  default: null },
+  tokenVerificacionExpira:  { type: Date,    default: null },
 
   aceptoCompromiso: { type: Boolean, default: false },
   fechaAceptacion:  { type: Date, default: null },

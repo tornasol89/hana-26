@@ -5,6 +5,8 @@ import User from '../models/User.js'
 import upload, { uploadDocumento } from '../config/cloudinary.js'
 import protegerRuta from '../middleware/auth.js'
 import { validarFechaNacimiento, calcularEdad } from '../utils/validators.js'
+import { enviarVerificacion } from '../services/email/index.js'
+import { generarTokenVerificacion } from '../utils/tokens.js'
 
 const router = express.Router()
 
@@ -24,18 +26,13 @@ function formatearUsuario(u) {
     fechaNacimientoCorregida: u.fechaNacimientoCorregida,
     edad:                     u.fechaNacimiento ? calcularEdad(u.fechaNacimiento) : null,
     verificada:               u.verificada,
+    emailVerificado:          u.emailVerificado || false,
     estadoVerificacion:       u.estadoVerificacion,
     aceptoCompromiso:         u.aceptoCompromiso,
     carnetFrenteUrl:          u.carnetFrenteUrl || null,
     carnetDorsoUrl:           u.carnetDorsoUrl  || null,
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────
-// Reemplazo del POST /api/auth/register en backend/src/routes/auth.js
-// (los imports de arriba y el resto del archivo NO cambian — solo se
-//  reemplaza el handler de register completo)
-// ─────────────────────────────────────────────────────────────────────────
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -52,9 +49,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ mensaje: 'Debes aceptar el Compromiso Hana' })
     }
 
-    // 2. ✅ MODIFICADO: unicidad de email + rut centralizada en el modelo.
-    //    Si en el futuro agregamos otro campo único (teléfono, etc.) se añade
-    //    en User.verificarUnicidad y este código no cambia.
+    // 2. Unicidad de email + rut centralizada en el modelo
     const conflicto = await User.verificarUnicidad({ email, rut })
     if (conflicto) {
       return res.status(400).json({ mensaje: conflicto.mensaje })
@@ -70,7 +65,11 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const passwordEncriptada = await bcrypt.hash(password, salt)
 
-    // 5. Crear usuario (los setters del modelo aplican capitalización y normalización de RUT)
+    // 5. Token de verificación de email
+    const { token: tokenVerificacion, expira: tokenVerificacionExpira } =
+      generarTokenVerificacion()
+
+    // 6. Crear usuario (los setters del modelo aplican capitalización y normalización de RUT)
     //    Si el RUT es inválido, falla aquí con error de validación de Mongoose
     const usuario = await User.create({
       nombre, apellido, email,
@@ -81,23 +80,31 @@ router.post('/register', async (req, res) => {
       aceptoCompromiso: true,
       fechaAceptacion:  fechaAceptacion ? new Date(fechaAceptacion) : new Date(),
       foto: '',
+      emailVerificado: false,
+      tokenVerificacion,
+      tokenVerificacionExpira,
     })
 
-    // 6. Generar JWT
-    const token = jwt.sign(
-      { id: usuario._id, tipo: usuario.tipo },
-      process.env.JWT_SECRET,
-      { expiresIn: '30d' }
-    )
+    // 7. Enviar email (NO bloqueante: si falla, el registro igual fue exitoso)
+    enviarVerificacion({
+      email: usuario.email,
+      nombre: usuario.nombre,
+      token: tokenVerificacion,
+    }).then((r) => {
+      if (!r?.ok) console.error(`Falló envío de verificación a ${usuario.email}:`, r?.error)
+    })
 
-    res.status(201).json({ token, usuario: formatearUsuario(usuario) })
+    // 8. Respuesta SIN token: la usuaria debe verificar su email antes de entrar
+    return res.status(201).json({
+      mensaje: 'Te enviamos un email de verificación. Revisá tu inbox.',
+      email: usuario.email,
+    })
   } catch (error) {
     console.error('Error en register:', error)
 
-    // ✅ NUEVO: error de índice único (race condition entre verificarUnicidad y create).
-    //    Es defensa en profundidad: si dos requests llegan a la vez, una pasa el
-    //    verificarUnicidad y choca contra el índice único de Mongo. Devolvemos
-    //    el mismo mensaje que devolvería la verificación previa.
+    // Error de índice único (race condition entre verificarUnicidad y create).
+    // Defensa en profundidad: si dos requests llegan a la vez, una pasa el
+    // verificarUnicidad y choca contra el índice único de Mongo.
     if (error.code === 11000) {
       const campo = Object.keys(error.keyPattern || {})[0]
       if (campo === 'rut')   return res.status(400).json({ mensaje: 'El RUT ya está registrado' })
@@ -129,9 +136,20 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ mensaje: 'Esta cuenta ha sido desactivada. Contacta a soporte.' })
     }
 
+    // Validamos la contraseña ANTES de revelar el estado de verificación,
+    // para no permitir enumeración de cuentas (saber si un email existe sin la clave).
     const passwordCorrecta = await bcrypt.compare(password, usuario.password)
     if (!passwordCorrecta) {
       return res.status(400).json({ mensaje: 'Email o contraseña incorrectos' })
+    }
+
+    // Recién con credenciales válidas confirmamos si falta verificar el email.
+    if (!usuario.emailVerificado) {
+      return res.status(403).json({
+        mensaje: 'Tenés que verificar tu email antes de entrar. Revisá tu inbox o pedí un nuevo link.',
+        codigo: 'EMAIL_NO_VERIFICADO',
+        email: usuario.email,
+      })
     }
 
     const token = jwt.sign(

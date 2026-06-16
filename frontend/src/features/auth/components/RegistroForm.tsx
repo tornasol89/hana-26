@@ -25,7 +25,7 @@ import { CompromisoBox } from "./CompromisoBox";
  * - Persistencia en sessionStorage (draft) vía useRegistroDraft
  * - Validación centralizada vía validarRegistro
  * - Submit a través de useRegister (mutation de TanStack Query)
- * - Navegación al compromiso y al perfil tras éxito
+ * - Navegación al compromiso y, tras registrar, a la pantalla de "verificá tu email"
  */
 export function RegistroForm() {
   const { draftInicial, guardarDraft, limpiarDraft } = useRegistroDraft();
@@ -102,12 +102,13 @@ export function RegistroForm() {
         aceptoCompromiso: true,
       },
       {
-        onSuccess: ({ usuario }) => {
+        // El registro ya NO crea sesión: la usuaria debe verificar su email.
+        // Redirigimos a la pantalla de "email enviado" pasando el email por state.
+        onSuccess: ({ email: emailRegistrado }) => {
           limpiarDraft();
-          toast.success(`¡Bienvenida a Hana, ${usuario.nombre}!`);
-          if (usuario.tipo === "admin")
-            navigate("/perfil/admin", { replace: true });
-          else navigate("/mi-perfil", { replace: true });
+          navigate("/registro/email-enviado", {
+            state: { email: emailRegistrado },
+          });
         },
       },
     );

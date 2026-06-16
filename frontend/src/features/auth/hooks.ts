@@ -23,16 +23,9 @@ export function useLogin() {
   });
 }
 
-/** Register: guarda sesión + actualiza contexto */
 export function useRegister() {
-  const { refreshUser } = useAuth();
-
   return useMutation({
     mutationFn: (payload: RegisterPayload) => authApi.register(payload),
-    onSuccess: ({ token, usuario }) => {
-      session.save({ token, usuario });
-      refreshUser(usuario);
-    },
     onError: (error) => {
       toast.error(getErrorMessage(error));
     },

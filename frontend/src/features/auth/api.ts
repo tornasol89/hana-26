@@ -3,7 +3,8 @@ import type {
   AuthResponse,
   LoginPayload,
   RegisterPayload,
-  UpdateProfilePayload,  
+  RegisterResponse,
+  UpdateProfilePayload,
   Usuario,
   UserType,
 } from "./types";
@@ -14,12 +15,13 @@ export const authApi = {
     return data;
   },
 
-  register: async (payload: RegisterPayload): Promise<AuthResponse> => {
+  // Ahora devuelve RegisterResponse (sin token): la usuaria debe verificar antes de entrar
+  register: async (payload: RegisterPayload): Promise<RegisterResponse> => {
     const body = {
       ...payload,
       fechaAceptacion: payload.fechaAceptacion ?? new Date().toISOString(),
     };
-    const { data } = await api.post<AuthResponse>("/auth/register", body);
+    const { data } = await api.post<RegisterResponse>("/auth/register", body);
     return data;
   },
 
@@ -60,6 +62,39 @@ export const authApi = {
 
   getClientaPublico: async (id: string): Promise<Partial<Usuario>> => {
     const { data } = await api.get<Partial<Usuario>>(`/auth/clienta/${id}`);
+    return data;
+  },
+
+  // ── Verificación de email (router montado en /api/email-verification) ──
+
+  // Verifica el email a partir del token del link (público)
+  verifyEmail: async (
+    token: string
+  ): Promise<{ mensaje: string; email: string }> => {
+    const { data } = await api.get<{ mensaje: string; email: string }>(
+      "/email-verification/verify",
+      { params: { token } }
+    );
+    return data;
+  },
+
+  // Reenvía la verificación para la usuaria logueada (requiere JWT)
+  resendVerification: async (): Promise<{ mensaje: string }> => {
+    const { data } = await api.post<{ mensaje: string }>(
+      "/email-verification/resend"
+    );
+    return data;
+  },
+
+  // Reenvía la verificación desde el login / pantalla de "email enviado" (público,
+  // responde igual exista o no la cuenta para no filtrar si un email está registrado)
+  resendVerificationPublic: async (
+    email: string
+  ): Promise<{ mensaje: string }> => {
+    const { data } = await api.post<{ mensaje: string }>(
+      "/email-verification/resend-public",
+      { email }
+    );
     return data;
   },
 };

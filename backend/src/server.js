@@ -11,6 +11,7 @@ import adminRoutes     from './routes/admin.js'
 import statsRoutes     from './routes/stats.js'
 import portfolioRoutes from './routes/portfolio.js'
 import mongoose from 'mongoose'
+import emailVerificationRoutes from './routes/email-verification.js'
 
 dotenv.config()
 
@@ -43,6 +44,7 @@ app.use('/api/messages', messageRoutes)
 app.use('/api/admin',     adminRoutes)
 app.use('/api/stats',     statsRoutes)
 app.use('/api/portfolio', portfolioRoutes)
+app.use('/api/email-verification', emailVerificationRoutes)
 
 app.get('/', (req, res) => res.json({ mensaje: 'API de Hana funcionando ✅' }))
 
