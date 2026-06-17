@@ -5,7 +5,47 @@ import protegerRuta from '../middleware/auth.js'
 
 const router = express.Router()
 
-// POST /api/bookings — crear reserva (clienta logueada)
+/**
+ * @openapi
+ * /api/bookings:
+ *   post:
+ *     tags: [Bookings]
+ *     summary: Crea una reserva (clienta logueada)
+ *     description: >
+ *       La reserva nace en estado "pendiente". Requiere indicar la trabajadora
+ *       (ObjectId de su WorkerProfile), la región y la comuna del servicio.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [trabajadora, regionServicio, comunaServicio]
+ *             properties:
+ *               trabajadora:       { type: string, description: 'ObjectId del WorkerProfile' }
+ *               servicio:          { type: string, example: 'Limpieza profunda', default: 'Servicio Hana' }
+ *               fecha:             { type: string, format: date-time, nullable: true }
+ *               notas:             { type: string, description: 'Se guarda en el campo descripcion' }
+ *               regionServicio:    { type: string, example: 'Región Metropolitana' }
+ *               comunaServicio:    { type: string, example: 'Ñuñoa' }
+ *               direccionServicio: { type: string }
+ *     responses:
+ *       201:
+ *         description: Reserva creada (con clienta y trabajadora populadas)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Booking' }
+ *       400:
+ *         description: Falta trabajadora, región o comuna
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/', protegerRuta, async (req, res) => {
   try {
     const { trabajadora, servicio, fecha, notas, regionServicio, comunaServicio, direccionServicio } = req.body
@@ -45,8 +85,37 @@ router.post('/', protegerRuta, async (req, res) => {
   }
 })
 
-// GET /api/bookings/mis-reservas — reservas de la usuaria logueada
-// Acepta ?modo=clienta|trabajadora para usuarios con perfil dual
+/**
+ * @openapi
+ * /api/bookings/mis-reservas:
+ *   get:
+ *     tags: [Bookings]
+ *     summary: Reservas de la usuaria logueada
+ *     description: >
+ *       Devuelve las reservas según el rol. Para perfiles duales se puede forzar
+ *       la vista con ?modo=clienta|trabajadora. Si no se envía, usa el tipo del usuario.
+ *     parameters:
+ *       - in: query
+ *         name: modo
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [clienta, trabajadora]
+ *         description: Vista a usar para perfiles duales
+ *     responses:
+ *       200:
+ *         description: Lista de reservas (ordenadas por fecha de creación desc)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Booking' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/mis-reservas', protegerRuta, async (req, res) => {
   try {
     let reservas = []
@@ -81,7 +150,41 @@ router.get('/mis-reservas', protegerRuta, async (req, res) => {
   }
 })
 
-// PUT /api/bookings/:id/aceptar — trabajadora acepta
+/**
+ * @openapi
+ * /api/bookings/{id}/aceptar:
+ *   put:
+ *     tags: [Bookings]
+ *     summary: La trabajadora acepta una reserva
+ *     description: Solo la trabajadora dueña del perfil asociado puede aceptar. Pasa el estado a "aceptada".
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     responses:
+ *       200:
+ *         description: Reserva aceptada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Booking' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: No tienes permiso para aceptar esta reserva
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Reserva no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/:id/aceptar', protegerRuta, async (req, res) => {
   try {
     const reserva = await Booking.findById(req.params.id)
@@ -103,7 +206,41 @@ router.put('/:id/aceptar', protegerRuta, async (req, res) => {
   }
 })
 
-// PUT /api/bookings/:id/rechazar — trabajadora rechaza
+/**
+ * @openapi
+ * /api/bookings/{id}/rechazar:
+ *   put:
+ *     tags: [Bookings]
+ *     summary: La trabajadora rechaza una reserva
+ *     description: Solo la trabajadora dueña del perfil asociado puede rechazar. Pasa el estado a "rechazada".
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     responses:
+ *       200:
+ *         description: Reserva rechazada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Booking' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: No tienes permiso para rechazar esta reserva
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Reserva no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/:id/rechazar', protegerRuta, async (req, res) => {
   try {
     const reserva = await Booking.findById(req.params.id)
@@ -140,7 +277,49 @@ async function populateReserva(id) {
     .populate({ path: 'trabajadora', populate: { path: 'usuario', select: 'nombre apellido foto' } })
 }
 
-// PUT /api/bookings/:id/confirmar-inicio ──────────────────────────────────────
+/**
+ * @openapi
+ * /api/bookings/{id}/confirmar-inicio:
+ *   put:
+ *     tags: [Bookings]
+ *     summary: Confirma el inicio del servicio (confirmación doble)
+ *     description: >
+ *       La trabajadora o la clienta confirman el inicio. Cuando ambas confirman,
+ *       la reserva pasa a "en_curso" y se resuelve una eventual disputa de inicio.
+ *       Solo válido sobre reservas en estado "aceptada" o "en_disputa".
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     responses:
+ *       200:
+ *         description: Inicio confirmado por la parte que llama
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Booking' }
+ *       400:
+ *         description: La reserva no está en un estado que permita confirmar inicio
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: El usuario no es participante de la reserva
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Reserva no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/:id/confirmar-inicio', protegerRuta, async (req, res) => {
   try {
     const reserva = await Booking.findById(req.params.id)
@@ -172,7 +351,49 @@ router.put('/:id/confirmar-inicio', protegerRuta, async (req, res) => {
   }
 })
 
-// PUT /api/bookings/:id/confirmar-fin ─────────────────────────────────────────
+/**
+ * @openapi
+ * /api/bookings/{id}/confirmar-fin:
+ *   put:
+ *     tags: [Bookings]
+ *     summary: Confirma el fin del servicio (confirmación doble)
+ *     description: >
+ *       La trabajadora o la clienta confirman el fin. Cuando ambas confirman,
+ *       la reserva pasa a "completada" y se resuelve una eventual disputa de fin.
+ *       Solo válido sobre reservas en estado "en_curso" o "en_disputa".
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     responses:
+ *       200:
+ *         description: Fin confirmado por la parte que llama
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Booking' }
+ *       400:
+ *         description: La reserva no está en un estado que permita confirmar fin
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: El usuario no es participante de la reserva
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Reserva no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/:id/confirmar-fin', protegerRuta, async (req, res) => {
   try {
     const reserva = await Booking.findById(req.params.id)
@@ -204,8 +425,63 @@ router.put('/:id/confirmar-fin', protegerRuta, async (req, res) => {
   }
 })
 
-// PUT /api/bookings/:id/disputar ──────────────────────────────────────────────
-// Crea o actualiza una disputa. Se puede llamar en cualquier fase activa.
+/**
+ * @openapi
+ * /api/bookings/{id}/disputar:
+ *   put:
+ *     tags: [Bookings]
+ *     summary: Abre o actualiza una disputa sobre la reserva
+ *     description: >
+ *       Marca la reserva como "en_disputa" y registra el motivo según quién llama
+ *       (clienta o trabajadora). Solo válido en estados "aceptada", "en_curso" o "en_disputa".
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [fase, motivo]
+ *             properties:
+ *               fase:
+ *                 type: string
+ *                 enum: [inicio, fin]
+ *                 description: Etapa del servicio en disputa
+ *               motivo:
+ *                 type: string
+ *                 description: Explicación de lo ocurrido
+ *     responses:
+ *       200:
+ *         description: Disputa creada o actualizada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Booking' }
+ *       400:
+ *         description: fase inválida, motivo vacío o estado no permitido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: El usuario no es participante de la reserva
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Reserva no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/:id/disputar', protegerRuta, async (req, res) => {
   try {
     const { fase, motivo } = req.body
@@ -246,7 +522,39 @@ router.put('/:id/disputar', protegerRuta, async (req, res) => {
   }
 })
 
-// PUT /api/bookings/:id/completar — marcar como completada
+/**
+ * @openapi
+ * /api/bookings/{id}/completar:
+ *   put:
+ *     tags: [Bookings]
+ *     summary: Marca una reserva como completada
+ *     description: >
+ *       Cambia el estado a "completada".
+ *       NOTA (deuda técnica #B2): actualmente no verifica que quien llama sea
+ *       participante de la reserva. Documentado por el test CP-RT-07b.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     responses:
+ *       200:
+ *         description: Reserva completada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Booking' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Reserva no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/:id/completar', protegerRuta, async (req, res) => {
   try {
     const reserva = await Booking.findById(req.params.id)

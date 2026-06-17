@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import env from '../config/env.js'
 
 const protegerRuta = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1]
@@ -8,7 +9,7 @@ const protegerRuta = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const decoded = jwt.verify(token, env.JWT_SECRET)
     req.usuario = decoded
     next()
   } catch (error) {

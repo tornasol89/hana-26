@@ -16,8 +16,38 @@ async function esParticipante(reservaId, usuarioId) {
   return reserva
 }
 
-// GET /api/messages/no-leidos — contador y lista de reservas con mensajes no leídos
-// IMPORTANTE: debe ir ANTES de /:reservaId para que Express no la confunda con un ID
+/**
+ * @openapi
+ * /api/messages/no-leidos:
+ *   get:
+ *     tags: [Messages]
+ *     summary: Contador y lista de reservas con mensajes no leídos
+ *     description: >
+ *       Devuelve el total de mensajes no leídos por la usuaria logueada y un
+ *       desglose por reserva. Considera solo mensajes de otros participantes.
+ *     responses:
+ *       200:
+ *         description: Resumen de no leídos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count: { type: integer, example: 3 }
+ *                 reservas:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:      { type: string, description: 'ObjectId de la reserva' }
+ *                       servicio: { type: string }
+ *                       count:    { type: integer }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/no-leidos', protegerRuta, async (req, res) => {
   try {
     let filtroReservas = { clienta: req.usuario.id }
@@ -57,7 +87,38 @@ router.get('/no-leidos', protegerRuta, async (req, res) => {
   }
 })
 
-// GET /api/messages/:reservaId — obtener mensajes de una reserva
+/**
+ * @openapi
+ * /api/messages/{reservaId}:
+ *   get:
+ *     tags: [Messages]
+ *     summary: Obtiene los mensajes de una reserva
+ *     description: Solo participantes (clienta o trabajadora) de la reserva. Orden cronológico ascendente.
+ *     parameters:
+ *       - in: path
+ *         name: reservaId
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     responses:
+ *       200:
+ *         description: Lista de mensajes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Message' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: No tienes acceso a esta conversación
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/:reservaId', protegerRuta, async (req, res) => {
   try {
     const reserva = await esParticipante(req.params.reservaId, req.usuario.id)
@@ -73,7 +134,52 @@ router.get('/:reservaId', protegerRuta, async (req, res) => {
   }
 })
 
-// POST /api/messages/:reservaId — enviar un mensaje
+/**
+ * @openapi
+ * /api/messages/{reservaId}:
+ *   post:
+ *     tags: [Messages]
+ *     summary: Envía un mensaje en una reserva
+ *     description: >
+ *       Solo participantes. El chat se habilita cuando la reserva está aceptada;
+ *       no se puede chatear en reservas pendientes ni rechazadas.
+ *     parameters:
+ *       - in: path
+ *         name: reservaId
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [texto]
+ *             properties:
+ *               texto: { type: string, example: 'Hola, ¿confirmamos la hora?' }
+ *     responses:
+ *       201:
+ *         description: Mensaje creado (con autor populado)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Message' }
+ *       400:
+ *         description: Mensaje vacío, o reserva pendiente/rechazada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: No tienes acceso a esta conversación
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/:reservaId', protegerRuta, async (req, res) => {
   try {
     const { texto } = req.body
@@ -102,7 +208,41 @@ router.post('/:reservaId', protegerRuta, async (req, res) => {
   }
 })
 
-// PUT /api/messages/:reservaId/leer — marcar todos los mensajes de la reserva como leídos
+/**
+ * @openapi
+ * /api/messages/{reservaId}/leer:
+ *   put:
+ *     tags: [Messages]
+ *     summary: Marca como leídos los mensajes de una reserva
+ *     description: >
+ *       Marca como leídos por el usuario logueado todos los mensajes de la reserva
+ *       escritos por la otra parte que aún no estaban leídos.
+ *     parameters:
+ *       - in: path
+ *         name: reservaId
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     responses:
+ *       200:
+ *         description: Mensajes marcados como leídos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok: { type: boolean, example: true }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: No tienes acceso a esta conversación
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/:reservaId/leer', protegerRuta, async (req, res) => {
   try {
     const reserva = await esParticipante(req.params.reservaId, req.usuario.id)

@@ -45,6 +45,15 @@ export interface RegisterPayload {
   
 }
 
+export interface UpdateProfilePayload {
+  nombre?: string;
+  apellido?: string;
+  region?: string;
+  comuna?: string;
+  rut?: string;
+  fechaNacimiento?: string;
+}
+
 export interface ApiError {
   mensaje: string;
   error?: string;

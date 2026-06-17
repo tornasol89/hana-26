@@ -7,9 +7,57 @@ import { uploadPortfolio } from '../config/cloudinary.js'
 
 const router = express.Router()
 
-// ─── POST /api/portfolio ─────────────────────────────────────────────────────
-// Trabajadora sube una foto de portafolio con título y descripción
-// Campo imagen: "foto" (multipart/form-data)
+/**
+ * @openapi
+ * /api/portfolio:
+ *   post:
+ *     tags: [Portfolio]
+ *     summary: Sube un trabajo al portafolio (solo trabajadoras)
+ *     description: >
+ *       La imagen va en el campo "foto" (multipart). Opcionalmente se vincula a una
+ *       reserva propia que esté completada. La imagen se almacena en Cloudinary.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [foto, titulo]
+ *             properties:
+ *               foto:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen del trabajo (campo "foto")
+ *               titulo:      { type: string, maxLength: 100 }
+ *               descripcion: { type: string, maxLength: 300 }
+ *               reservaId:   { type: string, description: 'ObjectId de una reserva propia completada (opcional)' }
+ *     responses:
+ *       201:
+ *         description: Item creado (con reserva y respaldadaPor populados)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/PortfolioItem' }
+ *       400:
+ *         description: Falta imagen o título, o la reserva no existe / no está completada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Solo las trabajadoras pueden subir portafolio
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: No tienes perfil de trabajadora
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/', protegerRuta, uploadPortfolio.single('foto'), async (req, res) => {
   try {
     const rolesUsuario = [req.usuario.tipo, ...(req.usuario.rolesAdicionales || [])]
@@ -62,8 +110,27 @@ router.post('/', protegerRuta, uploadPortfolio.single('foto'), async (req, res) 
   }
 })
 
-// ─── GET /api/portfolio/mis-items ─────────────────────────────────────────────
-// Trabajadora autenticada ve sus propios items (con estado de respaldo)
+/**
+ * @openapi
+ * /api/portfolio/mis-items:
+ *   get:
+ *     tags: [Portfolio]
+ *     summary: Items del portafolio de la trabajadora logueada
+ *     description: Incluye el estado de respaldo de cada item. Ordenados por creación (desc).
+ *     responses:
+ *       200:
+ *         description: Lista de items propios
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/PortfolioItem' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/mis-items', protegerRuta, async (req, res) => {
   try {
     const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
@@ -80,8 +147,29 @@ router.get('/mis-items', protegerRuta, async (req, res) => {
   }
 })
 
-// ─── GET /api/portfolio/para-respaldar ────────────────────────────────────────
-// Clienta autenticada ve los items que puede respaldar (vinculados a sus reservas completadas)
+/**
+ * @openapi
+ * /api/portfolio/para-respaldar:
+ *   get:
+ *     tags: [Portfolio]
+ *     summary: Items que la clienta logueada puede respaldar
+ *     description: >
+ *       Devuelve los items aún no respaldados que están vinculados a reservas
+ *       completadas en las que la usuaria fue la clienta.
+ *     responses:
+ *       200:
+ *         description: Lista de items pendientes de respaldo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/PortfolioItem' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/para-respaldar', protegerRuta, async (req, res) => {
   try {
     // Obtener reservas completadas donde el usuario es la clienta
@@ -107,8 +195,29 @@ router.get('/para-respaldar', protegerRuta, async (req, res) => {
   }
 })
 
-// ─── GET /api/portfolio/worker/:workerProfileId ───────────────────────────────
-// Público: obtener portafolio de una trabajadora
+/**
+ * @openapi
+ * /api/portfolio/worker/{workerProfileId}:
+ *   get:
+ *     tags: [Portfolio]
+ *     summary: Portafolio público de una trabajadora
+ *     description: Endpoint público. Los trabajos respaldados aparecen primero.
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: workerProfileId
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId del WorkerProfile
+ *     responses:
+ *       200:
+ *         description: Lista de items del portafolio
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/PortfolioItem' }
+ */
 router.get('/worker/:workerProfileId', async (req, res) => {
   try {
     const items = await PortfolioItem.find({ trabajadora: req.params.workerProfileId })
@@ -121,8 +230,44 @@ router.get('/worker/:workerProfileId', async (req, res) => {
   }
 })
 
-// ─── DELETE /api/portfolio/:id ────────────────────────────────────────────────
-// Trabajadora elimina su propio item
+/**
+ * @openapi
+ * /api/portfolio/{id}:
+ *   delete:
+ *     tags: [Portfolio]
+ *     summary: Elimina un item del portafolio propio
+ *     description: Solo la trabajadora dueña del item puede eliminarlo.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId del item
+ *     responses:
+ *       200:
+ *         description: Item eliminado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje: { type: string, example: 'Item eliminado' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Sin permiso (no tienes perfil de trabajadora)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Item no encontrado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.delete('/:id', protegerRuta, async (req, res) => {
   try {
     const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
@@ -138,8 +283,48 @@ router.delete('/:id', protegerRuta, async (req, res) => {
   }
 })
 
-// ─── POST /api/portfolio/:id/respaldar ────────────────────────────────────────
-// Clienta respalda un item del portafolio (debe tener reserva completada vinculada)
+/**
+ * @openapi
+ * /api/portfolio/{id}/respaldar:
+ *   post:
+ *     tags: [Portfolio]
+ *     summary: La clienta respalda un trabajo del portafolio
+ *     description: >
+ *       El item debe tener una reserva completada vinculada y la usuaria debe ser
+ *       la clienta de esa reserva. No se puede respaldar dos veces.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId del item
+ *     responses:
+ *       200:
+ *         description: Item respaldado (con respaldadaPor y reserva populados)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/PortfolioItem' }
+ *       400:
+ *         description: Ya respaldado, sin reserva vinculada o reserva no completada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: No eres la clienta de esta reserva
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Item no encontrado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/:id/respaldar', protegerRuta, async (req, res) => {
   try {
     const item = await PortfolioItem.findById(req.params.id).populate('reserva')

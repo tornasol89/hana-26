@@ -20,7 +20,32 @@ router.use(protegerRuta, soloAdmin)
 
 // ── DISPUTAS ──────────────────────────────────────────────────────────────────
 
-// GET /api/admin/disputas — listar todas las reservas en disputa
+/**
+ * @openapi
+ * /api/admin/disputas:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lista todas las reservas en disputa
+ *     description: Requiere rol admin. Ordenadas por fecha de creación de la disputa (desc).
+ *     responses:
+ *       200:
+ *         description: Reservas en disputa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Booking' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/disputas', async (req, res) => {
   try {
     const disputas = await Booking.find({ estado: 'en_disputa' })
@@ -33,8 +58,65 @@ router.get('/disputas', async (req, res) => {
   }
 })
 
-// PUT /api/admin/bookings/:id/resolver-disputa
-// accion: 'confirmar_inicio' | 'confirmar_fin' | 'cancelar' | 'reactivar'
+/**
+ * @openapi
+ * /api/admin/bookings/{id}/resolver-disputa:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Resuelve una disputa de una reserva
+ *     description: >
+ *       Requiere rol admin. Según la acción, fuerza el estado de la reserva.
+ *       Solo aplica sobre reservas en estado "en_disputa".
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la reserva
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [accion]
+ *             properties:
+ *               accion:
+ *                 type: string
+ *                 enum: [confirmar_inicio, confirmar_fin, cancelar, reactivar]
+ *                 description: >
+ *                   confirmar_inicio → en_curso; confirmar_fin → completada;
+ *                   cancelar → cancelada; reactivar → vuelve al estado previo según la fase
+ *               nota:
+ *                 type: string
+ *                 description: Nota opcional del admin (se guarda como motivoClienta si está vacío)
+ *     responses:
+ *       200:
+ *         description: Disputa resuelta (reserva actualizada y populada)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Booking' }
+ *       400:
+ *         description: Acción inválida o la reserva no está en disputa
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Reserva no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/bookings/:id/resolver-disputa', async (req, res) => {
   try {
     const { accion, nota } = req.body
@@ -86,10 +168,45 @@ router.put('/bookings/:id/resolver-disputa', async (req, res) => {
   }
 })
 
-
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 
-// GET /api/admin/stats — resumen general + métricas de negocio para el dashboard
+/**
+ * @openapi
+ * /api/admin/stats:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Resumen general y métricas de negocio para el dashboard
+ *     description: Requiere rol admin. Combina conteos y agregaciones en una sola respuesta.
+ *     responses:
+ *       200:
+ *         description: Estadísticas del dashboard
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalUsuarias:      { type: integer }
+ *                 totalTrabajadoras:  { type: integer }
+ *                 totalClientas:      { type: integer }
+ *                 totalReservas:      { type: integer }
+ *                 pendientesVerif:    { type: integer }
+ *                 reservasUltimos30:  { type: integer }
+ *                 reservasPorEstado:      { $ref: '#/components/schemas/AggregacionConteo' }
+ *                 categoriasTrabajadoras: { $ref: '#/components/schemas/AggregacionConteo' }
+ *                 categoriasReservas:     { $ref: '#/components/schemas/AggregacionConteo' }
+ *                 regionesDemanda:        { $ref: '#/components/schemas/AggregacionConteo' }
+ *                 regionesTrabajadoras:   { $ref: '#/components/schemas/AggregacionConteo' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/stats', async (req, res) => {
   try {
     const [
@@ -153,11 +270,49 @@ router.get('/stats', async (req, res) => {
   }
 })
 
-
 // ── USUARIAS ──────────────────────────────────────────────────────────────────
 
-// GET /api/admin/usuarias — listar todas con filtros opcionales
-// Query: ?tipo=clienta|trabajadora&verificacion=enviado&activa=true&q=nombre
+/**
+ * @openapi
+ * /api/admin/usuarias:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lista usuarias con filtros opcionales
+ *     description: Requiere rol admin. Excluye admins. Máximo 100 resultados.
+ *     parameters:
+ *       - in: query
+ *         name: tipo
+ *         schema: { type: string, enum: [clienta, trabajadora] }
+ *       - in: query
+ *         name: verificacion
+ *         schema: { type: string, example: enviado }
+ *         description: Filtra por estadoVerificacion
+ *       - in: query
+ *         name: activa
+ *         schema: { type: boolean }
+ *       - in: query
+ *         name: q
+ *         schema: { type: string }
+ *         description: Búsqueda por nombre, apellido, email o RUT (case-insensitive)
+ *     responses:
+ *       200:
+ *         description: Lista de usuarias (sin password)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Usuario' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/usuarias', async (req, res) => {
   try {
     const { tipo, verificacion, activa, q } = req.query
@@ -186,7 +341,46 @@ router.get('/usuarias', async (req, res) => {
   }
 })
 
-// GET /api/admin/usuarias/:id — detalle de una usuaria
+/**
+ * @openapi
+ * /api/admin/usuarias/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Detalle de una usuaria (incluye su perfil si es trabajadora)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Detalle de la usuaria
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 usuaria: { $ref: '#/components/schemas/Usuario' }
+ *                 perfil:
+ *                   oneOf:
+ *                     - { $ref: '#/components/schemas/WorkerProfile' }
+ *                     - { type: 'null' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Usuaria no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/usuarias/:id', async (req, res) => {
   try {
     const usuaria = await User.findById(req.params.id).select('-password')
@@ -204,7 +398,53 @@ router.get('/usuarias/:id', async (req, res) => {
   }
 })
 
-// PATCH /api/admin/usuarias/:id — editar campos de una usuaria
+/**
+ * @openapi
+ * /api/admin/usuarias/{id}:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Edita campos de una usuaria
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:             { type: string }
+ *               apellido:           { type: string }
+ *               region:             { type: string }
+ *               comuna:             { type: string }
+ *               activa:             { type: boolean }
+ *               notasAdmin:         { type: string }
+ *               estadoVerificacion: { type: string }
+ *     responses:
+ *       200:
+ *         description: Usuaria actualizada (sin password)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Usuario' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Usuaria no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.patch('/usuarias/:id', async (req, res) => {
   try {
     // Campos editables por el admin
@@ -223,7 +463,59 @@ router.patch('/usuarias/:id', async (req, res) => {
   }
 })
 
-// PATCH /api/admin/usuarias/:id/verificar — aprobar o rechazar verificación
+/**
+ * @openapi
+ * /api/admin/usuarias/{id}/verificar:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Aprueba o rechaza la verificación de una usuaria
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [decision]
+ *             properties:
+ *               decision:
+ *                 type: string
+ *                 enum: [aprobado, rechazado]
+ *     responses:
+ *       200:
+ *         description: Verificación actualizada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje: { type: string, example: 'Verificación aprobado' }
+ *                 usuaria: { $ref: '#/components/schemas/Usuario' }
+ *       400:
+ *         description: decision debe ser 'aprobado' o 'rechazado'
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Usuaria no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.patch('/usuarias/:id/verificar', async (req, res) => {
   try {
     const { decision } = req.body // 'aprobado' | 'rechazado'
@@ -247,8 +539,38 @@ router.patch('/usuarias/:id/verificar', async (req, res) => {
   }
 })
 
-// DELETE /api/admin/usuarias/:id — eliminar cuenta (soft delete = desactivar)
-// Nunca borramos permanentemente, solo desactivamos
+/**
+ * @openapi
+ * /api/admin/usuarias/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Desactiva una cuenta (soft delete)
+ *     description: Nunca borra permanentemente; solo marca activa = false.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Cuenta desactivada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje: { type: string, example: 'Cuenta desactivada correctamente' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.delete('/usuarias/:id', async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.params.id, { activa: false })
@@ -258,10 +580,34 @@ router.delete('/usuarias/:id', async (req, res) => {
   }
 })
 
-
 // ── RESERVAS ──────────────────────────────────────────────────────────────────
 
-// GET /api/admin/reservas — ver todas las reservas
+/**
+ * @openapi
+ * /api/admin/reservas:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lista todas las reservas
+ *     description: Requiere rol admin. Máximo 200 resultados, ordenadas por creación (desc).
+ *     responses:
+ *       200:
+ *         description: Lista de reservas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Booking' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/reservas', async (req, res) => {
   try {
     const reservas = await Booking.find()
@@ -275,10 +621,33 @@ router.get('/reservas', async (req, res) => {
   }
 })
 
-
 // ── PERFILES DE TRABAJADORAS ──────────────────────────────────────────────────
 
-// GET /api/admin/perfiles — listar perfiles profesionales
+/**
+ * @openapi
+ * /api/admin/perfiles:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lista los perfiles profesionales
+ *     responses:
+ *       200:
+ *         description: Lista de perfiles (con usuario populado)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/WorkerProfile' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/perfiles', async (req, res) => {
   try {
     const perfiles = await WorkerProfile.find()
@@ -290,7 +659,44 @@ router.get('/perfiles', async (req, res) => {
   }
 })
 
-// PATCH /api/admin/perfiles/:id — editar perfil profesional
+/**
+ * @openapi
+ * /api/admin/perfiles/{id}:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Edita un perfil profesional
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/WorkerProfile' }
+ *     responses:
+ *       200:
+ *         description: Perfil actualizado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/WorkerProfile' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Acceso restringido a administradoras
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Perfil no encontrado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.patch('/perfiles/:id', async (req, res) => {
   try {
     const actualizado = await WorkerProfile.findByIdAndUpdate(
@@ -302,6 +708,5 @@ router.patch('/perfiles/:id', async (req, res) => {
     res.status(500).json({ mensaje: 'Error al actualizar perfil', error: e.message })
   }
 })
-
 
 export default router

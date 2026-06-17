@@ -5,8 +5,6 @@ import User from '../models/User.js'
 import upload, { uploadDocumento } from '../config/cloudinary.js'
 import protegerRuta from '../middleware/auth.js'
 import { validarFechaNacimiento, calcularEdad } from '../utils/validators.js'
-import { enviarVerificacion } from '../services/email/index.js'
-import { generarTokenVerificacion } from '../utils/tokens.js'
 
 const router = express.Router()
 
@@ -26,7 +24,6 @@ function formatearUsuario(u) {
     fechaNacimientoCorregida: u.fechaNacimientoCorregida,
     edad:                     u.fechaNacimiento ? calcularEdad(u.fechaNacimiento) : null,
     verificada:               u.verificada,
-    emailVerificado:          u.emailVerificado || false,
     estadoVerificacion:       u.estadoVerificacion,
     aceptoCompromiso:         u.aceptoCompromiso,
     carnetFrenteUrl:          u.carnetFrenteUrl || null,
@@ -34,7 +31,57 @@ function formatearUsuario(u) {
   }
 }
 
-// POST /api/auth/register
+/**
+ * @openapi
+ * /api/auth/register:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Registra una nueva usuaria y devuelve un JWT
+ *     description: >
+ *       Crea la cuenta, hashea la contraseña y aplica los setters del modelo
+ *       (capitalización de nombre y normalización de RUT). Requiere aceptar el
+ *       Compromiso Hana y una fecha de nacimiento válida (edad mínima 18).
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [nombre, apellido, email, password, tipo, rut, fechaNacimiento, aceptoCompromiso]
+ *             properties:
+ *               nombre:           { type: string, example: 'Ana' }
+ *               apellido:         { type: string, example: 'Pérez' }
+ *               email:            { type: string, format: email }
+ *               password:         { type: string, format: password, minLength: 6 }
+ *               tipo:             { type: string, enum: [clienta, trabajadora] }
+ *               region:           { type: string, example: 'Región Metropolitana' }
+ *               comuna:           { type: string, example: 'Providencia' }
+ *               rut:              { type: string, example: '12.345.678-9' }
+ *               fechaNacimiento:  { type: string, format: date, example: '1995-04-23' }
+ *               aceptoCompromiso: { type: boolean, example: true }
+ *               fechaAceptacion:  { type: string, format: date-time }
+ *     responses:
+ *       201:
+ *         description: Usuaria creada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:   { type: string }
+ *                 usuario: { $ref: '#/components/schemas/Usuario' }
+ *       400:
+ *         description: Validación fallida (email duplicado, RUT inválido, edad < 18, compromiso no aceptado)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       500:
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/register', async (req, res) => {
   try {
     const {
@@ -49,10 +96,10 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ mensaje: 'Debes aceptar el Compromiso Hana' })
     }
 
-    // 2. Unicidad de email + rut centralizada en el modelo
-    const conflicto = await User.verificarUnicidad({ email, rut })
-    if (conflicto) {
-      return res.status(400).json({ mensaje: conflicto.mensaje })
+    // 2. Email único
+    const usuarioExiste = await User.findOne({ email })
+    if (usuarioExiste) {
+      return res.status(400).json({ mensaje: 'El email ya está registrado' })
     }
 
     // 3. Validar fecha de nacimiento (incluye edad mínima 18)
@@ -65,11 +112,7 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const passwordEncriptada = await bcrypt.hash(password, salt)
 
-    // 5. Token de verificación de email
-    const { token: tokenVerificacion, expira: tokenVerificacionExpira } =
-      generarTokenVerificacion()
-
-    // 6. Crear usuario (los setters del modelo aplican capitalización y normalización de RUT)
+    // 5. Crear usuario (los setters del modelo aplican capitalización y normalización de RUT)
     //    Si el RUT es inválido, falla aquí con error de validación de Mongoose
     const usuario = await User.create({
       nombre, apellido, email,
@@ -80,39 +123,20 @@ router.post('/register', async (req, res) => {
       aceptoCompromiso: true,
       fechaAceptacion:  fechaAceptacion ? new Date(fechaAceptacion) : new Date(),
       foto: '',
-      emailVerificado: false,
-      tokenVerificacion,
-      tokenVerificacionExpira,
     })
 
-    // 7. Enviar email (NO bloqueante: si falla, el registro igual fue exitoso)
-    enviarVerificacion({
-      email: usuario.email,
-      nombre: usuario.nombre,
-      token: tokenVerificacion,
-    }).then((r) => {
-      if (!r?.ok) console.error(`Falló envío de verificación a ${usuario.email}:`, r?.error)
-    })
+    // 6. Generar JWT
+    const token = jwt.sign(
+      { id: usuario._id, tipo: usuario.tipo },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    )
 
-    // 8. Respuesta SIN token: la usuaria debe verificar su email antes de entrar
-    return res.status(201).json({
-      mensaje: 'Te enviamos un email de verificación. Revisá tu inbox.',
-      email: usuario.email,
-    })
+    res.status(201).json({ token, usuario: formatearUsuario(usuario) })
   } catch (error) {
     console.error('Error en register:', error)
 
-    // Error de índice único (race condition entre verificarUnicidad y create).
-    // Defensa en profundidad: si dos requests llegan a la vez, una pasa el
-    // verificarUnicidad y choca contra el índice único de Mongo.
-    if (error.code === 11000) {
-      const campo = Object.keys(error.keyPattern || {})[0]
-      if (campo === 'rut')   return res.status(400).json({ mensaje: 'El RUT ya está registrado' })
-      if (campo === 'email') return res.status(400).json({ mensaje: 'El email ya está registrado' })
-      return res.status(400).json({ mensaje: 'Ya existe una cuenta con esos datos' })
-    }
-
-    // Errores de validación de Mongoose (RUT inválido, fecha de nacimiento, etc.)
+    // Errores de validación de Mongoose (RUT inválido, etc.)
     if (error.name === 'ValidationError') {
       const primerError = Object.values(error.errors)[0]
       return res.status(400).json({ mensaje: primerError.message })
@@ -122,7 +146,44 @@ router.post('/register', async (req, res) => {
   }
 })
 
-// POST /api/auth/login
+/**
+ * @openapi
+ * /api/auth/login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Inicia sesión y devuelve un JWT
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:    { type: string, format: email }
+ *               password: { type: string, format: password }
+ *     responses:
+ *       200:
+ *         description: Login exitoso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:   { type: string }
+ *                 usuario: { $ref: '#/components/schemas/Usuario' }
+ *       400:
+ *         description: Email o contraseña incorrectos
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Cuenta desactivada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body
@@ -136,20 +197,9 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ mensaje: 'Esta cuenta ha sido desactivada. Contacta a soporte.' })
     }
 
-    // Validamos la contraseña ANTES de revelar el estado de verificación,
-    // para no permitir enumeración de cuentas (saber si un email existe sin la clave).
     const passwordCorrecta = await bcrypt.compare(password, usuario.password)
     if (!passwordCorrecta) {
       return res.status(400).json({ mensaje: 'Email o contraseña incorrectos' })
-    }
-
-    // Recién con credenciales válidas confirmamos si falta verificar el email.
-    if (!usuario.emailVerificado) {
-      return res.status(403).json({
-        mensaje: 'Tenés que verificar tu email antes de entrar. Revisá tu inbox o pedí un nuevo link.',
-        codigo: 'EMAIL_NO_VERIFICADO',
-        email: usuario.email,
-      })
     }
 
     const token = jwt.sign(
@@ -165,7 +215,32 @@ router.post('/login', async (req, res) => {
   }
 })
 
-// PUT /api/auth/me — actualizar datos propios
+/**
+ * @openapi
+ * /api/auth/me:
+ *   put:
+ *     tags: [Auth]
+ *     summary: Actualiza los datos del usuario autenticado
+ *     description: >
+ *       Permite editar nombre, apellido, región y comuna. Si se envía
+ *       fechaNacimiento, se valida (edad mínima 18) y se marca como corregida.
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Usuario' }
+ *       400:
+ *         description: Datos inválidos (p. ej. fecha de nacimiento)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.put('/me', protegerRuta, async (req, res) => {
   try {
     const { nombre, apellido, region, comuna, fechaNacimiento } = req.body
@@ -201,7 +276,46 @@ router.put('/me', protegerRuta, async (req, res) => {
   }
 })
 
-// POST /api/auth/upload-photo — subir foto de perfil
+/**
+ * @openapi
+ * /api/auth/upload-photo:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Sube la foto de perfil del usuario autenticado
+ *     description: La imagen se almacena en Cloudinary; se guarda la URL pública en el documento.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [image]
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Foto actualizada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje: { type: string, example: 'Foto actualizada' }
+ *                 foto:    { type: string, format: uri }
+ *                 usuario: { $ref: '#/components/schemas/Usuario' }
+ *       400:
+ *         description: No se seleccionó ninguna imagen
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/upload-photo', protegerRuta, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
@@ -221,8 +335,56 @@ router.post('/upload-photo', protegerRuta, upload.single('image'), async (req, r
   }
 })
 
-// POST /api/auth/upload-carnet — subir frente o dorso de cédula
-// Query param: ?lado=frente | ?lado=dorso
+/**
+ * @openapi
+ * /api/auth/upload-carnet:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Sube el frente o dorso de la cédula de identidad
+ *     description: >
+ *       Almacena el documento en Cloudinary y pone estadoVerificacion en "enviado".
+ *       El lado se indica por query param.
+ *     parameters:
+ *       - in: query
+ *         name: lado
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [frente, dorso]
+ *         description: Cara del documento que se está subiendo
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [image]
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Documento subido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje: { type: string, example: 'Documento subido' }
+ *                 url:     { type: string, format: uri }
+ *                 usuario: { $ref: '#/components/schemas/Usuario' }
+ *       400:
+ *         description: Falta imagen o el parámetro lado es inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/upload-carnet', protegerRuta, uploadDocumento.single('image'), async (req, res) => {
   try {
     if (!req.file) {
@@ -248,7 +410,54 @@ router.post('/upload-carnet', protegerRuta, uploadDocumento.single('image'), asy
   }
 })
 
-// GET /api/auth/clienta/:id — perfil público seguro de una clienta
+/**
+ * @openapi
+ * /api/auth/clienta/{id}:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Perfil público seguro de una clienta
+ *     description: >
+ *       Devuelve datos limitados de una clienta. Solo accesible para usuarios
+ *       de tipo trabajadora o admin.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: ObjectId de la clienta
+ *     responses:
+ *       200:
+ *         description: Perfil de la clienta
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:                { type: string }
+ *                 nombre:             { type: string }
+ *                 apellido:           { type: string }
+ *                 foto:               { type: string, nullable: true }
+ *                 region:             { type: string }
+ *                 comuna:             { type: string }
+ *                 verificada:         { type: boolean }
+ *                 estadoVerificacion: { type: string }
+ *                 createdAt:          { type: string, format: date-time }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       403:
+ *         description: Sin permiso para ver este perfil
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Clienta no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/clienta/:id', protegerRuta, async (req, res) => {
   try {
     const clienta = await User.findOne({ _id: req.params.id, tipo: 'clienta' })

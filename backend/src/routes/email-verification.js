@@ -6,7 +6,38 @@ import { generarTokenVerificacion } from '../utils/tokens.js'
 
 const router = express.Router()
 
-// GET /api/email-verification/verify?token=...
+/**
+ * @openapi
+ * /api/email-verification/verify:
+ *   get:
+ *     tags: [EmailVerification]
+ *     summary: Verifica el email mediante el token del link
+ *     description: >
+ *       Endpoint público. Busca un usuario con el token aún vigente, marca
+ *       emailVerificado = true y limpia el token. El link caduca por expiración.
+ *     security: []
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema: { type: string }
+ *         description: Token de verificación recibido por correo
+ *     responses:
+ *       200:
+ *         description: Email verificado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje: { type: string, example: 'Email verificado correctamente' }
+ *                 email:   { type: string, format: email }
+ *       400:
+ *         description: Falta el token, o el link es inválido o está expirado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.get('/verify', async (req, res) => {
   try {
     const { token } = req.query
@@ -35,7 +66,45 @@ router.get('/verify', async (req, res) => {
   }
 })
 
-// POST /api/email-verification/resend (protegido)
+/**
+ * @openapi
+ * /api/email-verification/resend:
+ *   post:
+ *     tags: [EmailVerification]
+ *     summary: Reenvía el correo de verificación a la usuaria logueada
+ *     description: >
+ *       Genera un nuevo token, lo guarda con su expiración y dispara el envío
+ *       del correo. Falla si el email ya está verificado.
+ *     responses:
+ *       200:
+ *         description: Email reenviado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje: { type: string, example: 'Email reenviado' }
+ *       400:
+ *         description: Tu email ya está verificado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       401:
+ *         description: Token requerido o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       404:
+ *         description: Usuaria no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       500:
+ *         description: No se pudo enviar el email
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/resend', protegerRuta, async (req, res) => {
   try {
     const usuario = await User.findById(req.usuario.id)
@@ -65,11 +134,45 @@ router.post('/resend', protegerRuta, async (req, res) => {
     console.error('Error en resend:', error)
     res.status(500).json({ mensaje: 'Error al reenviar email' })
   }
-}) 
+})
 
-// POST /api/email-verification/resend-public
-// Endpoint público (NO requiere JWT) para reenviar verificación desde el login.
-// Responde igual exista o no la cuenta, para evitar enumeración de emails.
+/**
+ * @openapi
+ * /api/email-verification/resend-public:
+ *   post:
+ *     tags: [EmailVerification]
+ *     summary: Reenvía la verificación desde el login (público)
+ *     description: >
+ *       Endpoint público (no requiere JWT). Responde siempre con el mismo mensaje
+ *       genérico exista o no la cuenta, para evitar la enumeración de emails.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200:
+ *         description: >
+ *           Respuesta genérica. No revela si la cuenta existe ni si fue enviado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                   example: 'Si la cuenta existe y no está verificada, te enviamos un nuevo link.'
+ *       400:
+ *         description: Falta el email
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
 router.post('/resend-public', async (req, res) => {
   try {
     const { email } = req.body
@@ -81,7 +184,6 @@ router.post('/resend-public', async (req, res) => {
     }
 
     const usuario = await User.findOne({ email: email.toLowerCase().trim() })
-
     if (!usuario || usuario.emailVerificado) {
       return res.json(respuestaGenerica)
     }

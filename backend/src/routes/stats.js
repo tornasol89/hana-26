@@ -6,9 +6,36 @@ import User          from '../models/User.js'
 const router = express.Router()
 
 /**
- * GET /api/stats/publicas
- * Estadísticas agregadas sin datos personales — visibles para trabajadoras logueadas y público.
- * Útil para que las trabajadoras decidan en qué áreas enfocarse.
+ * @openapi
+ * /api/stats/publicas:
+ *   get:
+ *     tags: [Stats]
+ *     summary: Estadísticas agregadas públicas (sin datos personales)
+ *     description: >
+ *       Endpoint público. Útil para que las trabajadoras decidan en qué áreas
+ *       enfocarse: categorías con más trabajadoras y regiones con más demanda.
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: Métricas agregadas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 categoriasTrabajadoras:
+ *                   allOf:
+ *                     - { $ref: '#/components/schemas/AggregacionConteo' }
+ *                   description: Categorías con más trabajadoras (top 10)
+ *                 regionesDemanda:
+ *                   allOf:
+ *                     - { $ref: '#/components/schemas/AggregacionConteo' }
+ *                   description: Regiones con más clientas registradas (top 8)
+ *       500:
+ *         description: Error al obtener estadísticas
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
  */
 router.get('/publicas', async (req, res) => {
   try {
