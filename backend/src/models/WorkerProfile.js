@@ -68,6 +68,9 @@ const workerProfileSchema = new mongoose.Schema({
 
   indiceConfianza: { type: Number, default: 0 },
 
+  // true cuando al menos un certificado tiene institucion = "Chilevalora"
+  certificadaChilevalora: { type: Boolean, default: false },
+
 }, { timestamps: true })
 
 export default mongoose.model('WorkerProfile', workerProfileSchema)

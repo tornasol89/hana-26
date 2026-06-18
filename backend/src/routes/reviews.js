@@ -1,6 +1,7 @@
 import express from 'express'
 import Review  from '../models/Review.js'
 import Booking from '../models/Booking.js'
+import WorkerProfile from '../models/WorkerProfile.js'
 import protegerRuta from '../middleware/auth.js'
 
 const router = express.Router()
@@ -27,8 +28,13 @@ router.post('/', protegerRuta, async (req, res) => {
       return res.status(400).json({ mensaje: 'Solo puedes evaluar reservas aceptadas o completadas' })
     }
 
-    // Evitar auto-evaluación
+    // Evitar auto-evaluación (incluye perfiles duales: mismo _id)
     if (destinataria === req.usuario.id) {
+      return res.status(400).json({ mensaje: 'No puedes evaluarte a ti misma' })
+    }
+    // Prevención adicional: si la destinataria tiene perfil de trabajadora, verificar que no sea la misma persona
+    const perfilWorker = await WorkerProfile.findById(destinataria)
+    if (perfilWorker && perfilWorker.usuario.toString() === req.usuario.id) {
       return res.status(400).json({ mensaje: 'No puedes evaluarte a ti misma' })
     }
 

@@ -16,7 +16,7 @@ async function esParticipante(reservaId, usuarioId) {
   return reserva
 }
 
-// GET /api/messages/no-leidos — contador de mensajes no leídos del usuario logueado
+// GET /api/messages/no-leidos — contador y lista de reservas con mensajes no leídos
 // IMPORTANTE: debe ir ANTES de /:reservaId para que Express no la confunda con un ID
 router.get('/no-leidos', protegerRuta, async (req, res) => {
   try {
@@ -24,20 +24,34 @@ router.get('/no-leidos', protegerRuta, async (req, res) => {
 
     if (req.usuario.tipo === 'trabajadora') {
       const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
-      if (!perfil) return res.json({ count: 0 })
+      if (!perfil) return res.json({ count: 0, reservas: [] })
       filtroReservas = { trabajadora: perfil._id }
     }
 
-    const reservas    = await Booking.find(filtroReservas).select('_id')
-    const reservaIds  = reservas.map(r => r._id)
+    const reservas   = await Booking.find(filtroReservas).select('_id servicio')
+    const reservaIds = reservas.map(r => r._id)
 
-    const count = await Message.countDocuments({
-      reserva:  { $in: reservaIds },
-      autor:    { $ne: req.usuario.id },
-      leidoPor: { $not: { $elemMatch: { $eq: req.usuario.id } } },
-    })
+    // Agrupar mensajes no leídos por reserva
+    const grupos = await Message.aggregate([
+      {
+        $match: {
+          reserva:  { $in: reservaIds },
+          autor:    { $ne: req.usuario._id },
+          leidoPor: { $not: { $elemMatch: { $eq: req.usuario._id } } },
+        },
+      },
+      { $group: { _id: '$reserva', count: { $sum: 1 } } },
+    ])
 
-    res.json({ count })
+    // Mapear _id de reserva a su nombre de servicio
+    const reservaMap = Object.fromEntries(reservas.map(r => [r._id.toString(), r.servicio]))
+    const reservasConMensajes = grupos.map(g => ({
+      _id:      g._id,
+      servicio: reservaMap[g._id.toString()] ?? 'Reserva',
+      count:    g.count,
+    }))
+
+    res.json({ count: grupos.reduce((s, g) => s + g.count, 0), reservas: reservasConMensajes })
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al contar no leídos', error: error.message })
   }

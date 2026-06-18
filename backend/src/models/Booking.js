@@ -27,8 +27,30 @@ const bookingSchema = new mongoose.Schema({
   },
   estado: {
     type: String,
-    enum: ['pendiente', 'aceptada', 'rechazada', 'completada'],
+    enum: ['pendiente', 'aceptada', 'en_curso', 'completada', 'rechazada', 'cancelada', 'en_disputa'],
     default: 'pendiente',
+  },
+  regionServicio:    { type: String, default: '' },
+  comunaServicio:    { type: String, default: '' },
+  direccionServicio: { type: String, default: '' },
+
+  // ── Confirmaciones dobles ──────────────────────────────────────────────────
+  inicioConfirmadoPor: {
+    trabajadora: { type: Date, default: null },
+    clienta:     { type: Date, default: null },
+  },
+  finConfirmadoPor: {
+    trabajadora: { type: Date, default: null },
+    clienta:     { type: Date, default: null },
+  },
+
+  // ── Disputa ───────────────────────────────────────────────────────────────
+  disputa: {
+    activa:            { type: Boolean, default: false },
+    fase:              { type: String, enum: ['inicio', 'fin', null], default: null },
+    motivoTrabajadora: { type: String, default: '' },
+    motivoClienta:     { type: String, default: '' },
+    creadaEn:          { type: Date,    default: null },
   },
 }, { timestamps: true })
 

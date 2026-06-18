@@ -3,6 +3,12 @@ import WorkerProfile from '../models/WorkerProfile.js'
 import Review from '../models/Review.js'
 import Booking from '../models/Booking.js'
 import protegerRuta from '../middleware/auth.js'
+import mongoose from 'mongoose'
+import { uploadCertificado } from '../config/cloudinary.js'
+
+function esChilevalora(institucion = '') {
+  return institucion.trim().toLowerCase().includes('chilevalora')
+}
 
 const router = express.Router()
 
@@ -123,9 +129,51 @@ router.get('/:id', async (req, res) => {
     const respondidas   = await Booking.countDocuments({ trabajadora: perfil._id, estado: { $in: ['aceptada', 'rechazada', 'completada'] } })
     const tasaRespuesta = totalReservas > 0 ? Math.round((respondidas / totalReservas) * 100) : 100
 
-    res.json({ perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta })
+    const certificadaChilevalora = (perfil.certificados || []).some(c => esChilevalora(c.institucion))
+
+    res.json({ perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta, certificadaChilevalora })
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al obtener perfil', error: error.message })
+  }
+}) 
+
+// GET /api/workers/:id/horarios-ocupados?fecha=YYYY-MM-DD
+router.get('/:id/horarios-ocupados', async (req, res) => {
+  try {
+    const { fecha } = req.query
+    if (!fecha) {
+      return res.status(400).json({ mensaje: 'Falta el parámetro fecha (YYYY-MM-DD)' })
+    }
+
+    // Validar el id antes de query a Mongo
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ mensaje: 'ID de trabajadora inválido' })
+    }
+
+    const inicio = new Date(`${fecha}T00:00:00.000Z`)
+    const fin    = new Date(`${fecha}T23:59:59.999Z`)
+    if (isNaN(inicio.getTime())) {
+      return res.status(400).json({ mensaje: 'Fecha inválida' })
+    }
+
+    const reservas = await Booking.find({
+      trabajadora: new mongoose.Types.ObjectId(req.params.id),
+      fecha: { $gte: inicio, $lte: fin },
+      estado: { $in: ['pendiente', 'aceptada', 'completada'] },
+    }).select('fecha').lean()
+
+    const horasOcupadas = reservas
+      .map(r => {
+        if (!r.fecha) return null
+        const local = new Date(r.fecha.getTime() - 3 * 60 * 60 * 1000)
+        return local.toISOString().slice(11, 16)
+      })
+      .filter(Boolean)
+
+    res.json({ horasOcupadas })
+  } catch (error) {
+    console.error('Error en horarios-ocupados:', error)
+    res.status(500).json({ mensaje: 'Error al obtener horarios ocupados', error: error.message })
   }
 })
 
@@ -152,6 +200,57 @@ router.post('/', protegerRuta, async (req, res) => {
     res.status(201).json(perfil)
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al crear perfil', error: error.message })
+  }
+})
+
+// POST /api/workers/mi-perfil/certificados — subir certificado con imagen
+router.post('/mi-perfil/certificados', protegerRuta, uploadCertificado.single('imagen'), async (req, res) => {
+  try {
+    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
+    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
+
+    const { nombre, institucion } = req.body
+    if (!nombre || !institucion) {
+      return res.status(400).json({ mensaje: 'Nombre e institución son obligatorios' })
+    }
+
+    const nuevoCert = {
+      nombre:    nombre.trim(),
+      institucion: institucion.trim(),
+      urlImagen: req.file?.path ?? '',
+    }
+
+    perfil.certificados.push(nuevoCert)
+    perfil.certificadaChilevalora = perfil.certificados.some(c => esChilevalora(c.institucion))
+    await perfil.save()
+
+    res.status(201).json(perfil)
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al subir certificado', error: error.message })
+  }
+})
+
+// DELETE /api/workers/mi-perfil/certificados/:certId — eliminar certificado propio
+router.delete('/mi-perfil/certificados/:certId', protegerRuta, async (req, res) => {
+  try {
+    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
+    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
+
+    const antes = perfil.certificados.length
+    perfil.certificados = perfil.certificados.filter(
+      c => c._id.toString() !== req.params.certId
+    )
+
+    if (perfil.certificados.length === antes) {
+      return res.status(404).json({ mensaje: 'Certificado no encontrado' })
+    }
+
+    perfil.certificadaChilevalora = perfil.certificados.some(c => esChilevalora(c.institucion))
+    await perfil.save()
+
+    res.json(perfil)
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al eliminar certificado', error: error.message })
   }
 })
 
