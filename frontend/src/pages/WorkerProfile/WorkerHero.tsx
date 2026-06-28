@@ -122,19 +122,46 @@ export function WorkerHero({
 
           {/* Índice Hana */}
           <div className="shrink-0 text-center md:text-right">
-            <div className="bg-muted/50 rounded-xl p-4 min-w-[140px]">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Índice Hana
-              </p>
-              <p className="text-4xl font-bold font-display text-primary mt-1">
+            <div className="bg-muted/50 rounded-xl p-4 min-w-[148px] border border-border/60">
+              <div className="flex items-center justify-center md:justify-end gap-1 mb-1">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Índice Hana
+                </p>
+                {/* Tooltip-like hint */}
+                <span
+                  title="Basado en calificaciones de clientas (0–100). +10 pts por certificación Chilevalora."
+                  className="w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center cursor-help border border-border/60 shrink-0"
+                >
+                  ?
+                </span>
+              </div>
+
+              {/* Score con barra de progreso visual */}
+              <p className="text-4xl font-bold font-display text-primary mt-1 leading-none">
                 {indiceHana}
+                <span className="text-base font-normal text-muted-foreground">/100</span>
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {indiceHana >= 70 ? "Confiable" : "Por evaluar"}
+
+              {/* Barra de progreso */}
+              <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{
+                    width: `${indiceHana}%`,
+                    background: indiceHana >= 70
+                      ? "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary-light)))"
+                      : "hsl(var(--muted-foreground))",
+                  }}
+                />
+              </div>
+
+              <p className={`text-xs font-semibold mt-1.5 ${indiceHana >= 70 ? "text-primary" : "text-muted-foreground"}`}>
+                {indiceHana >= 85 ? "Muy confiable" : indiceHana >= 70 ? "Confiable" : "En evaluación"}
               </p>
+
               {certificadaChilevalora && (
                 <p className="text-[10px] text-amber-600 font-medium mt-1">
-                  +10 pts Chilevalora
+                  Incluye +10 pts Chilevalora
                 </p>
               )}
             </div>

@@ -182,7 +182,7 @@ export default function DashboardTrabajadora() {
                 text={nombre}
                 gifUrl={HANA_GIFS.flowers}
                 fallbackColor="hsl(270 50% 80%)"
-                className="text-[2.8rem] md:text-[3.8rem] font-bold italic"
+                className="text-[1.8rem] sm:text-[2.4rem] md:text-[3.8rem] font-bold italic"
               />
               <span className="block text-base md:text-lg font-medium mt-2 text-white/55">
                 Tu espacio para crecer como profesional independiente

@@ -22,9 +22,21 @@ export const workersApi = {
     return data;
   },
 
-  getMyProfile: async (): Promise<WorkerProfile> => {
-    const { data } = await api.get<WorkerProfile>("/workers/mi-perfil");
-    return data;
+  getMyProfile: async (): Promise<WorkerProfile | null> => {
+    try {
+      const { data } = await api.get<WorkerProfile>("/workers/mi-perfil");
+      return data;
+    } catch (err: unknown) {
+      if (
+        err &&
+        typeof err === "object" &&
+        "response" in err &&
+        (err as { response?: { status?: number } }).response?.status === 404
+      ) {
+        return null;
+      }
+      throw err;
+    }
   },
 
   createMyProfile: async (payload: WorkerProfileInput): Promise<WorkerProfile> => {

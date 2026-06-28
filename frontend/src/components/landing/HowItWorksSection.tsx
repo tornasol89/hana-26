@@ -117,7 +117,7 @@ function StepCard({ step, index }: { step: typeof steps[0]; index: number }) {
 // ── Sección principal ──────────────────────────────────────────────────────────
 const HowItWorksSection = () => {
   return (
-    <section id="como-funciona" className="py-24 bg-gradient-warm overflow-hidden">
+    <section id="como-funciona" className="py-24 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
 
         {/* Header */}
@@ -129,11 +129,10 @@ const HowItWorksSection = () => {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-3xl md:text-4xl font-bold font-display text-foreground mb-4">
-            ¿Cómo{" "}
-            <span className="italic text-gradient-primary">funciona?</span>
+            Así funciona Hana
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            En 4 simples pasos, conecta con la profesional que necesitas
+            4 pasos simples para conectar con la profesional que necesitas
           </p>
         </motion.div>
 

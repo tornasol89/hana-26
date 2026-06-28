@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import api from "@/lib/api";
 
 type Tipo = "sugerencia" | "reclamo";
 
@@ -93,10 +94,21 @@ export default function Sugerencias() {
       return;
     }
     setLoading(true);
-    // TODO: conectar con endpoint backend POST /api/sugerencias
-    await new Promise((r) => setTimeout(r, 900));
-    setLoading(false);
-    setEnviado(true);
+    try {
+      await api.post("/sugerencias", {
+        tipo,
+        nombre: form.nombre.trim(),
+        email: form.email.trim(),
+        categoria: form.categoria,
+        mensaje: form.mensaje.trim(),
+        valoracion: tipo === "sugerencia" && form.valoracion > 0 ? form.valoracion : undefined,
+      });
+      setEnviado(true);
+    } catch {
+      toast.error("No se pudo enviar el mensaje. Intenta nuevamente.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const cfg = TIPO_CONFIG[tipo];
@@ -106,7 +118,7 @@ export default function Sugerencias() {
       <Navbar />
 
       {/* ── Hero ── */}
-      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-32 pb-20 px-4">
+      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-24 pb-16 px-4">
         <div className="absolute top-0 left-1/4 w-96 h-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
         <div className="absolute top-[40%] left-[8%] w-28 h-28 rounded-full bg-white/5 blur-2xl animate-float pointer-events-none" />
@@ -117,29 +129,32 @@ export default function Sugerencias() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-5">
               <Megaphone className="h-3.5 w-3.5 text-accent" />
               <span className="text-xs font-medium text-white/80 uppercase tracking-widest">
                 Tu voz importa
               </span>
             </div>
-            <h1 className="font-display leading-none mb-4">
-              <span className="block text-5xl md:text-6xl font-bold italic text-white">
+            <h1 className="font-display leading-none mb-3">
+              <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-2">
+                Escríbenos
+              </span>
+              <span className="block text-[2rem] sm:text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic text-white leading-none">
                 Sugerencias
               </span>
-              <span className="block text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
+              <span className="block text-xl md:text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 y Reclamos
               </span>
             </h1>
-            <p className="text-white/55 text-base max-w-md mx-auto mt-3">
-              Cada mensaje que recibiremos nos ayuda a ser mejores.
+            <p className="text-white/55 text-sm max-w-md mx-auto mt-3">
+              Cada mensaje nos ayuda a mejorar.
               Tu experiencia es nuestra prioridad.
             </p>
           </motion.div>
 
           {/* Stats */}
           <motion.div
-            className="flex justify-center gap-8 mt-10"
+            className="flex justify-center gap-8 mt-8"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}

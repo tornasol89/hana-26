@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import hanaLogo from "@/assets/hana-logo.png";
 import { useLogin } from "@/features/auth/hooks";
+import { useAuth } from "@/contexts/AuthContext";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,14 +20,27 @@ const Login = () => {
   const login = useLogin();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, user } = useAuth();
 
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname;
+
+  // Redirigir si ya está autenticada
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.tipo === "admin") navigate("/perfil/admin", { replace: true });
+      else navigate(from && from !== "/login" ? from : "/mi-perfil", { replace: true });
+    }
+  }, [isAuthenticated, user, navigate, from]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!email.trim() || !password) {
       toast.error("Completa todos los campos");
+      return;
+    }
+    if (!EMAIL_RE.test(email.trim())) {
+      toast.error("Ingresa un correo electrónico válido");
       return;
     }
 

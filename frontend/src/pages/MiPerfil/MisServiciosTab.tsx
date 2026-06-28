@@ -12,19 +12,11 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export function MisServiciosTab() {
   const { user } = useAuth();
-  const { data: perfil, isLoading, isError, error } = useMyWorkerProfile();
+  const { data: perfil, isLoading, isError } = useMyWorkerProfile();
   const createProfile = useCreateWorkerProfile();
   const updateProfile = useUpdateWorkerProfile();
 
   if (isLoading) return <LoadingState message="Cargando tu perfil profesional..." />;
-
-  // El backend devuelve 404 si la trabajadora no tiene perfil todavía
-  const noTieneProfile =
-    isError &&
-    error &&
-    typeof error === "object" &&
-    "response" in error &&
-    (error as { response?: { status?: number } }).response?.status === 404;
 
   const verificada = user?.estadoVerificacion === "aprobado";
 
@@ -45,7 +37,7 @@ export function MisServiciosTab() {
         </div>
       )}
 
-      {noTieneProfile || !perfil ? (
+      {!perfil && !isError ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">

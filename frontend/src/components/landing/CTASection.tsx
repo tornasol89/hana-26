@@ -26,7 +26,7 @@ const CTASection = () => {
             </Button>
           </AnimatedButtonWrapper>
           <AnimatedButtonWrapper gradient="nebula" className="hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
-            <Button variant="outline" size="lg" asChild className="w-full border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+            <Button variant="outline" size="lg" asChild className="w-full bg-transparent border-white/40 text-white hover:bg-white/10 hover:text-white">
               <Link to="/buscar">Explorar Servicios</Link>
             </Button>
           </AnimatedButtonWrapper>

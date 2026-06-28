@@ -105,8 +105,8 @@ export function useLogout() {
     //    Después todo el resto
     queryClient.clear();
 
-    // 3. Limpiar flags del compromiso
-    localStorage.removeItem("aceptoCompromiso");
-    localStorage.removeItem("fechaAceptacion");
+    // 3. Limpiar flags del compromiso (se guardan en sessionStorage en Compromiso.tsx)
+    sessionStorage.removeItem("aceptoCompromiso");
+    sessionStorage.removeItem("fechaAceptacion");
   };
 }

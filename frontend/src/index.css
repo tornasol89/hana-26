@@ -62,6 +62,11 @@
     --purple-light: 270 45% 95%;
     --purple-glow: 270 60% 50%;
 
+    /* Fondo oscuro hero (buscar, footer, etc.) */
+    --hero-dark: 270 55% 8%;
+    --hero-dark-mid: 272 62% 18%;
+    --hero-dark-deep: 270 60% 12%;
+
     /* Gradientes mejorados */
     --gradient-hero: linear-gradient(135deg, hsl(262 45% 35%), hsl(270 55% 48%));
     --gradient-gold: linear-gradient(135deg, hsl(38 52% 52%), hsl(35 58% 64%));
@@ -131,6 +136,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Previene scroll horizontal global — captura cualquier overflow residual */
+    overflow-x: hidden;
   }
 
   body {
@@ -139,6 +146,7 @@
     font-size: 15px;
     line-height: 1.65;
     letter-spacing: -0.01em;
+    overflow-x: hidden;
   }
 
   /* Escala tipográfica — display para títulos */

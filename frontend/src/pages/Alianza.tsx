@@ -139,8 +139,8 @@ export default function Alianza() {
               <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-2">
                 Tu trabajo,
               </span>
-              <span className="block text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic text-white leading-none">
-                respaldado
+              <span className="block text-[2rem] sm:text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic text-white leading-none">
+                Respaldado
               </span>
               <span className="block text-xl md:text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
                 por el Estado
@@ -153,10 +153,14 @@ export default function Alianza() {
               financiamiento y capacitación gratuita.
             </p>
           </motion.div>
+        </div>
+      </div>
 
-          {/* Logos */}
+      {/* ── Banda de logos + stats (fuera del hero) ── */}
+      <div className="bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] border-t border-white/10 pb-10 px-4">
+        <div className="container mx-auto max-w-3xl text-center">
           <motion.div
-            className="flex flex-wrap items-center justify-center gap-4 mt-8"
+            className="flex flex-wrap items-center justify-center gap-4 pt-6 pb-6"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -177,9 +181,8 @@ export default function Alianza() {
             </div>
           </motion.div>
 
-          {/* Stats */}
           <motion.div
-            className="flex flex-wrap justify-center gap-8 mt-10"
+            className="flex flex-wrap justify-center gap-8"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.5 }}

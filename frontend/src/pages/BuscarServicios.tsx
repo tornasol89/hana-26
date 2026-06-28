@@ -8,7 +8,6 @@ import {
   Search,
   Shield,
   ChevronRight,
-  ChevronDown,
   Loader2,
   AlertCircle,
   Users,
@@ -31,11 +30,6 @@ import { useWorkers } from "@/features/workers/hooks";
 import { CategoriaSubcategoriaPicker } from "@/features/workers/components/CategoriaSubcategoriaPicker";
 import { REGIONES_CHILE } from "@/config/constants";
 import type { WorkerProfile } from "@/features/workers/types";
-import {
-  Expandable,
-  ExpandableContent,
-  ExpandableTrigger,
-} from "@/components/ui/expandable";
 
 const TODAS = "todas";
 
@@ -102,7 +96,7 @@ const BuscarServicios = () => {
       <Navbar />
 
       {/* ── Hero ── */}
-      <div className="relative bg-gradient-to-br from-[#1a0533] via-[#2d0f52] to-[#160c2e] overflow-hidden pt-24 pb-16 px-4">
+      <div className="relative overflow-hidden pt-24 pb-16 px-4" style={{ background: "linear-gradient(135deg, hsl(var(--hero-dark)), hsl(var(--hero-dark-mid)), hsl(var(--hero-dark-deep)))" }}>
         <div className="absolute top-0 left-1/4 w-96 h-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
         <div className="absolute top-[35%] left-[6%] w-28 h-28 rounded-full bg-white/5 blur-2xl animate-float pointer-events-none" />
@@ -125,7 +119,7 @@ const BuscarServicios = () => {
               <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-2">
                 Buscar Servicios
               </span>
-              <span className="block text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic text-white leading-none">
+              <span className="block text-[2.4rem] sm:text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-black italic text-white leading-none">
                 Encuentra
               </span>
               <span className="block text-xl md:text-2xl font-bold mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-100 to-amber-200 bg-clip-text text-transparent">
@@ -291,7 +285,7 @@ const BuscarServicios = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="mb-10 rounded-2xl overflow-hidden border border-border bg-gradient-to-br from-[#1a0533]/5 via-background to-[#160c2e]/5 shadow-sm"
+                  className="mb-10 hidden sm:block rounded-2xl overflow-hidden border border-border bg-gradient-to-br from-primary/5 via-background to-primary/3 shadow-sm"
                 >
                   <div className="px-6 pt-6 pb-2 text-center">
                     <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1 mb-2">
@@ -353,126 +347,91 @@ function WorkerCard({
   const tarifaTexto = worker.tarifaHora > 0
     ? `$${worker.tarifaHora.toLocaleString("es-CL")}/hr`
     : "A convenir";
+  const ubicacion = [worker.usuario?.comuna, worker.usuario?.region].filter(Boolean).join(", ");
 
   return (
-    <Expandable className="group rounded-2xl border-2 border-border bg-card overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-      {({ isExpanded }) => (
-        <>
-          <ExpandableTrigger className="cursor-pointer">
-            {/* Área visual superior */}
-            <div className="relative h-44 overflow-hidden">
-              {tieneFoto ? (
-                <img
-                  src={worker.usuario.foto!}
-                  alt={nombreCompleto}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                />
-              ) : (
-                <img
-                  src={fotoPerfilDefault}
-                  alt={nombreCompleto}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
-              )}
+    <button
+      onClick={onClick}
+      className="group w-full text-left rounded-2xl border-2 border-border bg-card overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+    >
+      {/* Imagen */}
+      <div className="relative h-44 overflow-hidden">
+        <img
+          src={tieneFoto ? worker.usuario.foto! : fotoPerfilDefault}
+          alt={nombreCompleto}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = fotoPerfilDefault;
+          }}
+        />
 
-              {/* Badges */}
-              <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1 shadow-sm">
-                {worker.promedio && worker.promedio > 0 ? (
-                  <>
-                    <Star className="h-3 w-3 fill-accent text-accent" />
-                    <span className="text-xs font-bold text-card-foreground">{worker.promedio.toFixed(1)}</span>
-                  </>
-                ) : (
-                  <>
-                    <Star className="h-3 w-3 fill-accent text-accent" />
-                    <span className="text-xs font-medium text-muted-foreground">Nueva</span>
-                  </>
-                )}
-              </div>
+        {/* Badge rating */}
+        <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1 shadow-sm">
+          <Star className="h-3 w-3 fill-accent text-accent" />
+          <span className="text-xs font-bold text-card-foreground">
+            {worker.promedio && worker.promedio > 0 ? worker.promedio.toFixed(1) : "Nueva"}
+          </span>
+        </div>
 
-              {worker.usuario?.verificada && (
-                <div className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1 shadow-sm">
-                  <Shield className="h-3 w-3 text-primary-foreground" />
-                  <span className="text-xs font-semibold text-primary-foreground">Verificada</span>
-                </div>
-              )}
+        {/* Badge verificada */}
+        {worker.usuario?.verificada && (
+          <div className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1 shadow-sm">
+            <Shield className="h-3 w-3 text-primary-foreground" />
+            <span className="text-xs font-semibold text-primary-foreground">Verificada</span>
+          </div>
+        )}
 
-              <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-card to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-card to-transparent" />
+      </div>
+
+      {/* Info — siempre visible */}
+      <div className="px-5 pt-4 pb-5 space-y-2.5">
+        {/* Nombre + tarifa */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-display font-bold text-card-foreground text-base leading-tight truncate">
+              {nombreCompleto || "Sin nombre"}
+            </h3>
+            <p className="text-xs font-semibold mt-0.5 truncate" style={{ color: palette.color }}>
+              {worker.subcategoria || worker.categoria}
+            </p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="font-bold text-sm text-card-foreground">{tarifaTexto}</p>
+          </div>
+        </div>
+
+        {/* Descripción breve */}
+        {worker.descripcion && (
+          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+            {worker.descripcion}
+          </p>
+        )}
+
+        {/* Ubicación + experiencia */}
+        <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+          {ubicacion && (
+            <div className="flex items-center gap-1 min-w-0">
+              <MapPin className="h-3 w-3 shrink-0" style={{ color: palette.color }} />
+              <span className="truncate">{ubicacion}</span>
             </div>
+          )}
+          {worker.nivelExperiencia && (
+            <span className="shrink-0 font-medium text-card-foreground/70">{worker.nivelExperiencia}</span>
+          )}
+        </div>
 
-            {/* Info principal */}
-            <div className="px-5 pt-4 pb-1">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-display font-bold text-card-foreground text-base leading-tight truncate">
-                    {nombreCompleto || "Sin nombre"}
-                  </h3>
-                  <p
-                    className="text-xs font-semibold mt-0.5 truncate"
-                    style={{ color: palette.color }}
-                  >
-                    {worker.subcategoria || worker.categoria}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="font-bold text-base text-card-foreground">{tarifaTexto}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Toggle */}
-            <div className="px-5 pb-3 pt-2 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-              <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.25 }}>
-                <ChevronDown className="h-3.5 w-3.5" />
-              </motion.div>
-              <span>{isExpanded ? "Ocultar" : "Ver detalles"}</span>
-            </div>
-          </ExpandableTrigger>
-
-          {/* Contenido expandible */}
-          <ExpandableContent preset="slide-up">
-            <div
-              className="mx-4 mb-4 rounded-xl p-4 space-y-3"
-              style={{ backgroundColor: palette.bg, border: `1px solid ${palette.border}` }}
-            >
-              {worker.descripcion && (
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                  {worker.descripcion}
-                </p>
-              )}
-
-              {(worker.usuario?.comuna || worker.usuario?.region) && (
-                <div className="flex items-center gap-1.5 text-xs" style={{ color: palette.color }}>
-                  <MapPin className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate font-medium">
-                    {[worker.usuario?.comuna, worker.usuario?.region].filter(Boolean).join(", ")}
-                  </span>
-                </div>
-              )}
-
-              {worker.nivelExperiencia && (
-                <p className="text-xs text-muted-foreground">
-                  Experiencia: <span className="font-semibold text-card-foreground">{worker.nivelExperiencia}</span>
-                </p>
-              )}
-
-              <Button
-                variant="hero"
-                size="sm"
-                className="w-full gap-1.5 mt-1"
-                onClick={(e) => { e.stopPropagation(); onClick(); }}
-              >
-                Ver perfil completo
-                <ChevronRight className="h-3.5 w-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
-              </Button>
-            </div>
-          </ExpandableContent>
-        </>
-      )}
-    </Expandable>
+        {/* CTA visible — se anima en hover */}
+        <div
+          className="flex items-center gap-1.5 text-xs font-semibold pt-1 transition-colors duration-200"
+          style={{ color: palette.color }}
+        >
+          <span>Ver perfil completo</span>
+          <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+        </div>
+      </div>
+    </button>
   );
 }
 

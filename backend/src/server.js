@@ -7,9 +7,10 @@ import workerRoutes  from './routes/workers.js'
 import bookingRoutes from './routes/bookings.js'
 import reviewRoutes  from './routes/reviews.js'
 import messageRoutes from './routes/messages.js'
-import adminRoutes     from './routes/admin.js'
-import statsRoutes     from './routes/stats.js'
-import portfolioRoutes from './routes/portfolio.js'
+import adminRoutes       from './routes/admin.js'
+import statsRoutes       from './routes/stats.js'
+import portfolioRoutes   from './routes/portfolio.js'
+import sugerenciasRoutes from './routes/sugerencias.js'
 import mongoose from 'mongoose'
 
 dotenv.config()
@@ -40,9 +41,10 @@ app.use('/api/workers',  workerRoutes)
 app.use('/api/bookings', bookingRoutes)
 app.use('/api/reviews',  reviewRoutes)
 app.use('/api/messages', messageRoutes)
-app.use('/api/admin',     adminRoutes)
-app.use('/api/stats',     statsRoutes)
-app.use('/api/portfolio', portfolioRoutes)
+app.use('/api/admin',       adminRoutes)
+app.use('/api/stats',       statsRoutes)
+app.use('/api/portfolio',   portfolioRoutes)
+app.use('/api/sugerencias', sugerenciasRoutes)
 
 app.get('/', (req, res) => res.json({ mensaje: 'API de Hana funcionando ✅' }))
 

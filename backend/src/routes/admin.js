@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import User from '../models/User.js'
 import WorkerProfile from '../models/WorkerProfile.js'
 import Booking from '../models/Booking.js'
+import Suggestion from '../models/Suggestion.js'
 import protegerRuta from '../middleware/auth.js'
 
 const router = express.Router()
@@ -300,6 +301,49 @@ router.patch('/perfiles/:id', async (req, res) => {
     res.json(actualizado)
   } catch (e) {
     res.status(500).json({ mensaje: 'Error al actualizar perfil', error: e.message })
+  }
+})
+
+
+// ── SUGERENCIAS Y RECLAMOS ────────────────────────────────────────────────────
+
+// GET /api/admin/sugerencias — listar todos los mensajes
+router.get('/sugerencias', async (req, res) => {
+  try {
+    const items = await Suggestion.find().sort({ creadoEn: -1 }).limit(500)
+    res.json(items)
+  } catch (e) {
+    res.status(500).json({ mensaje: 'Error al obtener sugerencias', error: e.message })
+  }
+})
+
+// PUT /api/admin/sugerencias/:id/leido — marcar como leído
+router.put('/sugerencias/:id/leido', async (req, res) => {
+  try {
+    const item = await Suggestion.findByIdAndUpdate(
+      req.params.id,
+      { estado: 'leido' },
+      { new: true }
+    )
+    if (!item) return res.status(404).json({ mensaje: 'Mensaje no encontrado' })
+    res.json(item)
+  } catch (e) {
+    res.status(500).json({ mensaje: 'Error al actualizar estado', error: e.message })
+  }
+})
+
+// PUT /api/admin/sugerencias/:id/resuelto — marcar como resuelto
+router.put('/sugerencias/:id/resuelto', async (req, res) => {
+  try {
+    const item = await Suggestion.findByIdAndUpdate(
+      req.params.id,
+      { estado: 'resuelto' },
+      { new: true }
+    )
+    if (!item) return res.status(404).json({ mensaje: 'Mensaje no encontrado' })
+    res.json(item)
+  } catch (e) {
+    res.status(500).json({ mensaje: 'Error al actualizar estado', error: e.message })
   }
 })
 

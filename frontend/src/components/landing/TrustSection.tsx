@@ -10,8 +10,6 @@ interface Feature {
   border: string;
   hoverBorder: string;
   iconColor: string;
-  pulseDuration: string;
-  pulseDelay: string;
 }
 
 const features: Feature[] = [
@@ -25,8 +23,6 @@ const features: Feature[] = [
     border: "#c4b5fd",
     hoverBorder: "#7c3aed",
     iconColor: "#7c3aed",
-    pulseDuration: "1.8s",
-    pulseDelay: "0s",
   },
   {
     icon: DollarSign,
@@ -38,8 +34,6 @@ const features: Feature[] = [
     border: "#fde68a",
     hoverBorder: "#b45309",
     iconColor: "#b45309",
-    pulseDuration: "2.2s",
-    pulseDelay: "0.4s",
   },
   {
     icon: Award,
@@ -51,8 +45,6 @@ const features: Feature[] = [
     border: "#fda4af",
     hoverBorder: "#be123c",
     iconColor: "#be123c",
-    pulseDuration: "1.6s",
-    pulseDelay: "0.8s",
   },
   {
     icon: HeartHandshake,
@@ -64,14 +56,12 @@ const features: Feature[] = [
     border: "#d8b4fe",
     hoverBorder: "#9333ea",
     iconColor: "#9333ea",
-    pulseDuration: "2.0s",
-    pulseDelay: "1.2s",
   },
 ];
 
 const TrustSection = () => {
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
+    <section id="por-que-hana" className="py-24 bg-background relative overflow-hidden">
       {/* Blobs decorativos de fondo */}
       <div className="absolute top-[-5%] left-[-5%] w-80 h-80 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
       <div className="absolute bottom-[-5%] right-[-5%] w-72 h-72 rounded-full bg-accent/8 blur-3xl pointer-events-none" />
@@ -86,16 +76,12 @@ const TrustSection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <p className="text-xs font-bold text-primary uppercase tracking-[0.22em] mb-3">
-            Tu tranquilidad es lo primero
-          </p>
           <h2 className="text-4xl md:text-5xl font-bold font-display text-foreground mb-4 leading-tight">
-            ¿Por qué elegir{" "}
-            <em className="not-italic text-gradient-primary">Hana?</em>
+            ¿Por qué elegir Hana?
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto text-base">
-            Creamos un estándar de seguridad y calidad para que contrates
-            con total confianza
+            Construida sobre un estándar de seguridad y confianza —
+            para que contrates con total tranquilidad.
           </p>
         </motion.div>
 
@@ -129,24 +115,11 @@ const TrustSection = () => {
                 {String(i + 1).padStart(2, "0")}
               </span>
 
-              {/* Icono pulsante */}
-              <div className="mb-5 relative w-fit">
-                {/* Anillo de pulso exterior */}
+              {/* Icono — limpio, responde solo al hover */}
+              <div className="mb-5">
                 <div
-                  className="absolute inset-0 rounded-xl animate-ping opacity-20"
-                  style={{
-                    backgroundColor: f.iconColor,
-                    animationDuration: f.pulseDuration,
-                    animationDelay: f.pulseDelay,
-                  }}
-                />
-                <div
-                  className="relative w-14 h-14 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 animate-pulse"
-                  style={{
-                    backgroundColor: f.iconBg,
-                    animationDuration: f.pulseDuration,
-                    animationDelay: f.pulseDelay,
-                  }}
+                  className="w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-md"
+                  style={{ backgroundColor: f.iconBg }}
                 >
                   <f.icon
                     className="h-7 w-7 transition-transform duration-300 group-hover:rotate-6"

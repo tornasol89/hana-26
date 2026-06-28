@@ -34,6 +34,7 @@ export function useMyWorkerProfile() {
     queryKey: workerKeys.myProfile(),
     queryFn: () => workersApi.getMyProfile(),
     retry: false,
+    staleTime: 1000 * 60,
   });
 }
 

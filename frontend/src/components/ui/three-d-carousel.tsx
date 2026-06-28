@@ -65,8 +65,11 @@ const Carousel = memo(function Carousel({
   items: CarouselItem[]
   isCarouselActive: boolean
 }) {
-  const isSmall = useMediaQuery("(max-width: 640px)")
-  const cylinderWidth = isSmall ? 1100 : 1800
+  const isSmall  = useMediaQuery("(max-width: 640px)")
+  const isMedium = useMediaQuery("(max-width: 1024px)")
+  // Reducir el ancho del cilindro en móvil: overflow:hidden no clipea
+  // correctamente con transform-style:preserve-3d en iOS Safari con valores grandes.
+  const cylinderWidth = isSmall ? 700 : isMedium ? 1100 : 1800
   const faceCount = items.length
   const faceWidth = cylinderWidth / faceCount
   const radius = cylinderWidth / (2 * Math.PI)
@@ -193,8 +196,8 @@ function ThreeDPhotoCarousel({ workers, onWorkerClick, compact = false }: ThreeD
   }
 
   const heightClass = compact
-    ? "h-[300px] sm:h-[360px]"
-    : "h-[300px] sm:h-[400px] lg:h-[500px]"
+    ? "h-[260px] sm:h-[320px]"
+    : "h-[280px] sm:h-[380px] lg:h-[480px]"
 
   return (
     <motion.div layout className="relative">
@@ -229,7 +232,14 @@ function ThreeDPhotoCarousel({ workers, onWorkerClick, compact = false }: ThreeD
       )}
 
       {/* Carrusel */}
-      <div className={`relative ${heightClass} w-full overflow-hidden`}>
+      {/*
+        clip-path:inset(0) fuerza el clipping en iOS Safari donde overflow:hidden
+        no funciona correctamente con elementos transform-style:preserve-3d.
+      */}
+      <div
+        className={`relative ${heightClass} w-full overflow-hidden`}
+        style={{ clipPath: "inset(0 0 0 0)" }}
+      >
         <Carousel
           handleClick={handleClick}
           controls={controls}

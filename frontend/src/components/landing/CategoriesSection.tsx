@@ -128,7 +128,7 @@ const allServices: Service[] = [
 
 const CategoriesSection = () => {
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-gradient-warm">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center mb-12"
@@ -137,12 +137,14 @@ const CategoriesSection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">
+            Para cada rincón del hogar
+          </p>
           <h2 className="text-3xl md:text-4xl font-bold font-display text-foreground mb-4">
-            Servicios{" "}
-            <span className="italic text-gradient-primary">disponibles</span>
+            12 categorías de servicio
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            12 categorías de servicios profesionales — haz clic para explorar
+            Haz clic en cualquier categoría para explorar las profesionales disponibles
           </p>
         </motion.div>
 
