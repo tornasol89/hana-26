@@ -55,6 +55,11 @@ export default function MiPerfil() {
   const tabInicial = searchParams.get("tab") ?? "perfil";
   const [activeTab, setActiveTab] = useState(tabInicial);
 
+  function cambiarTab(tab: string) {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   // Sincroniza el modo cuando el user llega tarde (race condition post-registro)
   useEffect(() => {
     if (user && !perfilDual) {
@@ -231,28 +236,28 @@ export default function MiPerfil() {
         <Tabs
           key={modoActivo}
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={cambiarTab}
           className="space-y-6"
         >
           {/* Tabs custom */}
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-            <TabItem value="perfil" active={activeTab} onClick={setActiveTab}
+            <TabItem value="perfil" active={activeTab} onClick={cambiarTab}
               icon={User} label="Perfil" color="#7c3aed" bg="#f5f3ff" />
             {esTrabajadoraActiva && (
-              <TabItem value="servicios" active={activeTab} onClick={setActiveTab}
+              <TabItem value="servicios" active={activeTab} onClick={cambiarTab}
                 icon={Briefcase} label="Mis servicios" color="#b45309" bg="#fffbeb" />
             )}
-            <TabItem value="verificacion" active={activeTab} onClick={setActiveTab}
+            <TabItem value="verificacion" active={activeTab} onClick={cambiarTab}
               icon={Shield} label="Verificación" color="#be123c" bg="#fff1f2" />
-            <TabItem value="reservas" active={activeTab} onClick={setActiveTab}
+            <TabItem value="reservas" active={activeTab} onClick={cambiarTab}
               icon={Calendar} label="Reservas" color="#9333ea" bg="#faf5ff"
               badge={reservas.length > 0 ? reservas.length : undefined} />
             {esTrabajadoraActiva && (
-              <TabItem value="portafolio" active={activeTab} onClick={setActiveTab}
+              <TabItem value="portafolio" active={activeTab} onClick={cambiarTab}
                 icon={Images} label="Portafolio" color="#7c3aed" bg="#f5f3ff" />
             )}
             {esTrabajadoraActiva && (
-              <TabItem value="resenas" active={activeTab} onClick={setActiveTab}
+              <TabItem value="resenas" active={activeTab} onClick={cambiarTab}
                 icon={Star} label="Reseñas" color="#b45309" bg="#fffbeb" />
             )}
           </div>
