@@ -14,6 +14,8 @@ interface Props {
   onRegionChange: (region: string) => void;
   onComunaChange: (comuna: string) => void;
   disabled?: boolean;
+  errorRegion?: string;
+  errorComuna?: string;
 }
 
 /**
@@ -25,10 +27,12 @@ export function UbicacionFields({
   onRegionChange,
   onComunaChange,
   disabled,
+  errorRegion,
+  errorComuna,
 }: Props) {
   return (
     <>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="region">Región</Label>
         <Select
           value={region}
@@ -49,9 +53,10 @@ export function UbicacionFields({
             ))}
           </SelectContent>
         </Select>
+        {errorRegion && <p className="text-xs text-destructive">{errorRegion}</p>}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="comuna">
           Comuna
           {!region && (
@@ -82,6 +87,7 @@ export function UbicacionFields({
             ))}
           </SelectContent>
         </Select>
+        {errorComuna && <p className="text-xs text-destructive">{errorComuna}</p>}
       </div>
     </>
   );

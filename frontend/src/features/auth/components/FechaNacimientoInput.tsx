@@ -6,6 +6,7 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  error?: string;
 }
 
 /** Fecha máxima permitida: exactamente EDAD_MINIMA años atrás desde hoy. */
@@ -26,9 +27,9 @@ function getFechaMinima(): string {
   return min.toISOString().split("T")[0];
 }
 
-export function FechaNacimientoInput({ value, onChange, disabled }: Props) {
+export function FechaNacimientoInput({ value, onChange, disabled, error }: Props) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <Label htmlFor="fechaNacimiento">Fecha de nacimiento</Label>
       <Input
         id="fechaNacimiento"
@@ -38,12 +39,15 @@ export function FechaNacimientoInput({ value, onChange, disabled }: Props) {
         disabled={disabled}
         min={getFechaMinima()}
         max={getFechaMaxima()}
-        required
-        className="h-11"
+        className={`h-11 ${error ? "border-destructive focus-visible:ring-destructive/30" : ""}`}
       />
-      <p className="text-xs text-muted-foreground">
-        Debes tener al menos {EDAD_MINIMA} años para registrarte.
-      </p>
+      {error ? (
+        <p className="text-xs text-destructive">{error}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Debes tener al menos {EDAD_MINIMA} años para registrarte.
+        </p>
+      )}
     </div>
   );
 }

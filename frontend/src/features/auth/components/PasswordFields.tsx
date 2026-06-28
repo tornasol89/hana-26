@@ -9,6 +9,8 @@ interface Props {
   onPasswordChange: (value: string) => void;
   onConfirmarPasswordChange: (value: string) => void;
   disabled?: boolean;
+  errorPassword?: string;
+  errorConfirmar?: string;
 }
 
 /**
@@ -21,6 +23,8 @@ export function PasswordFields({
   onPasswordChange,
   onConfirmarPasswordChange,
   disabled,
+  errorPassword,
+  errorConfirmar,
 }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmar, setShowConfirmar] = useState(false);
@@ -33,7 +37,7 @@ export function PasswordFields({
   return (
     <>
       {/* Contraseña */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="password">Contraseña</Label>
         <div className="relative">
           <Input
@@ -44,9 +48,7 @@ export function PasswordFields({
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
             disabled={disabled}
-            minLength={6}
-            required
-            className="h-11 pr-12"
+            className={`h-11 pr-12 ${errorPassword ? "border-destructive focus-visible:ring-destructive/30" : ""}`}
           />
           <button
             type="button"
@@ -64,10 +66,11 @@ export function PasswordFields({
             )}
           </button>
         </div>
+        {errorPassword && <p className="text-xs text-destructive">{errorPassword}</p>}
       </div>
 
       {/* Confirmar contraseña */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="confirmar-password">Confirmar contraseña</Label>
         <div className="relative">
           <Input
@@ -78,9 +81,7 @@ export function PasswordFields({
             value={confirmarPassword}
             onChange={(e) => onConfirmarPasswordChange(e.target.value)}
             disabled={disabled}
-            minLength={6}
-            required
-            className="h-11 pr-12"
+            className={`h-11 pr-12 ${errorConfirmar || passwordsNoCoinciden ? "border-destructive focus-visible:ring-destructive/30" : ""}`}
           />
           <button
             type="button"
@@ -98,13 +99,13 @@ export function PasswordFields({
             )}
           </button>
         </div>
-        {passwordsNoCoinciden && (
+        {(errorConfirmar || passwordsNoCoinciden) && (
           <p className="text-xs text-destructive">
-            Las contraseñas no coinciden
+            {errorConfirmar ?? "Las contraseñas no coinciden"}
           </p>
         )}
-        {passwordsCoinciden && (
-          <p className="text-xs text-success">Las contraseñas coinciden</p>
+        {!errorConfirmar && passwordsCoinciden && (
+          <p className="text-xs text-success">Las contraseñas coinciden ✓</p>
         )}
       </div>
     </>

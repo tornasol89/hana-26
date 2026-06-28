@@ -8,6 +8,8 @@ interface Props {
   onNombreChange: (value: string) => void;
   onApellidoChange: (value: string) => void;
   disabled?: boolean;
+  errorNombre?: string;
+  errorApellido?: string;
 }
 
 /**
@@ -19,10 +21,12 @@ export function NombreApellidoFields({
   onNombreChange,
   onApellidoChange,
   disabled,
+  errorNombre,
+  errorApellido,
 }: Props) {
   return (
     <div className="grid grid-cols-2 gap-3">
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="nombre">Nombre</Label>
         <Input
           id="nombre"
@@ -33,11 +37,11 @@ export function NombreApellidoFields({
             if (nombre) onNombreChange(capitalizarNombre(nombre));
           }}
           disabled={disabled}
-          required
-          className="h-11"
+          className={`h-11 ${errorNombre ? "border-destructive focus-visible:ring-destructive/30" : ""}`}
         />
+        {errorNombre && <p className="text-xs text-destructive">{errorNombre}</p>}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="apellido">Apellido</Label>
         <Input
           id="apellido"
@@ -48,9 +52,9 @@ export function NombreApellidoFields({
             if (apellido) onApellidoChange(capitalizarNombre(apellido));
           }}
           disabled={disabled}
-          required
-          className="h-11"
+          className={`h-11 ${errorApellido ? "border-destructive focus-visible:ring-destructive/30" : ""}`}
         />
+        {errorApellido && <p className="text-xs text-destructive">{errorApellido}</p>}
       </div>
     </div>
   );
