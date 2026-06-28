@@ -25,11 +25,9 @@ const CTASection = () => {
               </Link>
             </Button>
           </AnimatedButtonWrapper>
-          <AnimatedButtonWrapper gradient="nebula" className="hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
-            <Button variant="outline" size="lg" asChild className="w-full bg-transparent border-white/40 text-white hover:bg-white/10 hover:text-white">
-              <Link to="/buscar">Explorar Servicios</Link>
-            </Button>
-          </AnimatedButtonWrapper>
+          <Button variant="ghost" size="lg" asChild className="w-full border border-white/50 text-white hover:bg-white/10 hover:text-white hover:border-white/70 transition-all duration-300 hover:-translate-y-0.5">
+            <Link to="/buscar">Explorar Servicios</Link>
+          </Button>
         </div>
       </div>
     </section>
