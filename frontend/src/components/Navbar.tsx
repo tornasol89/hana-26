@@ -266,16 +266,12 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="flex gap-2 pt-3 mt-2 border-t border-border">
-                  <AnimatedButtonWrapper gradient="violet" className="flex-1">
-                    <Button variant="outline-hero" size="sm" asChild className="w-full">
-                      <Link to="/login" onClick={() => setIsOpen(false)}>Iniciar Sesión</Link>
-                    </Button>
-                  </AnimatedButtonWrapper>
-                  <AnimatedButtonWrapper gradient="nebula" className="flex-1">
-                    <Button variant="hero" size="sm" asChild className="w-full">
-                      <Link to="/registro" onClick={() => setIsOpen(false)}>Registrarse</Link>
-                    </Button>
-                  </AnimatedButtonWrapper>
+                  <Button variant="outline" size="sm" asChild className="flex-1">
+                    <Link to="/login" onClick={() => setIsOpen(false)}>Iniciar Sesión</Link>
+                  </Button>
+                  <Button variant="default" size="sm" asChild className="flex-1">
+                    <Link to="/registro" onClick={() => setIsOpen(false)}>Registrarse</Link>
+                  </Button>
                 </div>
               )}
             </div>
