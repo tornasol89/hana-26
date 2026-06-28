@@ -138,7 +138,7 @@ const Carousel = memo(function Carousel({
                 transition={transition}
               />
               {(item.label || item.sublabel) && (
-                <div className="absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-black/80 via-black/50 to-transparent px-3 pb-3 pt-8 pointer-events-none">
+                <div className="absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-black/80 via-black/50 to-transparent px-3 pb-2.5 pt-6 pointer-events-none">
                   {item.label && (
                     <p className="text-white text-[11px] font-bold leading-tight truncate drop-shadow-sm">
                       {item.label}

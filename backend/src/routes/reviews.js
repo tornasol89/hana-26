@@ -75,6 +75,8 @@ router.get('/reserva/:reservaId', protegerRuta, async (req, res) => {
 
 // GET /api/reviews/:usuarioId — ver evaluaciones de una usuaria
 router.get('/:usuarioId', async (req, res) => {
+  if (!req.params.usuarioId.match(/^[0-9a-fA-F]{24}$/))
+    return res.status(400).json({ mensaje: 'ID inválido' })
   try {
     const reviews = await Review.find({ destinataria: req.params.usuarioId })
       .populate('autor', 'nombre apellido foto')

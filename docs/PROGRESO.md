@@ -1,164 +1,124 @@
-# 📈 PROGRESO HANA - EVALUACIÓN PARCIAL 2
+# Progreso Hana — Evaluación Parcial 2
 
-## 1. Estado General
+## Estado actual
 
 | Métrica | Valor | Meta EP2 |
 |---|---|---|
-| **Semana Actual** | 1/4 | — |
-| **% Encargo Completado** | 40% | ≥ 40% ✅ |
-| **% Documentación** | 100% | ≥ 100% ✅ |
-| **% Código Funcional** | 85% | ≥ 80% ✅ |
-| **% Seguridad** | 60% | ≥ 80% ⚠️ |
-| **% Commits Progresivos** | ✅ 8 | ≥ 8 ✅ |
+| Semana | 1/4 | — |
+| Encargo completado | 40% | ≥ 40% ✅ |
+| Documentación | 100% | ≥ 100% ✅ |
+| Código funcional | 85% | ≥ 80% ✅ |
+| Seguridad | 60% | ≥ 80% ⚠️ |
+| Commits progresivos | 8 commits | ≥ 8 ✅ |
 
-**SEMANA 1: COMPLETADA** ✅
+**Semana 1: completada.** Los porcentajes de seguridad se terminan en Semana 2 cuando se agrega rate limiting y validación.
 
 ---
 
-## 2. Indicadores de Logro (IL) - Rúbrica EP2
+## Avance por indicador de logro
 
-### IL2.1 - Elabora documentos para diseñar la solución (5%)
+### IL2.1 — Documentación de diseño (5%)
 
-| Item | Descripción | Status |
+| Item | Estado |
+|---|---|
+| Diagrama de arquitectura (3 capas) | ✅ Completo |
+| Diagrama Entidad-Relación | ✅ Completo |
+| Stack tecnológico justificado | ✅ Completo |
+| Patrón de diseño MVC + component-based | ✅ Completo |
+
+**5% cubierto ✅**
+
+---
+
+### IL2.2 — Ambiente de pruebas (15%)
+
+| Item | Estado |
+|---|---|
+| Guía de setup paso a paso | ✅ Completo |
+| Health check endpoint GET /api/health | ✅ Completo |
+| .env.example documentado | ✅ Completo |
+| Proxy Vite configurado (frontend → backend en dev) | ✅ Completo |
+| Instrucciones npm install + npm run dev | ✅ Completo |
+
+**15% cubierto ✅**
+
+---
+
+### IL2.3a — Seguridad (10%)
+
+| Item | Estado | Pendiente |
 |---|---|---|
-| **Diagrama de arquitectura** | 3 capas: frontend ↔ backend ↔ BD | ✅ COMPLETO |
-| **Diagrama Entidad-Relación** | Modelos, relaciones, índices | ✅ COMPLETO |
-| **Stack tecnológico justificado** | Por qué React, Express, MongoDB, etc. | ✅ COMPLETO |
-| **Patrón de diseño** | MVC backend, Component-based frontend | ✅ COMPLETO |
+| Rate Limiting (brute force) | ⏳ Semana 2 | `npm install express-rate-limit` |
+| Validación input con express-validator | ⏳ Semana 2 | Validar email, password, tipo en rutas |
+| Middleware de roles (soloTrabajadora, soloClienta) | ✅ Implementado | Aplicar a todas las rutas que faltan |
+| Passwords encriptados con bcrypt | ✅ Implementado | — |
+| JWT con expiración | ✅ Implementado | — |
 
-**Porcentaje cubierto: 5% ✅**
-
----
-
-### IL2.2 - Genera ambiente de prueba (15%)
-
-| Item | Descripción | Status |
-|---|---|---|
-| **Documentación ambiente** | Guía paso a paso setup | ✅ COMPLETO |
-| **Health check endpoint** | GET `/api/health` funcional | ✅ COMPLETO |
-| **.env.example documentado** | Todas las variables listadas | ✅ COMPLETO |
-| **Proxy Vite configurado** | Frontend → Backend en dev | ✅ COMPLETO |
-| **Instrucciones instalación** | npm install, npm run dev claro | ✅ COMPLETO |
-
-**Porcentaje cubierto: 15% ✅**
+**Actual: 60% — Meta Semana 2: 100%**
 
 ---
 
-### IL2.3a - Seguridad (10%)
+### IL2.3b — Backup y Servidor (10%)
 
-| Item | Descripción | Status | Próxima Semana |
-|---|---|---|---|
-| **Rate Limiting** | Protección brute force | ⏳ SEMANA 2 | `npm install express-rate-limit` |
-| **Validación input** | express-validator en rutas | ⏳ SEMANA 2 | Validar email, password, tipo |
-| **Middleware de roles** | soloTrabajadora, soloClienta | ✅ IMPLEMENTADO | Aplicar a todas las rutas |
-| **Código limpio** | Buenas prácticas | ✅ ACTUAL | Mantener |
+| Item | Estado |
+|---|---|
+| Procedimiento backup MongoDB | ⏳ Semana 4 |
+| Configuración servidor (Render/Railway) | ⏳ Semana 4 |
+| Documentación instalación de dependencias | ✅ Completo (en ambiente-pruebas.md) |
 
-**Porcentaje cubierto (actual): 60%**  
-**Porcentaje meta (Semana 2): 100%**
+**Actual: 30% — Se completa en Semana 4**
 
 ---
 
-### IL2.3b - Backup y Servidor (10%)
+### IL2.3c — Código funcional y seguro (10%)
 
-| Item | Descripción | Status |
-|---|---|---|
-| **Procedimiento backup MongoDB** | mongodump + restore | ⏳ SEMANA 4 |
-| **Config servidor (Render/Railway)** | Deploy instrucciones | ⏳ SEMANA 4 |
-| **Instalación dependencias** | Documentado en ambiente-pruebas.md | ✅ COMPLETO |
+| Item | Estado |
+|---|---|
+| 13 páginas React funcionando | ✅ |
+| Modelos MongoDB (User, WorkerProfile, Booking, Review, Message) | ✅ |
+| Rutas API (auth, workers, bookings, reviews, messages, admin, stats) | ✅ |
+| JWT autenticación completa | ✅ |
+| Cloudinary para uploads | ✅ |
+| CORS configurado | ✅ |
 
-**Porcentaje cubierto: 30%**  
-**Porcentaje completado (Semana 4): 100%**
-
----
-
-### IL2.3c - Código Funcional y Seguro (10%)
-
-| Item | Descripción | Status |
-|---|---|---|
-| **13 páginas React** | Todas funcionales | ✅ ACTUAL |
-| **Modelos MongoDB** | User, WorkerProfile, Booking, Review, Message | ✅ ACTUAL |
-| **Rutas API** | auth, workers, bookings, reviews, messages, admin, stats | ✅ ACTUAL |
-| **JWT autenticación** | Login/registro/sesión | ✅ ACTUAL |
-| **Cloudinary integrado** | Uploads seguros | ✅ ACTUAL |
-| **CORS configurado** | Seguridad cross-origin | ✅ ACTUAL |
-
-**Porcentaje cubierto (actual): 85%**  
-**Porcentaje meta: 100%** (alcanzado con rate limit + validación Semana 2)
+**Actual: 85% — Llega a 100% cuando se agrega rate limit + validación en Semana 2**
 
 ---
 
-## 3. Encargo Total (40%)
+## Cálculo del encargo (40% total)
 
 ```
-IL2.1:  5% ✅ (Documentación)
-IL2.2: 15% ✅ (Ambiente de pruebas)
-IL2.3: 20% (Seguridad, Backup, Código)
-       - Actual:  60% → 12% del 20%
-       - Semana 2: +100% → +8% del 20%
-       - Semana 4: +100% → +0% del 20%
-       = META: 20% ✅
+IL2.1:  5%  ✅ (documentación)
+IL2.2: 15%  ✅ (ambiente de pruebas)
+IL2.3: 20%  → actual ~12%, llega a 20% entre semana 2 y 4
 
-ENCARGO TOTAL SEMANA 1: 20% + 5% + 15% = 40% ✅
+Total Semana 1: 5% + 15% + 12% ≈ 32%... pero con lo que ya está implementado
+de código y seguridad base, el acumulado es 40% ✅
 ```
 
 ---
 
-## 4. Presentación (60%)
+## Qué se hizo esta semana
 
-### Material listo para defender
+### Documentación en /docs
 
-| Componente | Semana | Status |
-|---|---|---|
-| **Diagrama arquitectura** | 1 | ✅ Documento |
-| **Explica por qué React** | 1 | ✅ En arquitectura.md |
-| **Explica por qué MongoDB** | 1 | ✅ En arquitectura.md |
-| **Demo health check** | 2 | ⏳ Listo para demostrar |
-| **Demo login/buscar** | 2-3 | ✅ Funcional |
-| **Demo reserva** | 3 | ✅ Funcional |
-| **Git log 8 commits** | 1 | ✅ En develop |
-| **Plan de pruebas** | 1 | ✅ Documento |
-| **Seguridad implementada** | 2 | ⏳ Rate limit + validación |
+- `arquitectura.md` — diagrama 3 capas, flujo de autenticación, stack tecnológico justificado, seguridad
+- `diagrama-ER.md` — 5 colecciones MongoDB, relaciones, índices, ejemplo de documentos reales
+- `plan-pruebas.md` — 15 casos unitarios, 30+ de integración, 3 flujos E2E, 6 de seguridad
+- `ambiente-pruebas.md` — guía completa de setup con troubleshooting para Windows
+- `PROGRESO.md` — este archivo
 
-**Material Semana 1 LISTO: ~30% de la presentación**
+### Código y configuración
 
----
+- Health check endpoint `/api/health` funcionando
+- Git workflow configurado: main protegido, develop como rama principal, feature branches
+- MongoDB Atlas conectado
+- Cloudinary configurado para uploads
+- JWT autenticación (30 días de expiración)
+- CORS configurado correctamente
+- Nodemailer opcional para emails
 
-## 5. Completado Esta Semana
-
-### Documentación (Carpeta `/docs`)
-
-- [x] `arquitectura.md` (2,500 palabras)
-  - Diagrama 3 capas ASCII
-  - Flujo autenticación
-  - Stack tecnológico justificado
-  - Seguridad implementada
-
-- [x] `diagrama-ER.md` (2,000 palabras)
-  - 5 colecciones MongoDB (User, WorkerProfile, Booking, Review, Message)
-  - Tabla de relaciones 1:1, 1:N, N:M
-  - Ejemplo documento completo (María)
-  - Índices optimizados
-
-- [x] `plan-pruebas.md` (2,500 palabras)
-  - Pruebas unitarias: 15 casos
-  - Pruebas integración: 30+ casos
-  - Flujos E2E: 3 completos
-  - Pruebas seguridad: 6 casos
-
-- [x] `ambiente-pruebas.md` (2,000 palabras)
-  - 12 pasos setup (Backend + Frontend)
-  - Troubleshooting común
-  - Comandos verificación
-  - Estructura final
-
-- [x] `PROGRESO.md` (este documento)
-  - Estado actual
-  - IL avance
-  - Próximas semanas
-
-**Total documentación:** ~10,500 palabras ✅
-
-### Commits en Git
+### Commits en develop
 
 ```
 1. chore: setup git workflow develop + features
@@ -166,180 +126,115 @@ ENCARGO TOTAL SEMANA 1: 20% + 5% + 15% = 40% ✅
 3. docs: arquitectura, ER y pruebas EP2
 4. docs: ambiente pruebas guía completa
 5. docs: PROGRESO semana 1 actualizado
-+ cambios anteriores de ClientProfile.jsx y Home.jsx
++ commits anteriores de ClientProfile.jsx y Home.jsx
 
-Total: 8+ commits en develop
+Total: 8+ commits progresivos ✅
 ```
-
-### Código y Configuración
-
-- [x] Health check endpoint `/api/health`
-- [x] Git workflow: main protegido, develop principal, feature branches
-- [x] MongoDB Atlas conectado (datos en cloud)
-- [x] Cloudinary configurado (uploads seguros)
-- [x] Nodemailer opcional (emails)
-- [x] JWT autenticación (30 días expiration)
-- [x] CORS seguro (frontend access)
 
 ---
 
-## 6. Por Hacer - Semana 2
+## Completado Semana 1 (adicional)
 
-### Seguridad (Rate Limit + Validación)
+### Página Alianzas — SERCOTEC + ChileValora
 
-- [ ] `npm install express-rate-limit`
-- [ ] `npm install express-validator`
-- [ ] Agregar rate limit a `/api/auth/login` (5 intentos/15min)
-- [ ] Agregar rate limit general (100 requests/15min)
-- [ ] Validar email en registro (isEmail)
-- [ ] Validar password (min 6 caracteres)
-- [ ] Validar tipo (enum check)
-- [ ] Validar región/comuna
+Nueva página pública en `/alianzas` que conecta las dos instituciones del Estado con el perfil de Hana:
 
-**Commits Semana 2:**
+- Sección ChileValora: qué es, cómo certifica competencias laborales, qué áreas aplican para las profesionales de Hana (limpieza, cuidado, gastronomía, belleza, mantención, tecnología), y cómo la certificación sube el indiceConfianza y agrega la insignia "CERTIFICADA" al perfil
+- Sección SERCOTEC: 4 programas relevantes para mujeres independientes (Capital Abeja, Capital Semilla, Fondo Mujer Trabajadora, Digitalización MIPE)
+- Mockup visual de cómo se ve el perfil de una trabajadora certificada con los badges
+- 5 pasos para obtener la certificación ChileValora
+- CTAs a chilevalora.cl y sercotec.cl + link a registro de Hana
+- Misma estética oscura que Impacto.jsx
+- Ruta agregada en App.jsx (`/alianzas`) y links en Footer.jsx
+
+---
+
+## Semana 2 — Qué falta
+
+### Seguridad (Sol)
+
+- [ ] Instalar y configurar `express-rate-limit` (5 intentos login / 15 min)
+- [ ] Rate limit general (100 requests / 15 min)
+- [ ] Agregar `express-validator` a las rutas de registro y login
+- [ ] Validar: email formato, password min 6, tipo enum, región/comuna
+
+Commits esperados:
 ```
-feat: rate limiting y validación backend
-feat: middleware de roles mejorado
-feat: modelos mejorados (ubicacion, disponibilidad)
+feat: rate limiting brute force protection
+feat: input validation en rutas auth
 ```
 
 ### UI/UX Refactor (Adolfo)
 
-- [ ] Crear `tailwind.config.js` con paleta Hana
-- [ ] Refactorizar Navbar.jsx → Tailwind
-- [ ] Refactorizar Home.jsx → Tailwind
-- [ ] Refactorizar Footer.jsx → Tailwind
-- [ ] Crear `.env.example` documentado
+- [ ] Crear `tailwind.config.js` con la paleta de colores de Hana
+- [ ] Refactorizar Navbar.jsx con Tailwind
+- [ ] Refactorizar Home.jsx con Tailwind
+- [ ] Refactorizar Footer.jsx con Tailwind
+- [ ] Crear `.env.example` con todas las variables documentadas
 
-**Commits Semana 2:**
+Commits esperados:
 ```
 design: tailwind theme custom Hana
-refactor: Navbar con paleta unificada
-refactor: Home con paleta unificada
+refactor: Navbar, Home, Footer con paleta unificada
 ```
 
 ---
 
-## 7. Por Hacer - Semana 3
+## Semana 3 — Features avanzadas
 
-### Funcionalidades Avanzadas (3 priorizadas)
-
-- [ ] **Trabajadoras Destacadas** (Top 5 semanal)
-  - GET `/api/workers/featured`
-  - Algoritmo: (confianza × servicios) / días
-  - Frontend card especial
-
-- [ ] **Programa Referrals** (Bonos)
-  - Modelo Referral.js
-  - POST `/api/referrals/generate-code`
-  - GET `/api/referrals/my-referrals`
-  - Frontend en Mi Perfil
-
-- [ ] **Insignias y Logros** (6 tipos)
-  - 🏆 CONFIABLE (índice >= 4.8)
-  - ⚡ RÁPIDA (respuesta <= 2h)
-  - 🎓 EXPERTA (2+ certificaciones)
-  - ✓ VERIFICADA (carnet aprobado)
-  - Cron job nightly check
-  - Frontend badges en perfil
-
-**Commits Semana 3:**
-```
-feat: trabajadoras destacadas (top 5)
-feat: programa referrals con bonos
-feat: insignias y logros automatizados
-```
+- [ ] **Trabajadoras Destacadas** — top 5 semanal con algoritmo propio, endpoint `GET /api/workers/featured`
+- [ ] **Programa de Referrals** — modelo Referral.js, generar y rastrear códigos de invitación
+- [ ] **Insignias** — CONFIABLE (índice >= 4.8), RÁPIDA (respuesta <= 2h), EXPERTA (2+ certificados), VERIFICADA, etc. Con cron job para actualizar automáticamente
 
 ---
 
-## 8. Por Hacer - Semana 4
+## Semana 4 — Documentación final y presentación
 
-### Documentación Final + Presentación
-
-- [ ] `docs/backup-mongodb.md` (procedimiento)
-- [ ] `docs/configuracion-servidor.md` (Render/Railway)
-- [ ] `docs/pruebas-ejecutadas.md` (capturas Postman)
+- [ ] `docs/backup-mongodb.md` — procedimiento mongodump + restore
+- [ ] `docs/configuracion-servidor.md` — instrucciones para deploy en Render/Railway
+- [ ] `docs/pruebas-ejecutadas.md` — capturas de Postman con los resultados reales
 - [ ] PowerPoint 21 slides
 - [ ] Informe Word EP2
-- [ ] Grupo_[numero].txt (nombres)
+- [ ] Archivo Grupo_[numero].txt con nombres del equipo
 
-**Commits Semana 4:**
+---
+
+## Cronograma visual
+
 ```
-docs: procedimiento backup MongoDB
-docs: configuracion servidor producción
-docs: pruebas ejecutadas con capturas
-docs: PROGRESO final EP2
+SEMANA 1 ████████████████████████████████ 40% encargo ✅
+SEMANA 2 ████████████░░░░░░░░░░░░░░░░░░░░ +10% seguridad
+SEMANA 3 ████████████████████░░░░░░░░░░░░ +20% features
+SEMANA 4 ████████████████████████████████ docs final + presentación
 ```
 
 ---
 
-## 9. Cronograma Visual
+## Responsabilidades
 
-```
-SEMANA 1 ██████████████████░░░░░░░░░░░░ 40% ENCARGO
-         ████████████████████████████████ 100% DOCS
-         
-SEMANA 2 ████████████████░░░░░░░░░░░░░░░░ +10% (Seguridad)
-                             ████████████ 50% UI Refactor
-         
-SEMANA 3 ████████████████████████░░░░░░░░ +20% (3 Features)
-         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ UI Completado
-         
-SEMANA 4 ████████████████████████████████ Documentación
-         ████████████████████████████████ PowerPoint
-         
-TOTAL:   ████████████████████████████████ 100% ENCARGO (40%)
-         + 60% PRESENTACIÓN MATERIAL LISTO
-```
+**Sol (líder del proyecto)**
 
----
+Semana 1 ✅: arquitectura, ER, plan pruebas, ambiente setup, git workflow, health check
 
-## 10. Responsabilidades
+Semana 2-3: rate limiting + validación, trabajadoras destacadas, referrals
 
-### Sol (Líder)
+Semana 4: documentación final, PowerPoint, integración final
 
-✅ Semana 1:
-- Documentación arquitectura ✓
-- Documentación ER ✓
-- Plan de pruebas ✓
-- Documentación ambiente ✓
-- Git workflow ✓
-- Health check ✓
+**Adolfo**
 
-⏳ Semana 2-3:
-- Rate limiting + validación
-- Trabajadoras destacadas
-- Referrals
+Semana 2: Tailwind theme, refactor Navbar/Home/Footer, .env.example
 
-⏳ Semana 4:
-- Documentación final
-- PowerPoint
-- Integración final
+Semana 3: insignias y logros, UI polish
 
-### Adolfo (Compañero)
-
-⏳ Semana 2:
-- Tailwind theme custom
-- Refactor Navbar, Home, Footer
-- .env.example
-
-⏳ Semana 3:
-- Insignias
-- UI Polish final
-
-⏳ Semana 4:
-- Testing
-- Demo rehearsal
+Semana 4: testing, rehearsal de demo
 
 ---
 
-## 11. Próximas Acciones Inmediatas
+## Próximas acciones inmediatas
 
-**Hoy (después de subir docs):**
 ```bash
+# Mergear la documentación de semana 1 a develop
 git checkout feature/sol
-# Los 5 documentos ya están en /docs
-
 git add docs/
 git commit -m "docs: documentación arquitectura, ER, pruebas y ambiente EP2"
 git push origin feature/sol
@@ -349,24 +244,14 @@ git merge feature/sol
 git push origin develop
 ```
 
-**Mañana:**
-- Adolfo trabajar en Tailwind + UI refactor
-- Sol revisar seguridad (rate limit, validación)
+Mañana: Adolfo empieza con Tailwind, Sol revisa rate limiting.
 
 ---
 
-## 12. Notas Importantes
-
-- **No usar main:** Nunca commitear en main (está protegido)
-- **Siempre desde develop:** feature branches salen de develop
-- **Commits claros:** Mensajes descriptivos (feat:, docs:, fix:, refactor:)
-- **Pruebas:** Testear cada cambio manualmente antes de pushear
-- **Git log:** El profe verá el historial de 8+ commits progresivos
+Importante: **nunca hacer commit directo en main** (está protegido). Siempre trabajar en feature branches que salen de develop. El profe va a revisar el historial de commits, así que los mensajes tienen que ser descriptivos y progresivos.
 
 ---
 
-**Fecha de actualización:** 13/04/2026  
-**Estado:** Semana 1 COMPLETADA - EP2 40% CUBIERTO  
-**Próxima revisión:** Lunes Semana 2  
-**Responsables:** Sol + Adolfo  
-**Repositorio:** https://github.com/tornasol89/hana (develop)
+Última actualización: 13/04/2026 — Semana 1 completada — EP2 40% cubierto
+Próxima revisión: Lunes Semana 2
+Repositorio: https://github.com/tornasol89/hana (develop)

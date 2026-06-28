@@ -1,12 +1,12 @@
-# 🏗️ ARQUITECTURA DEL SISTEMA HANA
+# Arquitectura del sistema Hana
 
-## 1. Visión General
+Hana es una plataforma para conectar mujeres que ofrecen servicios (limpiadoras, diseñadoras, tutoras, etc.) con mujeres que los necesitan. La idea es simple: es como un marketplace, pero enfocado en seguridad y confianza entre mujeres.
 
-Hana es una plataforma digital que conecta mujeres que ofrecen servicios profesionales con mujeres que los necesitan. La arquitectura está diseñada en 3 capas (frontend, backend, base de datos) para garantizar escalabilidad, seguridad y mantenibilidad.
+Técnicamente el sistema está separado en 3 capas: el frontend que ve la usuaria, el backend que maneja la lógica, y la base de datos donde se guarda todo. Esto lo hicimos así porque es más fácil de mantener y escalar si el proyecto crece.
 
 ---
 
-## 2. Diagrama de Arquitectura
+## Diagrama de arquitectura
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -17,10 +17,10 @@ Hana es una plataforma digital que conecta mujeres que ofrecen servicios profesi
 │  │  (público)   │  (trabajad.) │  (privado)   │  (administrador) │ │
 │  └──────────────┴──────────────┴──────────────┴──────────────────┘ │
 │                                                                     │
-│  🎨 Tailwind CSS (tema custom Hana)                               │
-│  🔄 React Router (navegación SPA)                                 │
-│  📡 Axios (HTTP requests)                                         │
-│  🛡️ JWT localStorage (autenticación)                              │
+│  Tailwind CSS (tema custom Hana)                                   │
+│  React Router (navegación SPA)                                     │
+│  Axios (HTTP requests)                                             │
+│  JWT en localStorage (autenticación)                               │
 └────────────────────────────┬────────────────────────────────────────┘
                              │ HTTPS
                              ▼
@@ -28,18 +28,18 @@ Hana es una plataforma digital que conecta mujeres que ofrecen servicios profesi
 │                    CAPA DE LÓGICA                                   │
 │                (Backend - Node.js + Express)                        │
 │  ┌────────────┬─────────────┬──────────────┬────────────────────┐  │
-│  │  /api/auth │  /api/workers│ /api/bookings│ /api/reviews      │  │
-│  │            │              │              │ /api/messages     │  │
-│  │ Login      │ Buscar       │ Reservar     │ Evaluaciones      │  │
-│  │ Registro   │ Perfiles     │ Aceptar/Rech.│ Chat              │  │
+│  │  /api/auth │ /api/workers│ /api/bookings│ /api/reviews       │  │
+│  │            │             │              │ /api/messages      │  │
+│  │ Login      │ Buscar      │ Reservar     │ Evaluaciones       │  │
+│  │ Registro   │ Perfiles    │ Aceptar/Rech.│ Chat               │  │
 │  └────────────┴─────────────┴──────────────┴────────────────────┘  │
 │                                                                     │
-│  🔐 Middleware de Autenticación (JWT)                             │
-│  🛡️ CORS (seguridad cross-origin)                                 │
-│  ✅ Validación de datos (express-validator)                       │
-│  ⏱️  Rate Limiting (protección contra ataques)                    │
-│  📧 Nodemailer (notificaciones email)                             │
-│  ☁️  Cloudinary (almacenamiento fotos)                            │
+│  Middleware JWT (autenticación)                                    │
+│  CORS (seguridad cross-origin)                                     │
+│  express-validator (validación de datos)                           │
+│  Rate Limiting (protección contra ataques)                         │
+│  Nodemailer (notificaciones email)                                 │
+│  Cloudinary (almacenamiento fotos)                                 │
 └────────────────────────────┬────────────────────────────────────────┘
                              │ MongoDB Protocol
                              ▼
@@ -47,288 +47,148 @@ Hana es una plataforma digital que conecta mujeres que ofrecen servicios profesi
 │                    CAPA DE DATOS                                    │
 │            (MongoDB Atlas - Base de Datos en Cloud)                 │
 │  ┌──────────┬──────────────┬──────────────┬────────────┬──────────┐ │
-│  │  Users   │ WorkerProfile│  Bookings    │  Reviews   │ Messages │ │
-│  │ (identid)│ (experencia) │ (reservas)   │ (evalua)   │ (chat)   │ │
+│  │  Users   │WorkerProfile │  Bookings    │  Reviews   │ Messages │ │
 │  └──────────┴──────────────┴──────────────┴────────────┴──────────┘ │
 │                                                                     │
-│  📦 Mongoose ODM (esquemas y validación)                          │
-│  🔗 Relaciones entre colecciones (1:1, 1:N, N:M)                 │
-│  🔐 Índices optimizados (búsquedas rápidas)                       │
-│  ☁️  Cloudinary (almacenamiento de imágenes externo)              │
+│  Mongoose ODM (esquemas y validación)                              │
+│  Índices optimizados para búsquedas frecuentes                     │
+│  Cloudinary para imágenes (no se guardan en MongoDB)               │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Flujo de Autenticación
+## Cómo funciona la autenticación
 
-### 3.1 Registro de Nueva Usuaria
+### Registro de nueva usuaria
 
-```
-1. Usuaria llena formulario (nombre, email, password, tipo)
-   ↓
-2. Frontend envía POST /api/auth/register
-   ↓
-3. Backend valida:
-   ✓ Email no exista
-   ✓ Password >= 6 caracteres
-   ✓ Tipo es 'clienta' o 'trabajadora'
-   ↓
-4. Backend encripta password con bcryptjs
-   ↓
-5. Backend crea documento User en MongoDB
-   ↓
-6. Backend genera JWT token (válido 30 días)
-   ↓
-7. Frontend recibe { token, usuario }
-   ↓
-8. Frontend guarda token en localStorage
-   ↓
-9. Usuaria ve Home logueada
-```
+El flujo es bastante estándar:
 
-### 3.2 Login
+1. Usuaria llena el formulario con nombre, email, password y tipo (clienta o trabajadora)
+2. Frontend hace `POST /api/auth/register`
+3. Backend valida que el email no exista, que el password tenga mínimo 6 caracteres, y que el tipo sea válido
+4. Si todo está bien, encripta el password con bcryptjs (nunca se guarda el texto plano)
+5. Crea el documento User en MongoDB
+6. Genera un JWT token válido por 30 días
+7. Devuelve `{ token, usuario }` al frontend
+8. Frontend guarda el token en localStorage
+9. Usuaria queda logueada automáticamente
 
-```
+### Login
+
 1. Usuaria ingresa email + password
-   ↓
-2. Frontend POST /api/auth/login
-   ↓
-3. Backend busca User con ese email
-   ↓
-4. Backend compara password con bcrypt
-   ↓
-5. Si correcto → genera JWT token
-   ↓
-6. Si incorrecto → devuelve error 400
-   ↓
-7. Frontend usa token para requests posteriores
-   ↓
-8. Cada request incluye: Authorization: Bearer {token}
-```
+2. Frontend hace `POST /api/auth/login`
+3. Backend busca el User por email
+4. Compara el password ingresado con el hash guardado usando bcrypt
+5. Si coincide, genera un nuevo JWT token
+6. Si no coincide, devuelve error 400 (el mensaje es genérico a propósito, no le decimos si el email o la clave es lo incorrecto)
 
-### 3.3 Acceso a Rutas Privadas
+### Rutas privadas
 
-```
-1. Usuaria intenta acceder a /mi-perfil
-   ↓
-2. Frontend verifica si localStorage.token existe
-   ↓
-3. Si NO existe → redirige a /login
-   ↓
-4. Si existe → agrega token en header
-   ↓
-5. Backend middleware protegerRuta valida JWT
-   ↓
-6. Si JWT válido → permite acceso
-   ↓
-7. Si JWT expirado/inválido → error 401 → redirige a /login
-```
+Cuando una usuaria intenta acceder a algo que requiere estar logueada (como su perfil o sus reservas):
+
+1. Frontend verifica si hay token en localStorage
+2. Si no hay token, redirige a /login
+3. Si hay token, lo agrega en el header: `Authorization: Bearer {token}`
+4. El middleware `protegerRuta` en el backend valida el JWT
+5. Si el token está bien, deja pasar la request
+6. Si el token expiró o es inválido, devuelve 401 y el frontend redirige a login
 
 ---
 
-## 4. Stack Tecnológico y Justificación
+## Por qué elegimos estas tecnologías
 
 ### Frontend
 
-| Tecnología | Versión | Por qué la elegimos |
-|---|---|---|
-| **React** | 19 | Componentes reutilizables, gran comunidad, rendering eficiente |
-| **Vite** | 8 | Build tool ultrarrápido (dev server < 100ms), optimización automática |
-| **Tailwind CSS** | 4 | Utility-first CSS, código más limpio, tema custom fácil de mantener |
-| **React Router** | 7 | Navegación SPA sin recargar página, rutas por rol |
-| **Axios** | 1.13 | HTTP client simple, interceptores para JWT automático |
+| Tecnología | Por qué |
+|---|---|
+| React 19 | Componentes reutilizables, gran ecosistema, funciona bien para SPAs |
+| Vite 8 | El dev server arranca en milisegundos, mucho más rápido que webpack |
+| Tailwind CSS 4 | Se puede hacer diseño rápido sin escribir CSS custom, y el tema se puede personalizar |
+| React Router 7 | Navegación entre páginas sin recargar (SPA), maneja rutas por rol de usuario |
+| Axios 1.13 | Más fácil que fetch para manejar headers JWT automáticamente con interceptores |
 
 ### Backend
 
-| Tecnología | Versión | Por qué la elegimos |
-|---|---|---|
-| **Node.js** | 18+ | JavaScript en servidor, no-blocking I/O, perfecta para APIs |
-| **Express** | 4.18 | Servidor HTTP minimalista, flexible, middleware pattern |
-| **Mongoose** | 7 | ODM para MongoDB, esquemas con validación, relaciones simples |
-| **JWT (jsonwebtoken)** | 9 | Autenticación sin sesiones, escalable, seguro |
-| **bcryptjs** | 2.4 | Encriptación de passwords robusta, estándar industria |
-| **Cloudinary** | 1.41 | Almacenamiento cloud, CDN global, optimización automática imágenes |
-| **Nodemailer** | 6.9 | Envío de emails simple, múltiples proveedores |
-
-### Database
-
-| Tecnología | Por qué la elegimos |
+| Tecnología | Por qué |
 |---|---|
-| **MongoDB Atlas** | Cloud NoSQL, escalable horizontalmente, esquemas flexibles, backups automáticos |
-| **Mongoose** | Validación en schema, métodos útiles, índices optimizados |
+| Node.js 18+ | JavaScript en el servidor, no-blocking I/O, perfecto para APIs con muchas requests concurrentes |
+| Express 4.18 | Minimalista y flexible, el patrón de middleware hace fácil agregar funcionalidades |
+| Mongoose 7 | Pone orden en MongoDB con esquemas y validaciones, las relaciones entre colecciones son más simples |
+| JWT | Autenticación sin estado (stateless), no necesitas guardar sesiones en el servidor |
+| bcryptjs | Estándar para encriptar passwords, el salt automático lo hace seguro |
+| Cloudinary | Las fotos se guardan en cloud con CDN, no ocupan espacio en el servidor |
+| Nodemailer | Enviar emails es complicado sin una librería, esta lo simplifica mucho |
+
+### Base de datos
+
+Usamos MongoDB Atlas (cloud) en lugar de una base de datos local porque:
+- No necesitamos configurar nada en nuestras máquinas
+- Tiene backups automáticos diarios
+- Escala horizontalmente si crece el proyecto
+- El esquema flexible de NoSQL es mejor para un proyecto donde los datos de las usuarias pueden variar
 
 ---
 
-## 5. Modelos y Relaciones de Datos
+## Estructura del código
 
-### 5.1 Colecciones Principales
+### Backend (patrón MVC)
 
 ```
-Users (usuarias del sistema)
-├── _id (ObjectId único)
-├── nombre, apellido, email, password (encriptado)
-├── tipo: enum['clienta', 'trabajadora', 'admin']
-├── región, comuna (ubicación)
-├── verificada (carnet validado)
-└── aceptoCompromiso (Hana terms)
-
-WorkerProfile (perfil profesional de trabajadoras)
-├── _id (ObjectId)
-├── usuario (referencia a User._id) ← 1:1
-├── categoria (Limpieza, Diseño, etc.)
-├── descripción, tarifa/hora
-├── metricas {puntualidad, confiabilidad, calidad, comunicación}
-├── indiceConfianza (promedio metricas)
-└── certificados []
-
-Booking (reservas)
-├── _id (ObjectId)
-├── clientaId (referencia User) ← N:1
-├── trabajadoraId (referencia User) ← N:1
-├── servicio, descripción, fecha
-├── duracion (horas), precio
-├── estado: enum['pendiente', 'aceptado', 'rechazado', 'completado']
-└── timestamps
-
-Review (reseñas)
-├── _id (ObjectId)
-├── bookingId (referencia Booking) ← 1:1
-├── reviewadoId (referencia User) ← N:1
-├── puntaje (1-5), comentario
-├── metricas {puntualidad, calidad, comunicación}
-└── fotos []
-
-Message (mensajes chat)
-├── _id (ObjectId)
-├── bookingId (referencia Booking) ← N:1
-├── de (referencia User)
-├── hacia (referencia User)
-├── contenido, leido (boolean)
-└── timestamp
+backend/src/
+├── models/          ← Esquemas MongoDB (User, WorkerProfile, Booking, Review, Message)
+├── routes/          ← Rutas + controladores juntos (auth, workers, bookings, reviews, messages, admin)
+├── middleware/       ← auth.js (JWT), validation.js (validar inputs)
+├── config/          ← Configuración DB, Cloudinary
+└── server.js        ← Punto de entrada
 ```
+
+Las rutas y los controladores están en el mismo archivo porque el proyecto no es tan grande. Si escala, se separarían en carpetas distintas.
+
+### Frontend (componentes React)
+
+```
+frontend/src/
+├── pages/           ← Pantallas completas (Home, Login, RegisterWorker, RegisterClient, WorkerProfile, etc.)
+├── components/      ← Partes reutilizables (Navbar, Footer, ProtectedRoute, ChatModal, EvaluarModal, PhotoUpload)
+└── App.jsx          ← Configuración de rutas
+```
+
+`ProtectedRoute` es importante: es el componente que verifica si hay token antes de dejar entrar a rutas privadas. Si no hay token, redirige a login automáticamente.
 
 ---
 
-## 6. Patrones de Diseño
+## Seguridad implementada
 
-### Backend: MVC (Model-View-Controller)
-
-```
-Models/
-  ├── User.js
-  ├── WorkerProfile.js
-  ├── Booking.js
-  ├── Review.js
-  └── Message.js
-
-Routes/ (Controllers embedded)
-  ├── auth.js         → Lógica login/registro
-  ├── workers.js      → Búsqueda, perfiles
-  ├── bookings.js     → Reservas
-  ├── reviews.js      → Evaluaciones
-  ├── messages.js     → Chat
-  └── admin.js        → Panel administrador
-
-Middleware/
-  ├── auth.js         → Protección JWT, roles
-  └── validation.js   → Validación inputs
-```
-
-### Frontend: Component-Based
-
-```
-Pages/ (pantallas completas)
-  ├── Home.jsx
-  ├── Login.jsx
-  ├── RegisterWorker.jsx
-  ├── RegisterClient.jsx
-  ├── WorkerProfile.jsx
-  ├── PerfilTrabajadora.jsx
-  └── PerfilAdmin.jsx
-
-Components/ (piezas reutilizables)
-  ├── Navbar.jsx
-  ├── Footer.jsx
-  ├── ProtectedRoute.jsx
-  ├── ChatModal.jsx
-  ├── EvaluarModal.jsx
-  └── PhotoUpload.jsx
-```
-
----
-
-## 7. Seguridad Implementada
-
-| Aspecto | Implementación |
+| Qué | Cómo |
 |---|---|
-| **Passwords** | Encriptadas con bcryptjs (salt 10 rounds) |
-| **Autenticación** | JWT tokens con expiración 30 días |
-| **CORS** | Configurado para solo frontend puede acceder |
-| **Cloudinary** | Uploads seguros a servidor cloud (no local) |
-| **Input Validation** | Mongoose schemas + express-validator |
-| **Rate Limiting** | Protección contra brute force (en desarrollo) |
-| **Roles** | Middleware soloTrabajadora, soloClienta, soloAdmin |
+| Passwords | Encriptadas con bcryptjs (salt 10 rounds), nunca se guardan en texto plano |
+| Autenticación | JWT tokens con expiración 30 días |
+| CORS | Configurado para que solo el frontend en `localhost:5173` pueda hacer requests al backend |
+| Uploads | Las fotos van directo a Cloudinary, nunca pasan por el servidor de Node |
+| Validación | Mongoose valida en el esquema + express-validator valida antes de llegar a la BD |
+| Rate Limiting | Pendiente implementar en Semana 2 (protección contra brute force) |
+| Roles | Middleware `soloTrabajadora`, `soloClienta`, `soloAdmin` que verifica el tipo de usuaria |
 
 ---
 
-## 8. Performance y Escalabilidad
+## Performance
 
-### Frontend
-- **Vite bundling:** < 100KB en producción (minificado)
-- **React lazy loading:** Componentes cargados bajo demanda
-- **Tailwind purging:** Solo CSS usado se incluye
+En el frontend, Vite hace minificación y tree-shaking automático, así que el bundle final en producción es mucho más pequeño que en desarrollo. Tailwind también hace purge de las clases que no se usan.
 
-### Backend
-- **Mongoose índices:** Email, tipo, categoría
-- **Paginación:** Lista workers limitada a 10 por page
-- **Cloudinary CDN:** Imágenes distribuidas globalmente
-
-### Database
-- **MongoDB Atlas:** Auto-scaling, backups diarios
-- **Índices:** En campos frecuentemente buscados
-- **Conexión pooling:** Reutilización de conexiones
+En el backend, MongoDB tiene índices en los campos que más se buscan (email, categoría, tipo). Sin índices, una búsqueda en una colección con miles de documentos sería lentísima porque tiene que revisar uno por uno. Con índices es como buscar en un diccionario vs buscar en un libro normal.
 
 ---
 
-## 9. Deployment
+## Deploy (cuando llegue el momento)
 
-### Frontend (Vercel)
-```
-GitHub → Vercel (auto-deploy)
-Rama: develop/main
-URL: hana.vercel.app (ejemplo)
-Environment: NODE_ENV=production
-```
+El plan es:
+- **Frontend** en Vercel (conectado al repo de GitHub, se deploya automáticamente al hacer push a main)
+- **Backend** en Render o Railway (también auto-deploy desde GitHub)
+- **Base de datos** sigue siendo MongoDB Atlas (ya está en cloud)
 
-### Backend (Render/Railway)
-```
-GitHub → Render/Railway (auto-deploy)
-Rama: develop/main
-URL: hana-backend.render.com (ejemplo)
-Environment: NODE_ENV=production, DB_URI, JWT_SECRET, etc.
-```
-
-### Database (MongoDB Atlas)
-```
-Cloud hosting en MongoDB
-Backups automáticos diarios
-Acceso protegido por IP whitelist
-```
+Lo importante para el deploy es tener todas las variables del `.env` configuradas en el panel de la plataforma de hosting. Nunca se sube el `.env` al repositorio.
 
 ---
 
-## 10. Resumen Técnico
-
-- **Arquitectura:** 3 capas (presentación, lógica, datos)
-- **Patrón:** MVC en backend, Component-based en frontend
-- **Escalabilidad:** Horizontal (múltiples servidores posible)
-- **Seguridad:** JWT + bcrypt + CORS + validación
-- **Performance:** Optimización automática (Vite, Cloudinary, MongoDB)
-- **Maintainability:** Código separado por responsabilidades
-
----
-
-**Fecha de actualización:** 13/04/2026  
-**Estado:** Documentación Semana 1 EP2  
-**Responsable:** Equipo Hana (Sol + Adolfo)
+Última actualización: 13/04/2026 — Documentación Semana 1 EP2 — Sol + Adolfo

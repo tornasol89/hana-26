@@ -1,314 +1,278 @@
-# 🧪 PLAN DE PRUEBAS - HANA EP2
+# Plan de pruebas — Hana EP2
 
-## 1. Estrategia General
-
-Las pruebas están organizadas en 3 niveles:
-
-1. **Pruebas Unitarias** - Testear funciones aisladas
-2. **Pruebas de Integración** - Testear endpoints completos con BD
-3. **Pruebas de Usuario (E2E)** - Flujos completos como usuaria real
-
-**Estado Actual:** Pruebas planeadas (no ejecutadas aún)
+Las pruebas están organizadas en tres niveles: unitarias (funciones individuales), integración (endpoints completos con base de datos real) y E2E (flujos completos como si fueras una usuaria usando la app). Actualmente todas están planeadas pero pendientes de ejecutar.
 
 ---
 
-## 2. Pruebas Unitarias (Backend)
+## Pruebas unitarias (Backend)
 
-### 2.1 Modelo User
+Estas prueban los modelos de Mongoose de forma aislada, verificando que los esquemas validen correctamente antes de guardar en la BD.
 
-| Caso de Prueba | Entrada | Resultado Esperado | Status |
+### Modelo User
+
+| Caso | Entrada | Resultado esperado | Estado |
 |---|---|---|---|
 | Crear usuario válido | {nombre, apellido, email, password, tipo} | Usuario guardado en BD | ⏳ Pendiente |
 | Email único | Registrar 2 usuarios con mismo email | Error: Email ya existe | ⏳ Pendiente |
-| Password encriptado | Guardar password | Password ≠ texto plano en BD | ⏳ Pendiente |
-| Validar tipo | tipo ∉ ['clienta','trabajadora','admin'] | Error validación | ⏳ Pendiente |
+| Password encriptado | Guardar password | Password != texto plano en BD | ⏳ Pendiente |
+| Validar tipo | tipo fuera del enum | Error de validación | ⏳ Pendiente |
 | Email normalizado | "MARIA@GMAIL.COM" | Guardado como "maria@gmail.com" | ⏳ Pendiente |
 
-### 2.2 Modelo WorkerProfile
+### Modelo WorkerProfile
 
-| Caso de Prueba | Entrada | Resultado Esperado | Status |
+| Caso | Entrada | Resultado esperado | Estado |
 |---|---|---|---|
-| Crear perfil válido | {usuario_id, categoria, descripcion} | Perfil guardado | ⏳ Pendiente |
+| Crear perfil válido | {usuario_id, categoria, descripcion} | Perfil guardado correctamente | ⏳ Pendiente |
 | Relación 1:1 | Un usuario-trabajadora tiene 1 perfil | Asociación correcta | ⏳ Pendiente |
-| Índice confianza | {puntualidad:5, calidad:4, etc.} | Promedio calculado correctamente | ⏳ Pendiente |
-| Validar categoría | categoria ∉ enum | Error validación | ⏳ Pendiente |
+| Índice confianza | {puntualidad:5, calidad:4, ...} | Promedio calculado bien | ⏳ Pendiente |
+| Validar categoría | categoria fuera del enum | Error de validación | ⏳ Pendiente |
 
-### 2.3 Modelo Booking
+### Modelo Booking
 
-| Caso de Prueba | Entrada | Resultado Esperado | Status |
+| Caso | Entrada | Resultado esperado | Estado |
 |---|---|---|---|
 | Crear reserva | {clientaId, trabajadoraId, fecha} | Booking en estado 'pendiente' | ⏳ Pendiente |
-| Estado válido | estado = 'inexistente' | Error validación | ⏳ Pendiente |
-| Relación N:1 | Una clienta múltiples reservas | Todas asociadas correctamente | ⏳ Pendiente |
+| Estado válido | estado = 'inexistente' | Error de validación | ⏳ Pendiente |
+| Relación N:1 | Una clienta con múltiples reservas | Todas asociadas correctamente | ⏳ Pendiente |
 
 ---
 
-## 3. Pruebas de Integración (Endpoints)
+## Pruebas de integración (Endpoints)
 
-### 3.1 Autenticación
+Estas son más importantes que las unitarias para este proyecto. Prueban el endpoint completo: request HTTP → validaciones → lógica → MongoDB → response. Se hacen con Postman o Thunder Client.
 
-#### POST /api/auth/register (Registro)
+### Autenticación
 
-| Caso | Request Body | Status HTTP | Response | Status Prueba |
+**POST /api/auth/register**
+
+| Caso | Body | HTTP | Response esperado | Estado |
 |---|---|---|---|---|
 | Registro exitoso | {nombre, apellido, email, password, tipo, aceptoCompromiso:true} | 201 | {token, usuario} | ⏳ Pendiente |
-| Email duplicado | email que ya existe | 400 | {message: 'Email ya registrado'} | ⏳ Pendiente |
+| Email duplicado | email que ya existe en BD | 400 | {message: 'Email ya registrado'} | ⏳ Pendiente |
 | Password muy corto | password: "123" | 400 | {message: 'Password min 6 caracteres'} | ⏳ Pendiente |
 | Email inválido | email: "notanemail" | 400 | {message: 'Email inválido'} | ⏳ Pendiente |
 | Tipo inválido | tipo: "super_admin" | 400 | {message: 'Tipo no permitido'} | ⏳ Pendiente |
-| Sin compromiso | aceptoCompromiso: false | 400 | {message: 'Debe aceptar Compromiso'} | ⏳ Pendiente |
+| Sin aceptar compromiso | aceptoCompromiso: false | 400 | {message: 'Debe aceptar Compromiso'} | ⏳ Pendiente |
 
-#### POST /api/auth/login (Login)
+**POST /api/auth/login**
 
-| Caso | Request Body | Status HTTP | Response | Status Prueba |
+| Caso | Body | HTTP | Response esperado | Estado |
 |---|---|---|---|---|
 | Login correcto | {email, password correcto} | 200 | {token, usuario} | ⏳ Pendiente |
 | Password incorrecto | {email válido, password incorrecto} | 400 | {message: 'Email o contraseña incorrectos'} | ⏳ Pendiente |
 | Email no existe | {email inexistente} | 400 | {message: 'Email o contraseña incorrectos'} | ⏳ Pendiente |
-| Cuenta desactivada | Usuario con activa:false | 403 | {message: 'Cuenta desactivada'} | ⏳ Pendiente |
+| Cuenta desactivada | usuario con activa:false | 403 | {message: 'Cuenta desactivada'} | ⏳ Pendiente |
 
-#### GET /api/auth/me (Verificar sesión)
+Nota: el mensaje de error para "password incorrecto" y "email no existe" es el mismo a propósito. No queremos decirle a alguien que intenta atacar el sistema si el email existe o no.
 
-| Caso | Headers | Status HTTP | Response | Status Prueba |
+**GET /api/auth/me**
+
+| Caso | Header Authorization | HTTP | Response esperado | Estado |
 |---|---|---|---|---|
-| Token válido | Authorization: Bearer {válido} | 200 | {usuario} | ⏳ Pendiente |
+| Token válido | Bearer {token válido} | 200 | {usuario} | ⏳ Pendiente |
+| Sin token | (sin header) | 401 | {message: 'No autorizado'} | ⏳ Pendiente |
+| Token expirado | Bearer {token expirado} | 401 | {message: 'Token expirado'} | ⏳ Pendiente |
+| Token basura | Bearer "garbage123" | 401 | {message: 'Token inválido'} | ⏳ Pendiente |
+
+### Búsqueda de trabajadoras
+
+**GET /api/workers**
+
+| Caso | Query params | HTTP | Response esperado | Estado |
+|---|---|---|---|---|
+| Sin filtros | - | 200 | array de workers | ⏳ Pendiente |
+| Por categoría | ?categoria=Limpieza | 200 | workers de esa categoría | ⏳ Pendiente |
+| Por región | ?region=Metropolitana | 200 | workers de esa región | ⏳ Pendiente |
+| Múltiples filtros | ?categoria=Limpieza&region=Metropolitana | 200 | workers filtrados | ⏳ Pendiente |
+| Paginación | ?page=2&limit=10 | 200 | máximo 10 items | ⏳ Pendiente |
+
+**GET /api/workers/:id**
+
+| Caso | Parámetro | HTTP | Response esperado | Estado |
+|---|---|---|---|---|
+| ID válido | ObjectId existente en BD | 200 | {user, workerProfile, reviews} | ⏳ Pendiente |
+| ID malformado | "noesunobjectid" | 400 | {message: 'ID inválido'} | ⏳ Pendiente |
+| ID válido pero no existe | ObjectId bien formado pero no en BD | 404 | {message: 'Trabajadora no encontrada'} | ⏳ Pendiente |
+
+### Reservas
+
+**POST /api/bookings**
+
+| Caso | Body + Auth | HTTP | Response esperado | Estado |
+|---|---|---|---|---|
+| Reserva válida | {trabajadoraId, fecha, duracion, precio} + token | 201 | {booking} | ⏳ Pendiente |
 | Sin token | Sin header Authorization | 401 | {message: 'No autorizado'} | ⏳ Pendiente |
-| Token expirado | Authorization: Bearer {expirado} | 401 | {message: 'Token expirado'} | ⏳ Pendiente |
-| Token inválido | Authorization: Bearer "garbage" | 401 | {message: 'Token inválido'} | ⏳ Pendiente |
-
-### 3.2 Búsqueda de Trabajadoras
-
-#### GET /api/workers (Listar trabajadoras)
-
-| Caso | Query Params | Status HTTP | Response | Status Prueba |
-|---|---|---|---|---|
-| Sin filtros | - | 200 | [{worker1}, {worker2}, ...] | ⏳ Pendiente |
-| Por categoría | ?categoria=Limpieza | 200 | [workers filtramiento] | ⏳ Pendiente |
-| Por región | ?region=Metropolitana | 200 | [workers en esa región] | ⏳ Pendiente |
-| Múltiples filtros | ?categoria=Limpieza&region=Met | 200 | [filtered workers] | ⏳ Pendiente |
-| Pagination | ?page=2&limit=10 | 200 | Array máximo 10 items | ⏳ Pendiente |
-
-#### GET /api/workers/:id (Perfil trabajadora)
-
-| Caso | Parámetro | Status HTTP | Response | Status Prueba |
-|---|---|---|---|---|
-| ID válido | ObjectId válido | 200 | {user, workerProfile, reviews} | ⏳ Pendiente |
-| ID inválido | ID malformado | 400 | {message: 'ID inválido'} | ⏳ Pendiente |
-| No existe | ObjectId válido pero no en BD | 404 | {message: 'Trabajadora no encontrada'} | ⏳ Pendiente |
-
-### 3.3 Reservas
-
-#### POST /api/bookings (Crear reserva)
-
-| Caso | Body + Auth | Status | Response | Status Prueba |
-|---|---|---|---|---|
-| Reserva válida | {trabajadoraId, fecha, duracion, precio} + token | 201 | {booking creado} | ⏳ Pendiente |
-| Sin token | Sin Authorization header | 401 | {message: 'No autorizado'} | ⏳ Pendiente |
 | Trabajadora no existe | trabajadoraId inválido | 404 | {message: 'Trabajadora no encontrada'} | ⏳ Pendiente |
-| Fecha pasada | fecha: ayer | 400 | {message: 'Fecha no válida'} | ⏳ Pendiente |
+| Fecha en el pasado | fecha: ayer | 400 | {message: 'Fecha no válida'} | ⏳ Pendiente |
 
-#### PUT /api/bookings/:id/aceptar (Aceptar reserva)
+**PUT /api/bookings/:id/aceptar y /rechazar**
 
-| Caso | Auth | Status | Response | Status Prueba |
+| Caso | Auth | HTTP | Response esperado | Estado |
 |---|---|---|---|---|
-| Aceptar válida | token trabajadora | 200 | {booking.estado = 'aceptado'} | ⏳ Pendiente |
-| No es trabajadora | token clienta | 403 | {message: 'Solo trabajadora puede aceptar'} | ⏳ Pendiente |
-| Ya completada | booking.estado = 'completado' | 400 | {message: 'No se puede aceptar'} | ⏳ Pendiente |
+| Aceptar como trabajadora | token de la trabajadora de ese booking | 200 | {booking.estado: 'aceptado'} | ⏳ Pendiente |
+| Aceptar como clienta | token de la clienta | 403 | {message: 'Solo trabajadora puede aceptar'} | ⏳ Pendiente |
+| Aceptar booking ya completado | booking en estado 'completado' | 400 | {message: 'No se puede aceptar'} | ⏳ Pendiente |
+| Rechazar como trabajadora | token de la trabajadora | 200 | {booking.estado: 'rechazado'} | ⏳ Pendiente |
 
-#### PUT /api/bookings/:id/rechazar (Rechazar)
+### Reseñas
 
-| Caso | Auth | Status | Response | Status Prueba |
+**POST /api/reviews**
+
+| Caso | Body | HTTP | Response esperado | Estado |
 |---|---|---|---|---|
-| Rechazar válida | token trabajadora | 200 | {booking.estado = 'rechazado'} | ⏳ Pendiente |
-| No es trabajadora | token clienta | 403 | {message: 'Acceso denegado'} | ⏳ Pendiente |
-
-### 3.4 Reseñas
-
-#### POST /api/reviews (Crear reseña)
-
-| Caso | Body | Status | Response | Status Prueba |
-|---|---|---|---|---|
-| Reseña válida | {bookingId, puntaje:5, comentario, metricas} | 201 | {review creado} | ⏳ Pendiente |
-| Puntaje inválido | puntaje: 6 | 400 | {message: 'Puntaje entre 1-5'} | ⏳ Pendiente |
+| Reseña válida | {bookingId, puntaje:5, comentario, metricas} | 201 | {review} | ⏳ Pendiente |
+| Puntaje fuera de rango | puntaje: 6 | 400 | {message: 'Puntaje entre 1-5'} | ⏳ Pendiente |
 | Booking no existe | bookingId inválido | 404 | {message: 'Reserva no encontrada'} | ⏳ Pendiente |
-| Duplicada | Crear 2 reviews para mismo booking | 400 | {message: 'Booking ya tiene reseña'} | ⏳ Pendiente |
+| Reseña duplicada | 2 reviews para el mismo bookingId | 400 | {message: 'Booking ya tiene reseña'} | ⏳ Pendiente |
 
-#### GET /api/reviews/:workerId (Ver reseñas)
+**GET /api/reviews/:workerId**
 
-| Caso | Parámetro | Status | Response | Status Prueba |
+| Caso | Parámetro | HTTP | Response esperado | Estado |
 |---|---|---|---|---|
-| Con reseñas | workerId con 3 reseñas | 200 | [review1, review2, review3] | ⏳ Pendiente |
-| Sin reseñas | workerId sin reviews | 200 | [] (array vacío) | ⏳ Pendiente |
+| Trabajadora con reseñas | workerId con 3 reviews | 200 | [review1, review2, review3] | ⏳ Pendiente |
+| Trabajadora sin reseñas | workerId sin reviews | 200 | [] | ⏳ Pendiente |
 | No existe | workerId inválido | 404 | {message: 'Trabajadora no encontrada'} | ⏳ Pendiente |
 
 ---
 
-## 4. Pruebas de Usuario (E2E)
+## Pruebas E2E (flujos completos)
 
-### 4.1 Flujo: Nueva Clienta se registra y reserva servicio
+Estas simulan el uso real de la app. Se hacen manualmente en el navegador, siguiendo los pasos como si fueras la usuaria.
 
-```
-Paso 1: Acceder a Home
-✓ Se carga página Home
-✓ Ver 4 slides de categorías
-✓ Ver navbar con logo Hana
-✓ Ver botón "Contratar servicios"
-
-Paso 2: Click "Contratar servicios"
-✓ Redirige a /compromiso
-✓ Ver documento Compromiso Hana
-✓ Poder scrollear hasta el final
-✓ Checkbox "Acepto términos" se habilita al final
-
-Paso 3: Aceptar compromiso y registrarse
-✓ Click "Aceptar y continuar"
-✓ Redirige a /register-client
-✓ Llenar formulario (nombre, email, password)
-✓ Click "Crear cuenta"
-✓ Se crea usuario en MongoDB
-✓ JWT token se guarda en localStorage
-
-Paso 4: Login automático
-✓ Después de registro, está logueada
-✓ Redirige a Home logueada
-✓ Navbar muestra nombre y avatar
-✓ Botón "Mi perfil" disponible
-
-Paso 5: Buscar trabajadora
-✓ Ver sección "Buscar por región"
-✓ Seleccionar región "Metropolitana"
-✓ Seleccionar categoría "Limpieza"
-✓ Click "Buscar"
-✓ Ver lista de trabajadoras
-✓ Cada tarjeta muestra: foto, nombre, categoría, rating
-
-Paso 6: Ver perfil de trabajadora (María)
-✓ Click en tarjeta de María
-✓ Redirige a /worker/{id}
-✓ Ver foto, descripción, tarifa/hora
-✓ Ver índice de confianza (4.7★)
-✓ Ver 3 reseñas anteriores
-✓ Ver botón "Reservar"
-
-Paso 7: Crear reserva
-✓ Click "Reservar"
-✓ Abre modal con formulario
-✓ Llenar: fecha, duración, notas
-✓ Click "Confirmar reserva"
-✓ Reserva se crea en MongoDB (estado='pendiente')
-✓ Ver popup "Reserva enviada"
-✓ Modal cierra
-
-Paso 8: Ver mis reservas
-✓ Click "Mi perfil" en navbar
-✓ Click tab "Mis reservas"
-✓ Ver reserva en estado "pendiente"
-✓ Ver botón "Cancelar" disponible
-✓ Esperar respuesta de trabajadora
-
-Status: ⏳ PENDIENTE EJECUTAR
-```
-
-### 4.2 Flujo: Trabajadora recibe y acepta reserva
+### Flujo 1: Nueva clienta se registra y reserva un servicio
 
 ```
-Paso 1: Trabajadora se registra
-✓ Ir a Home
-✓ Click "Ofrecer servicios"
-✓ Aceptar Compromiso
-✓ Ir a /register-worker
-✓ Llenar datos (nombre, email, password, RUT)
-✓ Click "Crear cuenta"
+1. Entrar a Home en http://localhost:5173
+   ✓ Carga la página
+   ✓ Se ven los slides de categorías
+   ✓ Hay un botón "Contratar servicios"
 
-Paso 2: Completar perfil profesional
-✓ Login con email/password
-✓ Ir a /mi-perfil
-✓ Click "Perfil profesional"
-✓ Llenar: categoría, subcategoría, descripción, tarifa
-✓ Upload foto de perfil
-✓ Upload carnet (frente + dorso)
-✓ Click "Guardar"
-✓ WorkerProfile se crea en BD
-✓ Estado verificación = 'enviado'
+2. Click en "Contratar servicios"
+   ✓ Redirige a /compromiso
+   ✓ Se puede leer el documento
+   ✓ El checkbox "Acepto" solo se habilita después de hacer scroll hasta el final
 
-Paso 3: Ver reservas pendientes
-✓ Click "Mi perfil"
-✓ Click tab "Mis reservas"
-✓ Ver reserva de María (clienta) en estado "pendiente"
-✓ Ver botones "Aceptar" y "Rechazar"
+3. Aceptar y registrarse
+   ✓ Click "Aceptar y continuar"
+   ✓ Redirige a /register-client
+   ✓ Llenar formulario (nombre, email, password)
+   ✓ Click "Crear cuenta"
+   ✓ Se crea el usuario en MongoDB
+   ✓ Token se guarda en localStorage
 
-Paso 4: Aceptar reserva
-✓ Click "Aceptar"
-✓ Booking.estado = 'aceptado'
-✓ Popup: "Reserva aceptada"
-✓ Ver reserva ahora con estado "aceptado"
+4. Login automático post-registro
+   ✓ Redirige a Home logueada
+   ✓ Navbar muestra nombre y foto de perfil
+   ✓ Aparece "Mi perfil" en el menú
 
-Paso 5: Ver en calendario
-✓ Click "Mi calendario"
-✓ Ver fecha reservada con evento
+5. Buscar trabajadora
+   ✓ Seleccionar región "Metropolitana" y categoría "Limpieza"
+   ✓ Click "Buscar"
+   ✓ Se ven las tarjetas de trabajadoras con foto, nombre y rating
 
-Status: ⏳ PENDIENTE EJECUTAR
+6. Ver perfil de una trabajadora
+   ✓ Click en la tarjeta
+   ✓ Redirige a /worker/{id}
+   ✓ Se ve descripción, tarifa/hora, índice de confianza
+   ✓ Se ven reseñas previas (si las hay)
+   ✓ Hay botón "Reservar"
+
+7. Crear la reserva
+   ✓ Click "Reservar"
+   ✓ Se abre modal con formulario
+   ✓ Llenar fecha, duración, notas
+   ✓ Click "Confirmar"
+   ✓ Booking creado en BD con estado 'pendiente'
+   ✓ Aparece mensaje de confirmación
+
+8. Verificar en "Mis reservas"
+   ✓ Ir a Mi Perfil → Mis reservas
+   ✓ Se ve la reserva en estado "pendiente"
+   ✓ Hay botón "Cancelar"
 ```
 
-### 4.3 Flujo: Evaluar servicio completado
+Estado: ⏳ Pendiente ejecutar
+
+### Flujo 2: Trabajadora recibe y acepta una reserva
 
 ```
-Paso 1: Servicio completado
-✓ Fecha y hora pasada
-✓ Booking se marca como "completado"
+1. Registrarse como trabajadora
+   ✓ Home → "Ofrecer servicios" → Compromiso → /register-worker
+   ✓ Llenar nombre, email, password, RUT
+   ✓ Click "Crear cuenta"
 
-Paso 2: Dejar reseña
-✓ Click "Mis reservas"
-✓ Click "Evaluar" en booking completado
-✓ Abre modal Review
-✓ Llenar: puntaje (estrellas), comentario
-✓ Subir fotos (opcional, máximo 3)
-✓ Click "Enviar reseña"
+2. Completar perfil profesional
+   ✓ Login → Mi perfil → "Perfil profesional"
+   ✓ Llenar categoría, descripción, tarifa/hora
+   ✓ Subir foto de perfil
+   ✓ Subir carnet (frente + dorso)
+   ✓ Click "Guardar"
+   ✓ WorkerProfile creado en BD
+   ✓ estadoVerificacion = 'enviado'
 
-Paso 3: Reseña visible
-✓ Ir a perfil de trabajadora
-✓ Ver nueva reseña en sección "Reseñas"
-✓ Ver estrellas, comentario, fotos
-✓ Índice confianza se actualiza
+3. Ver reservas pendientes
+   ✓ Mi Perfil → Mis reservas
+   ✓ Se ve la reserva de la clienta con botones "Aceptar" y "Rechazar"
 
-Status: ⏳ PENDIENTE EJECUTAR
+4. Aceptar la reserva
+   ✓ Click "Aceptar"
+   ✓ Booking.estado pasa a 'aceptado'
+   ✓ Aparece mensaje de confirmación
+   ✓ La reserva ya no muestra los botones de aceptar/rechazar
 ```
+
+Estado: ⏳ Pendiente ejecutar
+
+### Flujo 3: Evaluar el servicio después de completarlo
+
+```
+1. El servicio se completó (estado 'completado')
+
+2. Clienta deja reseña
+   ✓ Mis reservas → Click "Evaluar" en el booking completado
+   ✓ Se abre el modal de evaluación
+   ✓ Seleccionar estrellas (1-5) y escribir comentario
+   ✓ Subir fotos del resultado (opcional)
+   ✓ Click "Enviar"
+
+3. Verificar que la reseña aparece
+   ✓ Ir al perfil de la trabajadora
+   ✓ Se ve la nueva reseña en la sección de reseñas
+   ✓ El indiceConfianza se actualizó
+```
+
+Estado: ⏳ Pendiente ejecutar
 
 ---
 
-## 5. Pruebas de Seguridad (Semana 2)
+## Pruebas de seguridad (Semana 2)
 
-| Prueba | Método | Esperado | Status |
+| Prueba | Cómo probarla | Resultado esperado | Estado |
 |---|---|---|---|
-| Rate Limiting Login | 6+ intentos fallidos en 15 min | Error 429 Too Many Requests | ⏳ Pendiente |
-| Rate Limiting API | 100+ requests en 15 min | Error 429 | ⏳ Pendiente |
-| SQL Injection | Ingresar SQL en email | No ejecuta SQL | ⏳ Pendiente |
-| XSS (Cross-Site) | Ingresar `<script>` en comentario | Se escapa HTML | ⏳ Pendiente |
-| CSRF (Cross-Site Request Forgery) | POST desde otro sitio | Rechazado por CORS | ⏳ Pendiente |
-| JWT Expiration | Token con expiración | Error 401 después expiración | ⏳ Pendiente |
+| Rate Limiting en login | Hacer 6+ intentos fallidos en 15 min | Error 429 Too Many Requests | ⏳ Pendiente |
+| Rate Limiting general API | 100+ requests en 15 min al mismo endpoint | Error 429 | ⏳ Pendiente |
+| SQL Injection | Ingresar `'; DROP TABLE users; --` en el campo email | No hace nada raro, error de validación normal | ⏳ Pendiente |
+| XSS | Ingresar `<script>alert('xss')</script>` en comentario | Se muestra como texto, no ejecuta el script | ⏳ Pendiente |
+| CSRF | POST desde otro origen sin el header correcto | Rechazado por CORS | ⏳ Pendiente |
+| JWT expirado | Usar un token que ya expiró | Error 401 | ⏳ Pendiente |
+
+Nota: SQL Injection no aplica directamente a MongoDB (no es SQL), pero igual vale la pena verificar que los inputs maliciosos no causen problemas con las queries de Mongoose.
 
 ---
 
-## 6. Herramientas de Testing
+## Herramientas para las pruebas
 
-### Herramientas Recomendadas
+**Postman** — para probar endpoints manualmente, es lo más cómodo para las pruebas de integración. Puedes guardar colecciones con todos los endpoints y sus ejemplos.
 
-| Herramienta | Uso | Link |
-|---|---|---|
-| **Postman** | Testear endpoints manuales | postman.com |
-| **Thunder Client** | VSCode plugin para Postman | marketplace.visualstudio.com |
-| **Jest** | Unit testing (futuro) | jestjs.io |
-| **Cypress** | E2E testing automatizado (futuro) | cypress.io |
+**Thunder Client** — plugin de VSCode que hace lo mismo que Postman pero sin salir del editor. Más práctico si no quieres tener otra app abierta.
 
-### Cómo hacer pruebas manualmente
+**Jest + Supertest** — para automatizar las pruebas de integración en el futuro. Por ahora todo es manual.
 
-```bash
-# Usando curl (terminal Linux/Mac)
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@gmail.com","password":"password123"}'
+**Cypress** — para E2E automatizado, también para más adelante.
 
-# Usando PowerShell (Windows)
+Ejemplo de prueba manual desde PowerShell (útil cuando no tienes Postman a mano):
+
+```powershell
 $body = @{
     email = "test@gmail.com"
     password = "password123"
@@ -320,20 +284,19 @@ Invoke-WebRequest -Uri "http://localhost:5000/api/auth/login" `
   -Body $body
 ```
 
+> **Advertencia PowerShell**: A veces `Invoke-WebRequest` no muestra bien el body de la respuesta. Para verlo, agrega `| Select-Object -ExpandProperty Content` al final. Y si tienes errores con los backticks (`` ` ``) para saltos de línea en PowerShell, escribe todo en una sola línea.
+
 ---
 
-## 7. Resumen de Pruebas
+## Resumen
 
-| Nivel | Cantidad | Estado |
+| Nivel | Cantidad de casos | Estado |
 |---|---|---|
 | Unitarias | 15 | ⏳ Planeadas |
 | Integración | 30+ | ⏳ Planeadas |
 | E2E | 3 flujos | ⏳ Planeadas |
-| Seguridad | 6 | ⏳ Planeadas |
-| **TOTAL** | **~60** | **⏳ POR EJECUTAR** |
+| Seguridad | 6 | ⏳ Planeadas (Semana 2) |
 
 ---
 
-**Fecha de actualización:** 13/04/2026  
-**Estado:** Plan de pruebas Semana 1 EP2  
-**Próximo:** Ejecutar pruebas Semana 2-3
+Última actualización: 13/04/2026 — Plan pruebas Semana 1 EP2 — Próximo: ejecutar en Semana 2-3

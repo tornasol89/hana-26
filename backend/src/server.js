@@ -1,4 +1,5 @@
 import express from 'express'
+import mongoose from 'mongoose'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { connectDB } from './config/db.js'
@@ -47,6 +48,18 @@ app.use('/api/portfolio',   portfolioRoutes)
 app.use('/api/sugerencias', sugerenciasRoutes)
 
 app.get('/', (req, res) => res.json({ mensaje: 'API de Hana funcionando ✅' }))
+
+app.get('/api/health', (req, res) => {
+  const dbState = mongoose.connection.readyState
+  // 0=desconectado, 1=conectado, 2=conectando, 3=desconectando
+  res.json({
+    status: dbState === 1 ? 'ok' : 'error',
+    db: dbState === 1 ? 'connected' : 'disconnected',
+    dbState,
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+  })
+})
 
 const PORT = process.env.PORT || 5000
 

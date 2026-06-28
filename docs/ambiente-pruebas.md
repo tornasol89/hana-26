@@ -1,203 +1,173 @@
-# ⚙️ CONFIGURACIÓN DEL AMBIENTE DE PRUEBAS
+# Cómo levantar el ambiente de pruebas
 
-## 1. Requisitos Previos
-
-Antes de empezar, verifica que tienes instalado:
-
-```bash
-# Node.js v18 o superior
-node --version
-# Output esperado: v18.x.x o superior
-
-# Git
-git --version
-# Output esperado: git version 2.x.x
-
-# npm (viene con Node.js)
-npm --version
-# Output esperado: 9.x.x o superior
-```
-
-Si no tienes Node.js, descárgalo desde: https://nodejs.org/
-
-**También necesitas:**
-- Cuenta MongoDB Atlas (base de datos cloud)
-- Cuenta Cloudinary (almacenamiento fotos)
-- Git configurado con usuario y email
+Esta guía explica cómo configurar todo para probar Hana localmente. La escribí pensando en que alguien la va a seguir desde cero, así que trato de ser lo más clara posible con los errores típicos que me pasaron a mí.
 
 ---
 
-## 2. Paso 1: Clonar Repositorio
+## Antes de empezar
+
+Necesitas tener instalado Node.js v18 o superior. Para verificar:
 
 ```bash
-# Ve a carpeta donde quieras el proyecto
-cd C:\Usuarios\TuUsuario\Documentos
+node --version
+git --version
+npm --version
+```
 
-# Clona el repositorio
+Si `node --version` te tira algo como `v16.x.x`, actualiza desde nodejs.org porque algunas dependencias del proyecto lo necesitan en 18+.
+
+También vas a necesitar cuentas en:
+- **MongoDB Atlas** — la base de datos está en cloud, no local
+- **Cloudinary** — para el almacenamiento de fotos
+- Git configurado con tu usuario y email (si no lo tienes: `git config --global user.name "Tu Nombre"`)
+
+---
+
+## Paso 1: Clonar el repositorio
+
+```bash
 git clone https://github.com/tornasol89/hana.git
 cd hana
-
-# Asegúrate estar en rama develop
 git checkout develop
 git status
-
-# Output esperado:
-# On branch develop
-# Your branch is up to date with 'origin/develop'.
 ```
+
+Debería decir `On branch develop` y `Your branch is up to date`. Si ves otra rama, asegúrate de hacer el checkout.
+
+> **Nota Windows**: Si estás en PowerShell y el `cd` no te funciona como esperas, prueba con la ruta completa: `cd C:\Users\TuUsuario\Documentos`. No uses tildes en rutas porque PowerShell a veces las rompe.
 
 ---
 
-## 3. Paso 2: Instalar Dependencias
+## Paso 2: Instalar dependencias
 
-### 2.1 Backend
+Primero el backend:
 
 ```bash
 cd backend
 npm install
-
-# Espera 2-3 minutos mientras instala paquetes
-# Output final esperado:
-# added XXX packages, and audited YYY packages in 2m
 ```
 
-### 2.2 Frontend
+Después el frontend:
 
 ```bash
 cd ../frontend
 npm install
-
-# Similar, tarda 2-3 minutos
 ```
 
-**Verificar instalación:**
-```bash
-# Volver a raíz
-cd ..
+Cada uno tarda 2-3 minutos. Es normal que salgan warnings de `deprecated`, eso no es un error. El error real se ve cuando dice `npm ERR!` con letras rojas.
 
-# Ambas carpetas deben tener carpeta node_modules
-ls backend/node_modules | wc -l   # Debe ser > 100
-ls frontend/node_modules | wc -l  # Debe ser > 100
-```
+> **Problema común**: En Windows a veces `npm install` falla con errores de permisos del tipo `EACCES` o `EPERM`. Si pasa eso, cierra VSCode, abre PowerShell **como administrador** y vuelve a intentar. O mejor, usa la terminal integrada de VSCode que generalmente tiene menos problemas con esto.
+
+Para verificar que instaló bien, las carpetas `backend/node_modules` y `frontend/node_modules` deben existir y tener cosas adentro.
 
 ---
 
-## 4. Paso 3: Configurar Variables de Entorno
+## Paso 3: Configurar las variables de entorno
 
-### 3.1 Backend .env
+Esta es la parte donde más gente se traba.
+
+Dentro de `backend/`, copia el archivo de ejemplo:
 
 ```bash
-# Ir a carpeta backend
 cd backend
-
-# Copiar plantilla .env.example a .env
 cp .env.example .env
-
-# Abrir .env con tu editor (Notepad++, VSCode, etc)
-# Y llenar con TUS valores:
 ```
 
-**Contenido de backend/.env:**
+> **En Windows PowerShell**, `cp` puede no funcionar. Usa esto en su lugar:
+> ```powershell
+> Copy-Item .env.example .env
+> ```
+> O simplemente copia el archivo manualmente desde el explorador de archivos.
+
+Ahora abre `backend/.env` con tu editor y llena los valores:
 
 ```
 NODE_ENV=development
 PORT=5000
 
-# MongoDB Atlas
-# Obtén esta URL de: MongoDB Atlas → Cluster → Connect → Copy connection string
 DB_URI=mongodb+srv://[tu_usuario]:[tu_contraseña]@cluster.mongodb.net/hana
 
-# JWT (puede ser cualquier string aleatorio, mínimo 32 caracteres)
-JWT_SECRET=tu_clave_super_secreta_aleatoria_minimo_32_caracteres_qqqqqqqqqqqqq
+JWT_SECRET=cualquier_string_largo_y_aleatorio_minimo_32_caracteres
 
-# Cloudinary
-# Obtén estos de: cloudinary.com → Dashboard → Settings
 CLOUDINARY_NAME=tu_cloud_name
 CLOUDINARY_API_KEY=tu_api_key
 CLOUDINARY_API_SECRET=tu_api_secret
 
-# Nodemailer (para enviar emails)
-# Usa email Gmail + app password
 NODEMAILER_USER=tu_email@gmail.com
-NODEMAILER_PASS=tu_app_password_16_caracteres
+NODEMAILER_PASS=tu_app_password_de_16_caracteres
 
-# Frontend URL (para CORS)
 FRONTEND_URL=http://localhost:5173
 ```
 
-**⚠️ IMPORTANTE:**
-- `.env` NO se versionea en Git (está en `.gitignore`)
-- Nunca compartas tu `.env` con otros
-- `.env.example` SÍ se versionea (sin valores secretos)
+**Dónde sacar cada cosa:**
 
-### 3.2 Frontend .env (opcional)
+- `DB_URI`: En MongoDB Atlas → tu cluster → Connect → Drivers → copia el connection string y reemplaza `<password>` con tu contraseña real
+- `CLOUDINARY_*`: En cloudinary.com → Dashboard → arriba a la derecha en Settings ves los tres valores
+- `NODEMAILER_PASS`: Esto NO es tu contraseña de Gmail normal. Tienes que generar una "app password" en tu cuenta de Google (Seguridad → Verificación en dos pasos → Contraseñas de aplicaciones). Son 16 caracteres sin espacios.
+- `JWT_SECRET`: Puedes inventar cualquier string largo. Yo uso algo tipo `hana_super_secret_2026_key_aqui_va_algo_largo`
 
-Frontend puede funcionar sin .env adicional. Si lo necesitas:
+El archivo `.env` **nunca** se sube a Git (está en `.gitignore`). Si accidentalmente lo subes, cambia todas las claves inmediatamente.
+
+Para el frontend, por defecto no necesita un `.env` propio. Si en algún momento necesitas cambiar la URL del backend:
 
 ```bash
 cd ../frontend
-
-# Crear .env si es necesario
 echo "VITE_API_URL=http://localhost:5000" > .env
 ```
 
 ---
 
-## 5. Paso 4: Verificar Conexión a MongoDB
+## Paso 4: Verificar que MongoDB conecta
 
-```bash
-cd backend
+La forma más fácil es simplemente intentar levantar el servidor (paso siguiente) y ver si aparece `Conectado a MongoDB ✓` en los logs. Si no aparece, antes de seguir revisa:
 
-# Ejecuta un comando simple de Node para testear BD
-node -e "
-const mongoose = require('mongoose');
-mongoose.connect(process.env.DB_URI)
-  .then(() => console.log('✓ MongoDB conectado'))
-  .catch(err => console.log('✗ Error:', err.message));
-" 2>/dev/null
-
-# O simplemente levanta el servidor (paso siguiente)
-```
+1. Que el `DB_URI` en `.env` esté bien copiado (sin espacios extra, sin el `<password>` literal)
+2. Que tu IP esté permitida en MongoDB Atlas → Network Access → Add IP Address. Para pruebas locales, agrega `0.0.0.0/0` (permite cualquier IP, esto está bien para desarrollo)
 
 ---
 
-## 6. Paso 5: Levantar Backend y Frontend
+## Paso 5: Levantar el proyecto
 
-### En Terminal 1 - Backend
+Necesitas **dos terminales abiertas al mismo tiempo**.
 
-```bash
-cd C:\Users\LENOVO\Desktop\hana\backend
-npm run dev
-
-# Output esperado:
-# [nodemon] starting `node src/server.js`
-# Servidor corriendo en puerto 5000
-# Conectado a MongoDB ✓
-```
-
-### En Terminal 2 - Frontend
+**Terminal 1 — Backend:**
 
 ```bash
-cd C:\Users\LENOVO\Desktop\hana\frontend
+cd hana/backend
 npm run dev
-
-# Output esperado:
-# VITE v8.0.0 ready in 156 ms
-# ➜  Local:   http://localhost:5173/
-# ➜  Press q to quit
 ```
 
-**Ahora puedes acceder a:**
-- Frontend: http://localhost:5173 (ver en navegador)
-- Backend API: http://localhost:5000/api
+Deberías ver:
+```
+[nodemon] starting `node src/server.js`
+Servidor corriendo en puerto 5000
+Conectado a MongoDB ✓
+```
+
+Si ves el `Conectado a MongoDB ✓`, el backend está funcionando bien.
+
+**Terminal 2 — Frontend:**
+
+```bash
+cd hana/frontend
+npm run dev
+```
+
+Deberías ver algo así:
+```
+VITE v8.0.0  ready in 156 ms
+➜  Local:   http://localhost:5173/
+```
+
+Con eso puedes abrir el navegador en `http://localhost:5173` y ver la app.
+
+> **Problema típico en Windows**: A veces nodemon no detecta cambios en archivos porque Windows tiene un límite en el número de watchers del sistema. Si el servidor no se recarga solo cuando editas código, no te preocupes mucho por eso ahora, igual funciona para pruebas manuales.
 
 ---
 
-## 7. Paso 6: Verificar Health Check
+## Paso 6: Verificar el health check
 
-El endpoint `/api/health` verifica que el backend y BD están conectados.
-
-### Opción A: Navegador
+El endpoint `/api/health` sirve para confirmar que todo está conectado. Abre en el navegador:
 
 ```
 http://localhost:5000/api/health
@@ -213,27 +183,18 @@ Deberías ver:
 }
 ```
 
-### Opción B: PowerShell
+Si `"db"` dice `"connected"`, genial, el ambiente está listo. Si dice `"disconnected"`, el problema es la conexión a MongoDB (revisa el paso 4).
 
+También puedes probarlo desde PowerShell:
 ```powershell
-Invoke-WebRequest -Uri "http://localhost:5000/api/health" | ConvertTo-Json
+Invoke-WebRequest -Uri "http://localhost:5000/api/health" | Select-Object -ExpandProperty Content
 ```
-
-### Opción C: curl (Linux/Mac)
-
-```bash
-curl http://localhost:5000/api/health
-```
-
-**✓ Si ves `"db": "connected"` → Ambiente OK**
 
 ---
 
-## 8. Paso 7: Prueba Manual Rápida
+## Paso 7: Prueba manual rápida
 
-### 8.1 Registrar nueva usuaria
-
-Abre Postman o Thunder Client:
+Para asegurarte que el registro funciona, usa Postman o Thunder Client (el plugin de VSCode):
 
 ```
 POST http://localhost:5000/api/auth/register
@@ -251,47 +212,23 @@ Content-Type: application/json
 }
 ```
 
-**Response esperado (201):**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIs...",
-  "usuario": {
-    "id": "507f1f77bcf86cd799439011",
-    "nombre": "Test",
-    "email": "test@example.com",
-    "tipo": "clienta"
-  }
-}
-```
+Si responde con código 201 y un `token` en el JSON, el registro está funcionando.
 
-### 8.2 Buscar trabajadoras
-
+Para ver trabajadoras:
 ```
 GET http://localhost:5000/api/workers
 ```
 
-**Response esperado (200):**
-```json
-[
-  {
-    "_id": "...",
-    "usuario": {...},
-    "categoria": "Limpieza",
-    "indiceConfianza": 4.7
-  }
-]
-```
-
-Si devuelve `[]`, es normal (primer uso, sin trabajadoras registradas aún).
+Si devuelve `[]` (array vacío), es normal cuando la base de datos está recién creada. No hay nadie registrado todavía.
 
 ---
 
-## 9. Solución de Problemas
+## Errores comunes y cómo arreglarlos
 
-### Error: "Cannot find module 'express'"
+**"Cannot find module 'express'"**
 
-**Causa:** npm install falló  
-**Solución:**
+Significa que `npm install` no se completó bien. Borra la carpeta y vuelve a instalar:
+
 ```bash
 cd backend
 rm -rf node_modules
@@ -299,133 +236,68 @@ npm cache clean --force
 npm install
 ```
 
-### Error: "MongoDB connection failed"
-
-**Causas posibles:**
-1. `DB_URI` en `.env` es incorrecto
-2. IP no está whitelisted en MongoDB Atlas
-
-**Solución:**
-```bash
-# Verifica DB_URI
-cat backend/.env | grep DB_URI
-
-# En MongoDB Atlas:
-# 1. Click "Network Access"
-# 2. Click "Add IP Address"
-# 3. Selecciona "Allow access from anywhere" (0.0.0.0/0)
-# 4. Reintentar
+En PowerShell, `rm -rf` puede no funcionar. Usa:
+```powershell
+Remove-Item -Recurse -Force node_modules
 ```
 
-### Error: "Port 5000 already in use"
+**"MongoDB connection failed"**
 
-**Causa:** Algo más está usando el puerto  
-**Solución:**
-```bash
-# Opción 1: Cambiar puerto
-# En backend/.env:
-# PORT=5001
+Casi siempre es por una de estas dos cosas: el `DB_URI` está mal copiado, o tu IP no está en el whitelist de MongoDB Atlas. Ve a Network Access en Atlas y agrega tu IP o usa `0.0.0.0/0`.
 
-# Opción 2: Matar proceso en puerto 5000 (PowerShell)
+**"Port 5000 already in use"**
+
+Hay otro proceso usando ese puerto. Para matarlo en PowerShell:
+```powershell
 Get-Process | Where-Object {$_.ProcessName -like "*node*"} | Stop-Process
 ```
 
-### Error: "Cloudinary credentials invalid"
-
-**Causa:** `CLOUDINARY_NAME`, `CLOUDINARY_API_KEY` o `SECRET` incorrectos  
-**Solución:**
-```bash
-# En cloudinary.com:
-# 1. Login
-# 2. Click "Settings" (engranaje)
-# 3. Copy "Cloud Name", "API Key", "API Secret"
-# 4. Pegar en backend/.env
-# 5. Reintentar
+O cambia el puerto en `backend/.env`:
+```
+PORT=5001
 ```
 
-### Frontend página en blanco
+Si cambias el puerto, también actualiza `FRONTEND_URL` en el `.env` del backend y el proxy en `frontend/vite.config.js`.
 
-**Causa:** Frontend no está corriendo  
-**Solución:**
-```bash
-cd frontend
-npm run dev
-```
+**"Cloudinary credentials invalid"**
+
+Ve a cloudinary.com, entra a Settings y copia los tres valores (Cloud Name, API Key, API Secret) de nuevo. A veces se copian con espacios al final que no se ven.
+
+**Página en blanco en el frontend**
+
+Verifica que el servidor de Vite esté corriendo (`npm run dev` en la carpeta frontend). Si está corriendo y sigue en blanco, abre las DevTools del navegador (F12) y mira la pestaña Console para ver el error específico.
 
 ---
 
-## 10. Ambiente Configurado ✅
-
-Cuando veas TODOS estos signos:
-
-- ✅ `npm run dev` en backend sin errores
-- ✅ `npm run dev` en frontend sin errores  
-- ✅ `curl http://localhost:5000/api/health` devuelve JSON con `"db": "connected"`
-- ✅ Frontend carga en http://localhost:5173 sin errores
-- ✅ Puedes registrar usuario en Postman (POST /register devuelve 201)
-
-**→ AMBIENTE DE PRUEBAS COMPLETAMENTE LISTO** 🎉
-
----
-
-## 11. Comandos Útiles
+## Comandos útiles
 
 ```bash
-# Ver logs de backend (con nodemon)
-cd backend && npm run dev
-
-# Buildear frontend para producción
-cd frontend && npm run build
-
-# Limpiar caches
-npm cache clean --force
-
-# Ver qué puerto está usando
-# PowerShell:
+# Ver qué está usando el puerto 5000 (PowerShell)
 netstat -ano | findstr :5000
 
-# Reinstalar dependencias limpias
+# Reinstalar todo desde cero (útil cuando algo raro pasa)
 rm -rf node_modules package-lock.json
 npm install
+
+# Buildear el frontend para producción (no necesario para pruebas)
+cd frontend && npm run build
+
+# Limpiar caché de npm
+npm cache clean --force
 ```
 
 ---
 
-## 12. Verificar Estructura Final
+## Cómo saber que todo está bien
 
-```
-hana/
-├── backend/
-│   ├── src/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   ├── config/
-│   │   └── server.js
-│   ├── .env          (con tus valores)
-│   ├── .env.example  (plantilla)
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── pages/
-│   │   ├── components/
-│   │   └── App.jsx
-│   ├── vite.config.js
-│   └── package.json
-│
-├── docs/
-│   ├── arquitectura.md
-│   ├── diagrama-ER.md
-│   ├── plan-pruebas.md
-│   ├── ambiente-pruebas.md
-│   └── PROGRESO.md
-│
-└── .git/ (repositorio)
-```
+Si ves todas estas cosas al mismo tiempo, el ambiente está listo:
+
+- `npm run dev` en backend sin errores y con `Conectado a MongoDB ✓`
+- `npm run dev` en frontend sin errores
+- `http://localhost:5000/api/health` devuelve `"db": "connected"`
+- `http://localhost:5173` carga la app en el navegador
+- POST a `/api/auth/register` devuelve 201 con token
 
 ---
 
-**Fecha de actualización:** 13/04/2026  
-**Estado:** Guía setup Semana 1 EP2  
-**Responsable:** Equipo Hana
+Última actualización: 13/04/2026 — Guía setup Semana 1 EP2
