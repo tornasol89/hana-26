@@ -42,8 +42,8 @@ export function useCreateWorkerProfile() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: WorkerProfileInput) => workersApi.createMyProfile(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: workerKeys.myProfile() });
+    onSuccess: (data) => {
+      queryClient.setQueryData(workerKeys.myProfile(), data);
       queryClient.invalidateQueries({ queryKey: workerKeys.lists() });
       toast.success("Perfil profesional creado");
     },

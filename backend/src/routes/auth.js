@@ -28,6 +28,7 @@ function formatearUsuario(u) {
     aceptoCompromiso:         u.aceptoCompromiso,
     carnetFrenteUrl:          u.carnetFrenteUrl || null,
     carnetDorsoUrl:           u.carnetDorsoUrl  || null,
+    rolesAdicionales:         u.rolesAdicionales || [],
   }
 }
 
@@ -227,6 +228,38 @@ router.post('/upload-carnet', protegerRuta, uploadDocumento.single('image'), asy
   } catch (error) {
     console.error('Error al subir carnet:', error)
     res.status(500).json({ mensaje: 'Error al procesar el documento', error: error.message })
+  }
+})
+
+// POST /api/auth/agregar-rol — agrega un rol adicional a la usuaria autenticada
+router.post('/agregar-rol', protegerRuta, async (req, res) => {
+  try {
+    const { rol } = req.body
+
+    if (!['clienta', 'trabajadora'].includes(rol)) {
+      return res.status(400).json({ mensaje: 'Rol inválido' })
+    }
+
+    const usuario = await User.findById(req.usuario.id)
+    if (!usuario) return res.status(404).json({ mensaje: 'Usuaria no encontrada' })
+
+    if (usuario.tipo === rol || (usuario.rolesAdicionales || []).includes(rol)) {
+      return res.status(400).json({ mensaje: `Ya tienes el rol ${rol}` })
+    }
+
+    usuario.rolesAdicionales = [...(usuario.rolesAdicionales || []), rol]
+    await usuario.save()
+
+    const token = jwt.sign(
+      { id: usuario._id, tipo: usuario.tipo },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    res.json({ token, usuario: formatearUsuario(usuario) })
+  } catch (error) {
+    console.error('Error al agregar rol:', error)
+    res.status(500).json({ mensaje: 'Error al agregar rol' })
   }
 })
 

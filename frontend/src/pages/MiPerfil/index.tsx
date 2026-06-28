@@ -235,7 +235,7 @@ export default function MiPerfil() {
           className="space-y-6"
         >
           {/* Tabs custom */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
             <TabItem value="perfil" active={activeTab} onClick={setActiveTab}
               icon={User} label="Perfil" color="#7c3aed" bg="#f5f3ff" />
             {esTrabajadoraActiva && (
@@ -327,7 +327,7 @@ function TabItem({
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.96 }}
       transition={{ type: "spring", stiffness: 400, damping: 20 }}
-      className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all duration-200"
+      className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all duration-200 shrink-0"
       style={{
         backgroundColor: isActive ? bg : "transparent",
         borderColor: isActive ? color : "#e2e8f0",

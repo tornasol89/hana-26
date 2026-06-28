@@ -354,7 +354,7 @@ export function PerfilTab({ user, reservas }: Props) {
 
           <Separator className="my-4" />
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {[
               { n: reservas.length, l: "Reservas" },
               {
@@ -368,12 +368,12 @@ export function PerfilTab({ user, reservas }: Props) {
             ].map((stat) => (
               <div
                 key={stat.l}
-                className="bg-muted/50 rounded-lg p-3 text-center"
+                className="bg-muted/50 rounded-lg p-2 sm:p-3 text-center"
               >
-                <div className="text-2xl font-bold font-display text-primary">
+                <div className="text-xl sm:text-2xl font-bold font-display text-primary">
                   {stat.n}
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5">
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 leading-tight">
                   {stat.l}
                 </div>
               </div>

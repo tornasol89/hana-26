@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,11 +13,17 @@ import hanaLogo from "@/assets/hana-logo.png";
 import { useLogin } from "@/features/auth/hooks";
 import { useAuth } from "@/contexts/AuthContext";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Ingresa tu correo electrónico")
+    .email("Correo electrónico inválido"),
+  password: z.string().min(1, "Ingresa tu contraseña"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const login = useLogin();
@@ -24,7 +33,14 @@ const Login = () => {
 
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname;
 
-  // Redirigir si ya está autenticada
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+  });
+
   useEffect(() => {
     if (isAuthenticated && user) {
       if (user.tipo === "admin") navigate("/perfil/admin", { replace: true });
@@ -32,26 +48,12 @@ const Login = () => {
     }
   }, [isAuthenticated, user, navigate, from]);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (!email.trim() || !password) {
-      toast.error("Completa todos los campos");
-      return;
-    }
-    if (!EMAIL_RE.test(email.trim())) {
-      toast.error("Ingresa un correo electrónico válido");
-      return;
-    }
-
+  function onSubmit(data: LoginForm) {
     login.mutate(
-      { email: email.trim().toLowerCase(), password },
+      { email: data.email.trim().toLowerCase(), password: data.password },
       {
         onSuccess: ({ usuario }) => {
           toast.success(`Bienvenida, ${usuario.nombre}`);
-          if (usuario.tipo === "admin") navigate("/perfil/admin", { replace: true });
-          else if (from && from !== "/login") navigate(from, { replace: true });
-          else navigate("/mi-perfil", { replace: true });
         },
       }
     );
@@ -59,7 +61,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-warm relative overflow-hidden">
-      {/* Blobs de fondo sutiles */}
       <div className="absolute top-[10%] left-[6%] w-72 h-72 rounded-full bg-primary/6 blur-3xl pointer-events-none" />
       <div className="absolute bottom-[10%] right-[6%] w-64 h-64 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
 
@@ -69,9 +70,7 @@ const Login = () => {
         <div className="w-full max-w-md animate-scale-in">
           <div className="rounded-2xl shadow-soft overflow-hidden">
 
-            {/* Cabecera con gradiente */}
             <div className="bg-gradient-hero px-8 pt-10 pb-9 text-center relative overflow-hidden">
-              {/* Orbe decorativo dentro del header */}
               <div className="absolute top-[-30%] right-[-15%] w-48 h-48 rounded-full bg-white/5 blur-2xl pointer-events-none" />
               <div className="absolute bottom-[-20%] left-[-10%] w-36 h-36 rounded-full bg-gold/15 blur-2xl pointer-events-none" />
 
@@ -90,25 +89,25 @@ const Login = () => {
               </p>
             </div>
 
-            {/* Cuerpo del formulario */}
             <div className="bg-card px-8 pt-7 pb-8">
-              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                <div className="space-y-2">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                <div className="space-y-1.5">
                   <Label htmlFor="email">Correo electrónico</Label>
                   <Input
                     id="email"
                     type="email"
                     autoComplete="email"
                     placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     disabled={login.isPending}
-                    required
-                    className="h-11"
+                    className={`h-11 ${errors.email ? "border-destructive focus-visible:ring-destructive/30" : ""}`}
+                    {...register("email")}
                   />
+                  {errors.email && (
+                    <p className="text-xs text-destructive mt-1">{errors.email.message}</p>
+                  )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label htmlFor="password">Contraseña</Label>
                   <div className="relative">
                     <Input
@@ -116,11 +115,9 @@ const Login = () => {
                       type={showPassword ? "text" : "password"}
                       autoComplete="current-password"
                       placeholder="Tu contraseña"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
                       disabled={login.isPending}
-                      required
-                      className="h-11 pr-12"
+                      className={`h-11 pr-12 ${errors.password ? "border-destructive focus-visible:ring-destructive/30" : ""}`}
+                      {...register("password")}
                     />
                     <button
                       type="button"
@@ -132,6 +129,9 @@ const Login = () => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.password && (
+                    <p className="text-xs text-destructive mt-1">{errors.password.message}</p>
+                  )}
                 </div>
 
                 <Button

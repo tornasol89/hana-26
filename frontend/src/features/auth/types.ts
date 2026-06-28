@@ -17,6 +17,7 @@ export interface Usuario {
   aceptoCompromiso: boolean;
   carnetFrenteUrl: string | null;
   carnetDorsoUrl: string | null;
+  rolesAdicionales: UserType[];
 }
 
 export interface AuthResponse {
@@ -40,6 +41,14 @@ export interface RegisterPayload {
   rut?: string;
   aceptoCompromiso: boolean;
   fechaAceptacion?: string;
+}
+
+export interface UpdateProfilePayload {
+  nombre?: string;
+  apellido?: string;
+  region?: string;
+  comuna?: string;
+  fechaNacimiento?: string;
 }
 
 export interface ApiError {
