@@ -30,25 +30,39 @@ const HeroSection = () => {
 
           {/* LOGO PROTAGONISTA */}
           <motion.div
-            className="flex flex-col items-center gap-1"
+            className="flex flex-col items-center gap-2"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <motion.img
-              src={hanaLogo}
-              alt="Hana"
-              className="h-40 sm:h-48 lg:h-52 w-auto drop-shadow-lg"
-              animate={{
-                filter: [
-                  "drop-shadow(0 0 12px rgba(124,58,237,0.3))",
-                  "drop-shadow(0 0 28px rgba(124,58,237,0.55))",
-                  "drop-shadow(0 0 12px rgba(124,58,237,0.3))",
-                ],
-              }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-              whileHover={{ scale: 1.04 }}
-            />
+            {/* Halo + logo */}
+            <div className="relative flex items-center justify-center">
+              {/* Halo de fondo */}
+              <div
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  width: "110%",
+                  height: "110%",
+                  background:
+                    "radial-gradient(ellipse at center, hsl(var(--primary) / 0.18) 0%, hsl(var(--primary) / 0.07) 50%, transparent 75%)",
+                  filter: "blur(18px)",
+                }}
+              />
+              <motion.img
+                src={hanaLogo}
+                alt="Hana"
+                className="relative h-56 sm:h-64 lg:h-72 w-auto"
+                animate={{
+                  filter: [
+                    "drop-shadow(0 0 16px rgba(124,58,237,0.35))",
+                    "drop-shadow(0 0 36px rgba(124,58,237,0.65))",
+                    "drop-shadow(0 0 16px rgba(124,58,237,0.35))",
+                  ],
+                }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.04 }}
+              />
+            </div>
 
             {/* Lema */}
             <motion.p
