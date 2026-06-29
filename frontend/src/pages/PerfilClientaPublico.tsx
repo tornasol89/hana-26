@@ -78,7 +78,7 @@ export default function PerfilClientaPublico() {
                     {(clienta as any).nombre} {(clienta as any).apellido}
                   </h1>
 
-                  {/* ValoraciÃ³n general */}
+                  {/* Valoración general */}
                   {totalResenas > 0 && (
                     <div className="flex items-center justify-center gap-1.5 mt-2">
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
@@ -86,7 +86,7 @@ export default function PerfilClientaPublico() {
                         {promedio.toFixed(1)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        ({totalResenas} {totalResenas === 1 ? "reseÃ±a" : "reseÃ±as"})
+                        ({totalResenas} {totalResenas === 1 ? "reseña" : "reseñas"})
                       </span>
                     </div>
                   )}
@@ -125,10 +125,10 @@ export default function PerfilClientaPublico() {
                             month: "long",
                             year: "numeric",
                           })
-                        : "â€”",
+                        : “—“,
                     },
-                    { label: "RegiÃ³n", valor: (clienta as any).region || "â€”" },
-                    { label: "Comuna", valor: (clienta as any).comuna || "â€”" },
+                    { label: "Región", valor: (clienta as any).region || “—“ },
+                    { label: "Comuna", valor: (clienta as any).comuna || “—“ },
                   ].map((row) => (
                     <div
                       key={row.label}
@@ -142,20 +142,20 @@ export default function PerfilClientaPublico() {
               </CardContent>
             </Card>
 
-            {/* SecciÃ³n de reseÃ±as */}
+            {/* Sección de reseñas */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
-                    ReseÃ±as recibidas
+                    Reseñas recibidas
                   </span>
                   {totalResenas > 0 && (
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                       <span className="text-sm font-semibold">{promedio.toFixed(1)}</span>
                       <span className="text-xs text-muted-foreground font-normal">
-                        / 5 Â· {totalResenas} {totalResenas === 1 ? "reseÃ±a" : "reseÃ±as"}
+                        / 5 · {totalResenas} {totalResenas === 1 ? "reseña" : "reseñas"}
                       </span>
                     </div>
                   )}
@@ -164,7 +164,7 @@ export default function PerfilClientaPublico() {
               <CardContent className="pt-0">
                 {totalResenas === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    Esta clienta aÃºn no tiene reseÃ±as.
+                    Esta clienta aún no tiene reseñas.
                   </p>
                 ) : (
                   <>

@@ -108,7 +108,7 @@ export default function MiPerfil() {
                     </Badge>
                   ) : enRevision ? (
                     <Badge variant="outline" className="gap-1 border-amber-400/50 text-amber-600">
-                      <Clock className="h-3 w-3" /> En revisiÃ³n
+                      <Clock className="h-3 w-3" /> En revisión
                     </Badge>
                   ) : (
                     <Badge variant="outline" className="gap-1 border-destructive/40 text-destructive">
@@ -116,15 +116,15 @@ export default function MiPerfil() {
                     </Badge>
                   )}
 
-                  {/* Badges de roles â€” uno o ambos */}
+                  {/* Badges de roles — uno o ambos */}
                   {tieneRolTrabajadora && (
                     <Badge variant="secondary" className="gap-1">
-                      ðŸŒ¸ Trabajadora
+                      🌸 Trabajadora
                     </Badge>
                   )}
                   {tieneRolClienta && (
                     <Badge variant="secondary" className="gap-1">
-                      ðŸŒ¸ Clienta
+                      🌸 Clienta
                     </Badge>
                   )}
 
@@ -156,12 +156,12 @@ export default function MiPerfil() {
                       enRevision ? "text-amber-900" : "text-destructive"
                     }`}
                   >
-                    {enRevision ? "VerificaciÃ³n en proceso" : "VerificaciÃ³n de identidad pendiente"}
+                    {enRevision ? "Verificación en proceso" : "Verificación de identidad pendiente"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {enRevision
-                      ? "Tu documento fue recibido. Te avisaremos en 24â€“48 hrs."
-                      : "Sube tu cÃ©dula de identidad para contratar o publicar servicios."}
+                      ? "Tu documento fue recibido. Te avisaremos en 24–48 hrs."
+                      : "Sube tu cédula de identidad para contratar o publicar servicios."}
                   </p>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function MiPerfil() {
                         <span className="text-[10px] font-semibold text-accent">Nuevo</span>
                       </span>
                     </div>
-                    <p className="text-xs text-white/55">Tendencias del mercado Â· consejos Â· guÃ­a de tarifas</p>
+                    <p className="text-xs text-white/55">Tendencias del mercado · consejos · guía de tarifas</p>
                   </div>
                 </div>
                 <div className="shrink-0 flex items-center gap-2">
@@ -217,7 +217,7 @@ export default function MiPerfil() {
               className="rounded-lg px-5"
               onClick={() => setModoPerfil("trabajadora")}
             >
-              ðŸŒ¸ Perfil trabajadora
+              🌸 Perfil trabajadora
             </Button>
             <Button
               variant={modoPerfil === "clienta" ? "default" : "ghost"}
@@ -225,7 +225,7 @@ export default function MiPerfil() {
               className="rounded-lg px-5"
               onClick={() => setModoPerfil("clienta")}
             >
-              ðŸŒ¸ Perfil clienta
+              🌸 Perfil clienta
             </Button>
           </div>
         )}
@@ -248,7 +248,7 @@ export default function MiPerfil() {
                 icon={Briefcase} label="Mis servicios" color="#b45309" bg="#fffbeb" />
             )}
             <TabItem value="verificacion" active={activeTab} onClick={cambiarTab}
-              icon={Shield} label="VerificaciÃ³n" color="#be123c" bg="#fff1f2" />
+              icon={Shield} label="Verificación" color="#be123c" bg="#fff1f2" />
             <TabItem value="reservas" active={activeTab} onClick={cambiarTab}
               icon={Calendar} label="Reservas" color="#9333ea" bg="#faf5ff"
               badge={reservas.length > 0 ? reservas.length : undefined} />
@@ -258,7 +258,7 @@ export default function MiPerfil() {
             )}
             {esTrabajadoraActiva && (
               <TabItem value="resenas" active={activeTab} onClick={cambiarTab}
-                icon={Star} label="ReseÃ±as" color="#b45309" bg="#fffbeb" />
+                icon={Star} label="Reseñas" color="#b45309" bg="#fffbeb" />
             )}
           </div>
 
@@ -303,7 +303,7 @@ export default function MiPerfil() {
   );
 }
 
-// â”€â”€ Tab item custom â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tab item custom ────────────────────────────────────────────────────────
 
 function TabItem({
   value,
