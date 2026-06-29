@@ -17,7 +17,7 @@ const CTASection = () => {
           Únete a la comunidad de mujeres que confían en Hana para conectar, trabajar y crecer juntas.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <AnimatedButtonWrapper gradient="gold" className="shadow-soft hover:shadow-md-elevated transition-all duration-300 hover:-translate-y-0.5">
+          <AnimatedButtonWrapper gradient="gold" className="w-full sm:w-auto shadow-soft hover:shadow-md-elevated transition-all duration-300 hover:-translate-y-0.5">
             <Button variant="gold" size="lg" asChild className="w-full">
               <Link to="/registro">
                 Crear mi Cuenta
@@ -25,9 +25,11 @@ const CTASection = () => {
               </Link>
             </Button>
           </AnimatedButtonWrapper>
-          <Button variant="ghost" size="lg" asChild className="w-full border border-white/50 text-white hover:bg-white/10 hover:text-white hover:border-white/70 transition-all duration-300 hover:-translate-y-0.5">
-            <Link to="/buscar">Explorar Servicios</Link>
-          </Button>
+          <div className="w-full sm:w-auto transition-all duration-300 hover:-translate-y-0.5">
+            <Button variant="ghost" size="lg" asChild className="w-full border border-white/50 text-white hover:bg-white/10 hover:text-white hover:border-white/70">
+              <Link to="/buscar">Explorar Servicios</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </section>
