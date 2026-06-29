@@ -12,7 +12,6 @@ import adminRoutes       from './routes/admin.js'
 import statsRoutes       from './routes/stats.js'
 import portfolioRoutes   from './routes/portfolio.js'
 import sugerenciasRoutes from './routes/sugerencias.js'
-import mongoose from 'mongoose'
 
 dotenv.config()
 
