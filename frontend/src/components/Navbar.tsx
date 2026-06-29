@@ -70,11 +70,11 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex items-center justify-between h-16">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 shrink-0">
+        <Link to="/" className="flex items-center gap-2.5 shrink-0">
           <motion.img
             src={hanaLogo}
             alt="Hana"
-            className="h-11"
+            className="h-11 w-auto"
             animate={{
               filter: [
                 "drop-shadow(0 0 7px rgba(124,58,237,0.35))",
@@ -85,6 +85,10 @@ const Navbar = () => {
             transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
             whileHover={{ scale: 1.07, filter: "drop-shadow(0 0 22px rgba(124,58,237,0.75))" }}
           />
+          <div className="flex flex-col leading-tight">
+            <span className="text-xs font-semibold text-primary tracking-wide">Hana</span>
+            <span className="hidden sm:block text-[10px] text-muted-foreground tracking-wide whitespace-nowrap">Hecho por mujeres, para mujeres</span>
+          </div>
         </Link>
 
         {/* Desktop nav */}
