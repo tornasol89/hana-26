@@ -87,7 +87,7 @@ const HeroSection = () => {
           >
             <AnimatedButtonWrapper
               gradient="nebula"
-              className="shadow-soft hover:shadow-md-elevated transition-all duration-300 hover:-translate-y-0.5"
+              className="w-full sm:w-auto shadow-soft hover:shadow-md-elevated transition-all duration-300 hover:-translate-y-0.5"
             >
               <Button variant="hero" size="lg" asChild className="w-full">
                 <Link to="/buscar">
@@ -96,17 +96,12 @@ const HeroSection = () => {
                 </Link>
               </Button>
             </AnimatedButtonWrapper>
-            <AnimatedButtonWrapper
-              gradient="violet"
-              className="hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5"
-            >
-              <Button variant="outline-hero" size="lg" asChild className="w-full">
-                <Link to="/registro">
-                  Ofrecer mis Servicios
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </AnimatedButtonWrapper>
+            <Button variant="outline-hero" size="lg" asChild className="w-full sm:w-auto hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
+              <Link to="/registro">
+                Ofrecer mis Servicios
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </motion.div>
 
           {/* Trust indicators */}
