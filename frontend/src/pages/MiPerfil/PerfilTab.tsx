@@ -31,6 +31,7 @@ import {
 interface Props {
   user: Usuario;
   reservas: Booking[];
+  modoActivo: "clienta" | "trabajadora";
 }
 
 function calcularConfianza(reservas: Booking[]) {
@@ -60,7 +61,7 @@ function getFechaMinima(): string {
   return min.toISOString().split("T")[0];
 }
 
-export function PerfilTab({ user, reservas }: Props) {
+export function PerfilTab({ user, reservas, modoActivo }: Props) {
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState({
     nombre: user.nombre,
@@ -77,6 +78,7 @@ export function PerfilTab({ user, reservas }: Props) {
   const logout = useLogout();
 
   const esTrabajadora = user.tipo === "trabajadora";
+  const esTrabajadoraActiva = modoActivo === "trabajadora";
   const confianza = calcularConfianza(reservas);
 
   // ¿Debe mostrar el banner de "completá tu fecha"?
@@ -382,9 +384,9 @@ export function PerfilTab({ user, reservas }: Props) {
         </CardContent>
       </Card>
 
-      {esTrabajadora && <CertificadosSection />}
+      {esTrabajadoraActiva && <CertificadosSection />}
 
-      {esTrabajadora && (
+      {esTrabajadoraActiva && (
         <div className="text-center">
           <Button asChild variant="outline">
             <Link to="/mi-calendario">
