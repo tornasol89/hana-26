@@ -10,7 +10,7 @@ import { useAdminUsuarias } from "@/features/admin/hooks";
 export function VerificacionTab() {
   const { data: usuarias, isLoading, isError, refetch } = useAdminUsuarias();
 
-  // Pendientes = todas las que NO están aprobadas
+  // Pendientes = todas las que NO están aprobadas (el admin debe evaluarlas)
   const pendientes = useMemo(() => {
     if (!usuarias) return [];
     return usuarias.filter((u) => u.estadoVerificacion !== "aprobado");

@@ -102,7 +102,7 @@ router.get('/stats', async (req, res) => {
       User.countDocuments({ tipo: 'trabajadora' }),
       User.countDocuments({ tipo: 'clienta' }),
       Booking.countDocuments(),
-      User.countDocuments({ estadoVerificacion: 'enviado' }),
+      User.countDocuments({ estadoVerificacion: { $ne: 'aprobado' }, tipo: { $ne: 'admin' } }),
 
       // Reservas agrupadas por estado
       Booking.aggregate([
