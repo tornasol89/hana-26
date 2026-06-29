@@ -6,10 +6,11 @@ import ThreeDPhotoCarousel from "@/components/ui/three-d-carousel";
 import { AnimatedButtonWrapper } from "@/components/ui/bg-animate-button";
 import { TextureOverlay } from "@/components/ui/texture-overlay";
 import { TextGif, HANA_GIFS } from "@/components/ui/text-gif";
+import hanaLogo from "@/assets/hana-logo.png";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[92vh] flex flex-col items-stretch bg-gradient-warm pt-16 overflow-hidden">
+    <section className="relative min-h-[92vh] flex flex-col items-stretch bg-gradient-warm pt-20 overflow-hidden">
       <TextureOverlay texture="paperGrain" opacity={0.4} />
 
       {/* Glow decorativo */}
@@ -22,57 +23,76 @@ const HeroSection = () => {
       />
 
       {/* Contenido principal */}
-      <div className="flex-1 container mx-auto px-4 grid lg:grid-cols-2 gap-10 lg:gap-12 items-center relative z-10 py-8">
+      <div className="flex-1 container mx-auto px-4 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10 py-8">
 
         {/* ── Columna izquierda ────────────────────────────────── */}
-        <div className="space-y-5 lg:space-y-7">
+        <div className="flex flex-col items-center lg:items-start gap-5 lg:gap-6">
 
-          {/* Badge */}
+          {/* LOGO PROTAGONISTA */}
           <motion.div
-            className="inline-flex items-center gap-2 bg-purple-light border border-primary/10 px-4 py-1.5 rounded-full shadow-xs"
-            initial={{ opacity: 0, y: 10 }}
+            className="flex flex-col items-center lg:items-start gap-3"
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse-soft" />
-            <span className="text-xs font-semibold text-primary tracking-wide">
-              Hecho por mujeres, para mujeres
-            </span>
+            <motion.img
+              src={hanaLogo}
+              alt="Hana"
+              className="h-40 sm:h-48 lg:h-52 w-auto drop-shadow-lg"
+              animate={{
+                filter: [
+                  "drop-shadow(0 0 12px rgba(124,58,237,0.3))",
+                  "drop-shadow(0 0 28px rgba(124,58,237,0.55))",
+                  "drop-shadow(0 0 12px rgba(124,58,237,0.3))",
+                ],
+              }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+              whileHover={{ scale: 1.04 }}
+            />
+
+            {/* Nombre + lema */}
+            <div className="text-center lg:text-left">
+              <motion.p
+                className="text-xs font-semibold text-primary/70 tracking-[0.25em] uppercase"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                Hecho por mujeres, para mujeres
+              </motion.p>
+            </div>
           </motion.div>
 
-          {/* Título */}
-          <h1 className="font-display">
-            {/* Línea de apoyo */}
+          {/* Titular */}
+          <h1 className="font-display text-center lg:text-left">
             <motion.span
               className="block text-base sm:text-xl md:text-2xl font-medium text-foreground/50 tracking-tight leading-snug"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.55, delay: 0.22 }}
+              transition={{ duration: 0.55, delay: 0.35 }}
             >
               Tu talento y tu hogar merecen
             </motion.span>
 
-            {/* Protagonista — tamaño controlado por breakpoint */}
             <motion.span
               className="block pr-2"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.55, delay: 0.36 }}
+              transition={{ duration: 0.55, delay: 0.48 }}
             >
               <TextGif
                 text="lo mejor."
                 gifUrl={HANA_GIFS.galaxy}
                 fallbackColor="hsl(270 50% 70%)"
-                className="text-[2.2rem] sm:text-[3rem] md:text-[4rem] lg:text-[5rem] font-bold italic leading-none"
+                className="text-[2.2rem] sm:text-[3rem] md:text-[4rem] lg:text-[4.5rem] font-bold italic leading-none"
               />
             </motion.span>
 
-            {/* Sub-descripción */}
             <motion.span
               className="block text-sm sm:text-base md:text-lg font-medium text-foreground/45 tracking-tight leading-relaxed mt-1"
               initial={{ opacity: 0, x: -18 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.55, delay: 0.5 }}
+              transition={{ duration: 0.55, delay: 0.6 }}
             >
               Conectamos profesionales verificadas con personas que cuidan su hogar.
             </motion.span>
@@ -80,10 +100,10 @@ const HeroSection = () => {
 
           {/* Botones */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-3"
+            className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.65 }}
+            transition={{ duration: 0.5, delay: 0.75 }}
           >
             <AnimatedButtonWrapper
               gradient="nebula"
@@ -106,10 +126,10 @@ const HeroSection = () => {
 
           {/* Trust indicators */}
           <motion.div
-            className="flex items-center gap-4 sm:gap-6 pt-1"
+            className="flex items-center gap-4 sm:gap-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.8 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
           >
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4 text-primary shrink-0" />
@@ -123,13 +143,7 @@ const HeroSection = () => {
           </motion.div>
         </div>
 
-        {/* ── Columna derecha: carrusel — solo en lg+ ──────────── */}
-        {/*
-          Ocultamos el carrusel 3D en pantallas < lg (1024px) porque:
-          1. overflow:hidden no clipea correctamente con transform-style:preserve-3d en iOS Safari
-          2. En la vista de 1 columna el carrusel empuja el layout verticalmente
-          3. En móvil, el texto y los botones son más importantes
-        */}
+        {/* ── Columna derecha: carrusel (solo lg+) ──────────── */}
         <motion.div
           className="hidden lg:flex flex-col gap-4"
           initial={{ opacity: 0, scale: 0.97 }}
@@ -143,21 +157,19 @@ const HeroSection = () => {
                 <Star className="h-4 w-4 text-accent-foreground" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-card-foreground">
-                  +500 profesionales
-                </p>
+                <p className="text-sm font-semibold text-card-foreground">+500 profesionales</p>
                 <p className="text-xs text-muted-foreground">verificadas en Chile</p>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* ── Visual alternativo en móvil/tablet (< lg) ────────── */}
+        {/* Badge móvil */}
         <motion.div
-          className="flex lg:hidden justify-center"
+          className="flex lg:hidden justify-center -mt-4"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
         >
           <div className="inline-flex items-center gap-3 bg-card rounded-xl px-5 py-3.5 shadow-card border border-border/60">
             <div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold shrink-0">
@@ -171,7 +183,7 @@ const HeroSection = () => {
         </motion.div>
       </div>
 
-      {/* ── Scroll cue ─────────────────────────────────────────── */}
+      {/* Scroll cue */}
       <motion.div
         className="flex justify-center pb-6 relative z-10"
         initial={{ opacity: 0 }}
