@@ -1,6 +1,6 @@
 import type { UserType } from "@/features/auth/types";
 
-export type EstadoVerificacion = "pendiente" | "enviado" | "aprobado" | "rechazado";
+export type EstadoVerificacion = "sin_enviar" | "enviado" | "aprobado" | "rechazado";
 
 /** Usuaria como la devuelve /api/admin/usuarias */
 export interface UsuariaAdmin {

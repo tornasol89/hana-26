@@ -12,7 +12,7 @@ import { UsuariaActions } from "./UsuariaActions";
 import type { EstadoVerificacion, UsuariaAdmin } from "../types";
 
 const VERIFICACION_LABEL: Record<EstadoVerificacion, string> = {
-  pendiente: "Sin enviar",
+  sin_enviar: "Sin enviar",
   enviado: "En revisión",
   aprobado: "Verificada",
   rechazado: "Rechazada",
@@ -21,7 +21,7 @@ const VERIFICACION_LABEL: Record<EstadoVerificacion, string> = {
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 const VERIFICACION_VARIANT: Record<EstadoVerificacion, BadgeVariant> = {
-  pendiente: "outline",
+  sin_enviar: "outline",
   enviado: "secondary",
   aprobado: "default",
   rechazado: "destructive",
@@ -39,7 +39,7 @@ export function UsuariaCard({ usuaria }: Props) {
   const iniciales =
     `${usuaria.nombre?.[0] ?? ""}${usuaria.apellido?.[0] ?? ""}`.toUpperCase() || "?";
 
-  const estado = (usuaria.estadoVerificacion ?? "pendiente") as EstadoVerificacion;
+  const estado = (usuaria.estadoVerificacion ?? "sin_enviar") as EstadoVerificacion;
   const desactivada = usuaria.activa === false;
 
   return (
