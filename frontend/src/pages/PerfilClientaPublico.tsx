@@ -125,10 +125,10 @@ export default function PerfilClientaPublico() {
                             month: "long",
                             year: "numeric",
                           })
-                        : “-”,
+                        : "-",
                     },
-                    { label: “Región”, valor: (clienta as any).region || “-” },
-                    { label: “Comuna”, valor: (clienta as any).comuna || “-” },
+                    { label: "Región", valor: (clienta as any).region || "-" },
+                    { label: "Comuna", valor: (clienta as any).comuna || "-" },
                   ].map((row) => (
                     <div
                       key={row.label}

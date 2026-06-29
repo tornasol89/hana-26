@@ -83,7 +83,7 @@ export default function WorkerProfilePage() {
 
   const { perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta, certificadaChilevalora } = data;
 
-  // ─── Lógica de “¿puede reservar?” ───
+  // ─── Lógica de "¿puede reservar?" ───
 
   // Es el propio perfil de la trabajadora logueada
   const esMiPropioPerfil =
