@@ -14,7 +14,8 @@ export function useAdminStats() {
   return useQuery({
     queryKey: adminKeys.stats(),
     queryFn: adminApi.getStats,
-    staleTime: 1000 * 60,
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 30,
   });
 }
 
