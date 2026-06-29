@@ -68,6 +68,13 @@ export default function MiPerfil() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
+  // Sincroniza el tab activo si cambia el query param (ej: click en notificación
+  // estando ya en /mi-perfil, donde no hay remount y el useState inicial queda obsoleto)
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
+
   const modoActivo = (perfilDual ? modoPerfil : (user?.tipo ?? "clienta")) as "clienta" | "trabajadora";
   const esTrabajadoraActiva = modoActivo === "trabajadora";
   const esClientaActiva = modoActivo === "clienta";
