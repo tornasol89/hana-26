@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { AlertTriangle, LayoutDashboard, MessageSquare, ShieldAlert, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,7 +47,7 @@ export default function PerfilAdmin() {
     <div className="min-h-screen bg-gradient-warm">
       <Navbar />
 
-      <div className="pt-20 pb-12 container mx-auto px-4 max-w-5xl space-y-6">
+      <div className="pt-24 pb-12 container mx-auto px-4 max-w-5xl space-y-6">
         {/* Hero */}
         <Card>
           <CardContent className="p-6 md:p-8">
@@ -90,7 +90,7 @@ export default function PerfilAdmin() {
             </TabsTrigger>
             <TabsTrigger value="verificacion">
               <ShieldAlert className="h-4 w-4 mr-1" />
-              Verificación
+              VerificaciÃ³n
               {stats && stats.pendientesVerif > 0
                 ? ` (${stats.pendientesVerif})`
                 : ""}
@@ -141,3 +141,4 @@ export default function PerfilAdmin() {
     </div>
   );
 }
+

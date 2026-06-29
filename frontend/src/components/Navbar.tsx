@@ -67,14 +67,14 @@ const Navbar = () => {
       }}
       style={{ backdropFilter: "blur(14px)" }}
     >
-      <div className="container mx-auto px-4 flex items-center justify-between h-16">
+      <div className="container mx-auto px-4 flex items-center justify-between h-20">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
+        <Link to="/" className="flex items-center gap-3 shrink-0">
           <motion.img
             src={hanaLogo}
             alt="Hana"
-            className="h-14 w-auto"
+            className="h-16 w-auto"
             animate={{
               filter: [
                 "drop-shadow(0 0 7px rgba(124,58,237,0.35))",

@@ -101,7 +101,7 @@ export default function MiCalendario() {
     <div className="min-h-screen bg-gradient-warm">
       <Navbar />
 
-      <div className="pt-20 pb-12 container mx-auto px-4 max-w-2xl">
+      <div className="pt-24 pb-12 container mx-auto px-4 max-w-2xl">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
@@ -239,7 +239,6 @@ export default function MiCalendario() {
                   />
                 </div>
 
-                {/* Lista de fechas bloqueadas */}
                 {bloqueadosOrdenados.length > 0 && (
                   <div className="mt-4 space-y-1.5">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
@@ -275,7 +274,6 @@ export default function MiCalendario() {
           </div>
         )}
 
-        {/* Guardar */}
         <div className="mt-6 flex justify-end">
           <Button
             variant="hero"

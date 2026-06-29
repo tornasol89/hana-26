@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -28,7 +28,7 @@ export default function WorkerProfilePage() {
 
   const { data, isLoading, isError, error, refetch } = useWorker(id);
 
-  // Hook must be called unconditionally — before any early returns
+  // Hook must be called unconditionally â€” before any early returns
   const { data: portfolioItems = [] } = useWorkerPortfolio(id);
 
   if (isLoading) {
@@ -83,7 +83,7 @@ export default function WorkerProfilePage() {
 
   const { perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta, certificadaChilevalora } = data;
 
-  // ─── Lógica de "¿puede reservar?" ───
+  // â”€â”€â”€ LÃ³gica de "Â¿puede reservar?" â”€â”€â”€
 
   // Es el propio perfil de la trabajadora logueada
   const esMiPropioPerfil =
@@ -91,7 +91,7 @@ export default function WorkerProfilePage() {
     perfil.usuario &&
     (user.id === perfil.usuario._id || user.id === perfil.usuario.id);
 
-  // Solo mostramos el botón si NO es su propio perfil
+  // Solo mostramos el botÃ³n si NO es su propio perfil
   const mostrarBotonReservar = !esMiPropioPerfil;
 
   const nombreCompleto =
@@ -100,7 +100,7 @@ export default function WorkerProfilePage() {
 
   function handleReservarClick() {
     if (!isAuthenticated) {
-      toast.error("Debes iniciar sesión para reservar");
+      toast.error("Debes iniciar sesiÃ³n para reservar");
       navigate("/login");
       return;
     }
@@ -111,8 +111,8 @@ export default function WorkerProfilePage() {
     <div className="min-h-screen bg-gradient-warm">
       <Navbar />
 
-      <div className="pt-20 pb-12 container mx-auto px-4 max-w-4xl space-y-6">
-        {/* Botón volver */}
+      <div className="pt-24 pb-12 container mx-auto px-4 max-w-4xl space-y-6">
+        {/* BotÃ³n volver */}
         <Button
           variant="ghost"
           size="sm"
@@ -149,7 +149,7 @@ export default function WorkerProfilePage() {
           <CardContent>
             <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
               {perfil.descripcion?.trim() ||
-                "La profesional aún no ha añadido una descripción de su servicio."}
+                "La profesional aÃºn no ha aÃ±adido una descripciÃ³n de su servicio."}
             </p>
           </CardContent>
         </Card>
@@ -183,11 +183,11 @@ export default function WorkerProfilePage() {
           </Card>
         )}
 
-        {/* Reseñas */}
+        {/* ReseÃ±as */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Reseñas de clientas
+              ReseÃ±as de clientas
               {reviews.length > 0 && (
                 <span className="ml-2 text-sm font-normal text-muted-foreground">
                   ({reviews.length})
@@ -198,7 +198,7 @@ export default function WorkerProfilePage() {
           <CardContent>
             {reviews.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">
-                Aún no hay reseñas. ¡Sé la primera en dejarle una opinión!
+                AÃºn no hay reseÃ±as. Â¡SÃ© la primera en dejarle una opiniÃ³n!
               </p>
             ) : (
               <ReviewsList data={{ promedio, total: reviews.length, reviews }} />
@@ -206,7 +206,7 @@ export default function WorkerProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Botón volver al final */}
+        {/* BotÃ³n volver al final */}
         <div className="flex justify-center pt-4">
           <Button variant="outline" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />

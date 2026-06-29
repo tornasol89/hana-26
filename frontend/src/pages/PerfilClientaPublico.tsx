@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+﻿import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MapPin, MessageSquare, ShieldAlert, ShieldCheck, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,7 +36,7 @@ export default function PerfilClientaPublico() {
   return (
     <div className="min-h-screen bg-gradient-warm">
       <Navbar />
-      <div className="pt-20 pb-12 container mx-auto px-4 max-w-lg">
+      <div className="pt-24 pb-12 container mx-auto px-4 max-w-lg">
         <Button
           variant="ghost"
           className="mb-4 gap-2"
@@ -78,7 +78,7 @@ export default function PerfilClientaPublico() {
                     {(clienta as any).nombre} {(clienta as any).apellido}
                   </h1>
 
-                  {/* Valoración general */}
+                  {/* ValoraciÃ³n general */}
                   {totalResenas > 0 && (
                     <div className="flex items-center justify-center gap-1.5 mt-2">
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
@@ -86,7 +86,7 @@ export default function PerfilClientaPublico() {
                         {promedio.toFixed(1)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        ({totalResenas} {totalResenas === 1 ? "reseña" : "reseñas"})
+                        ({totalResenas} {totalResenas === 1 ? "reseÃ±a" : "reseÃ±as"})
                       </span>
                     </div>
                   )}
@@ -125,10 +125,10 @@ export default function PerfilClientaPublico() {
                             month: "long",
                             year: "numeric",
                           })
-                        : "—",
+                        : "â€”",
                     },
-                    { label: "Región", valor: (clienta as any).region || "—" },
-                    { label: "Comuna", valor: (clienta as any).comuna || "—" },
+                    { label: "RegiÃ³n", valor: (clienta as any).region || "â€”" },
+                    { label: "Comuna", valor: (clienta as any).comuna || "â€”" },
                   ].map((row) => (
                     <div
                       key={row.label}
@@ -142,20 +142,20 @@ export default function PerfilClientaPublico() {
               </CardContent>
             </Card>
 
-            {/* Sección de reseñas */}
+            {/* SecciÃ³n de reseÃ±as */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
-                    Reseñas recibidas
+                    ReseÃ±as recibidas
                   </span>
                   {totalResenas > 0 && (
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                       <span className="text-sm font-semibold">{promedio.toFixed(1)}</span>
                       <span className="text-xs text-muted-foreground font-normal">
-                        / 5 · {totalResenas} {totalResenas === 1 ? "reseña" : "reseñas"}
+                        / 5 Â· {totalResenas} {totalResenas === 1 ? "reseÃ±a" : "reseÃ±as"}
                       </span>
                     </div>
                   )}
@@ -164,7 +164,7 @@ export default function PerfilClientaPublico() {
               <CardContent className="pt-0">
                 {totalResenas === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    Esta clienta aún no tiene reseñas.
+                    Esta clienta aÃºn no tiene reseÃ±as.
                   </p>
                 ) : (
                   <>
@@ -198,3 +198,4 @@ export default function PerfilClientaPublico() {
     </div>
   );
 }
+

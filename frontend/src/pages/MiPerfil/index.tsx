@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { ResenasTab } from "./ResenasTab";
 import { Briefcase } from "lucide-react";
@@ -84,7 +84,7 @@ export default function MiPerfil() {
     <div className="min-h-screen bg-gradient-warm">
       <Navbar />
 
-      <div className="pt-20 pb-12 container mx-auto px-4 max-w-4xl">
+      <div className="pt-24 pb-12 container mx-auto px-4 max-w-4xl">
         <Card className="mb-6 overflow-hidden">
           <CardContent className="p-6 md:p-8">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6">
@@ -108,7 +108,7 @@ export default function MiPerfil() {
                     </Badge>
                   ) : enRevision ? (
                     <Badge variant="outline" className="gap-1 border-amber-400/50 text-amber-600">
-                      <Clock className="h-3 w-3" /> En revisión
+                      <Clock className="h-3 w-3" /> En revisiÃ³n
                     </Badge>
                   ) : (
                     <Badge variant="outline" className="gap-1 border-destructive/40 text-destructive">
@@ -116,15 +116,15 @@ export default function MiPerfil() {
                     </Badge>
                   )}
 
-                  {/* Badges de roles — uno o ambos */}
+                  {/* Badges de roles â€” uno o ambos */}
                   {tieneRolTrabajadora && (
                     <Badge variant="secondary" className="gap-1">
-                      🌸 Trabajadora
+                      ðŸŒ¸ Trabajadora
                     </Badge>
                   )}
                   {tieneRolClienta && (
                     <Badge variant="secondary" className="gap-1">
-                      🌸 Clienta
+                      ðŸŒ¸ Clienta
                     </Badge>
                   )}
 
@@ -156,12 +156,12 @@ export default function MiPerfil() {
                       enRevision ? "text-amber-900" : "text-destructive"
                     }`}
                   >
-                    {enRevision ? "Verificación en proceso" : "Verificación de identidad pendiente"}
+                    {enRevision ? "VerificaciÃ³n en proceso" : "VerificaciÃ³n de identidad pendiente"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {enRevision
-                      ? "Tu documento fue recibido. Te avisaremos en 24–48 hrs."
-                      : "Sube tu cédula de identidad para contratar o publicar servicios."}
+                      ? "Tu documento fue recibido. Te avisaremos en 24â€“48 hrs."
+                      : "Sube tu cÃ©dula de identidad para contratar o publicar servicios."}
                   </p>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function MiPerfil() {
                         <span className="text-[10px] font-semibold text-accent">Nuevo</span>
                       </span>
                     </div>
-                    <p className="text-xs text-white/55">Tendencias del mercado · consejos · guía de tarifas</p>
+                    <p className="text-xs text-white/55">Tendencias del mercado Â· consejos Â· guÃ­a de tarifas</p>
                   </div>
                 </div>
                 <div className="shrink-0 flex items-center gap-2">
@@ -217,7 +217,7 @@ export default function MiPerfil() {
               className="rounded-lg px-5"
               onClick={() => setModoPerfil("trabajadora")}
             >
-              🌸 Perfil trabajadora
+              ðŸŒ¸ Perfil trabajadora
             </Button>
             <Button
               variant={modoPerfil === "clienta" ? "default" : "ghost"}
@@ -225,7 +225,7 @@ export default function MiPerfil() {
               className="rounded-lg px-5"
               onClick={() => setModoPerfil("clienta")}
             >
-              🌸 Perfil clienta
+              ðŸŒ¸ Perfil clienta
             </Button>
           </div>
         )}
@@ -248,7 +248,7 @@ export default function MiPerfil() {
                 icon={Briefcase} label="Mis servicios" color="#b45309" bg="#fffbeb" />
             )}
             <TabItem value="verificacion" active={activeTab} onClick={cambiarTab}
-              icon={Shield} label="Verificación" color="#be123c" bg="#fff1f2" />
+              icon={Shield} label="VerificaciÃ³n" color="#be123c" bg="#fff1f2" />
             <TabItem value="reservas" active={activeTab} onClick={cambiarTab}
               icon={Calendar} label="Reservas" color="#9333ea" bg="#faf5ff"
               badge={reservas.length > 0 ? reservas.length : undefined} />
@@ -258,7 +258,7 @@ export default function MiPerfil() {
             )}
             {esTrabajadoraActiva && (
               <TabItem value="resenas" active={activeTab} onClick={cambiarTab}
-                icon={Star} label="Reseñas" color="#b45309" bg="#fffbeb" />
+                icon={Star} label="ReseÃ±as" color="#b45309" bg="#fffbeb" />
             )}
           </div>
 
@@ -303,7 +303,7 @@ export default function MiPerfil() {
   );
 }
 
-// ── Tab item custom ────────────────────────────────────────────────────────
+// â”€â”€ Tab item custom â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function TabItem({
   value,
@@ -358,3 +358,4 @@ function TabItem({
     </motion.button>
   );
 }
+

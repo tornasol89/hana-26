@@ -1,4 +1,4 @@
-import Navbar from "@/components/Navbar";
+﻿import Navbar from "@/components/Navbar";
 import { RegistroHeader } from "@/features/auth/components/RegistroHeader";
 import { RegistroForm } from "@/features/auth/components/RegistroForm";
 import { BlobsDecoBackground } from "@/features/auth/components/BlobsDecoBackground";
@@ -9,7 +9,7 @@ const Registro = () => (
     <BlobsDecoBackground />
     <Navbar />
 
-    <div className="flex items-center justify-center min-h-screen pt-20 pb-8 px-4">
+    <div className="flex items-center justify-center min-h-screen pt-24 pb-8 px-4">
       <div className="w-full max-w-md animate-scale-in">
         <div className="rounded-2xl shadow-soft overflow-hidden">
           <RegistroHeader />
