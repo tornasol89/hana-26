@@ -40,9 +40,14 @@ export function PortfolioGrid({ items, editable = false }: Props) {
         {items.map((item) => (
           <div
             key={item._id}
+            role="button"
+            tabIndex={0}
             className="relative group rounded-xl overflow-hidden bg-muted cursor-pointer"
             style={{ aspectRatio: "4/3" }}
             onClick={() => setViendoItem(item)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") setViendoItem(item);
+            }}
           >
             <img
               src={item.fotoUrl}
@@ -51,7 +56,7 @@ export function PortfolioGrid({ items, editable = false }: Props) {
             />
 
             {/* Overlay oscuro al hover */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center pointer-events-none">
               <ZoomIn className="h-7 w-7 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 

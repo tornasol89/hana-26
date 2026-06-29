@@ -23,9 +23,7 @@ export const portfolioApi = {
     form.append("titulo", payload.titulo);
     if (payload.descripcion) form.append("descripcion", payload.descripcion);
     if (payload.reservaId) form.append("reservaId", payload.reservaId);
-    const { data } = await api.post<PortfolioItem>("/portfolio", form, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const { data } = await api.post<PortfolioItem>("/portfolio", form);
     return data;
   },
 
