@@ -20,6 +20,7 @@ import DashboardTrabajadora from "./pages/DashboardTrabajadora";
 import NotFound from "./pages/NotFound.tsx";
 import PerfilAdmin from "./pages/PerfilAdmin";
 import PerfilClientaPublico from "./pages/PerfilClientaPublico";
+import MiCalendario from "./pages/MiCalendario";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,6 +65,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedTypes={["trabajadora"]}>
                   <DashboardTrabajadora />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mi-calendario"
+              element={
+                <ProtectedRoute allowedTypes={["trabajadora"]}>
+                  <MiCalendario />
                 </ProtectedRoute>
               }
             />

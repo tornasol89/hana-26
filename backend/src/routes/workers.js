@@ -254,6 +254,35 @@ router.delete('/mi-perfil/certificados/:certId', protegerRuta, async (req, res) 
   }
 })
 
+// GET /api/workers/mi-disponibilidad — obtener horario semanal propio
+router.get('/mi-disponibilidad', protegerRuta, async (req, res) => {
+  try {
+    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id }).select('horarioSemanal')
+    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
+    res.json({ horarioSemanal: perfil.horarioSemanal })
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener disponibilidad', error: error.message })
+  }
+})
+
+// PUT /api/workers/mi-disponibilidad — guardar horario semanal propio
+router.put('/mi-disponibilidad', protegerRuta, async (req, res) => {
+  try {
+    const { horarioSemanal } = req.body
+    if (!Array.isArray(horarioSemanal) || horarioSemanal.length !== 7) {
+      return res.status(400).json({ mensaje: 'horarioSemanal debe ser un array de 7 días' })
+    }
+    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
+    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
+
+    perfil.horarioSemanal = horarioSemanal
+    await perfil.save()
+    res.json({ horarioSemanal: perfil.horarioSemanal })
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al guardar disponibilidad', error: error.message })
+  }
+})
+
 // PUT /api/workers/:id — actualizar por ID (requiere ser dueña)
 router.put('/:id', protegerRuta, async (req, res) => {
   try {

@@ -71,6 +71,14 @@ const workerProfileSchema = new mongoose.Schema({
   // true cuando al menos un certificado tiene institucion = "Chilevalora"
   certificadaChilevalora: { type: Boolean, default: false },
 
+  // Disponibilidad semanal recurrente (7 días, 0=domingo … 6=sábado)
+  horarioSemanal: [{
+    dia:    { type: Number, min: 0, max: 6, required: true },
+    activo: { type: Boolean, default: false },
+    inicio: { type: String, default: '09:00' },
+    fin:    { type: String, default: '18:00' },
+  }],
+
 }, { timestamps: true })
 
 export default mongoose.model('WorkerProfile', workerProfileSchema)

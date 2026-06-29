@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/features/auth/utils";
 import { workersApi } from "./api";
-import type { WorkerFilters, WorkerProfileInput } from "./types";
+import type { WorkerFilters, WorkerProfileInput, HorarioSemanal } from "./types";
 
 export const workerKeys = {
   all: ["workers"] as const,
@@ -11,6 +11,7 @@ export const workerKeys = {
   details: () => [...workerKeys.all, "detail"] as const,
   detail: (id: string) => [...workerKeys.details(), id] as const,
   myProfile: () => [...workerKeys.all, "mine"] as const,
+  disponibilidad: () => [...workerKeys.all, "disponibilidad"] as const,
 };
 
 export function useWorkers(filters: WorkerFilters = {}) {
@@ -83,6 +84,26 @@ export function useEliminarCertificado() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: workerKeys.myProfile() });
       toast.success("Certificado eliminado");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useDisponibilidad() {
+  return useQuery({
+    queryKey: workerKeys.disponibilidad(),
+    queryFn: () => workersApi.getDisponibilidad(),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useUpdateDisponibilidad() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (horario: HorarioSemanal) => workersApi.updateDisponibilidad(horario),
+    onSuccess: (data) => {
+      queryClient.setQueryData(workerKeys.disponibilidad(), data);
+      toast.success("Disponibilidad guardada");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   });

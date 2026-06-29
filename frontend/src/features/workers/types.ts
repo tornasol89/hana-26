@@ -87,3 +87,12 @@ export interface WorkerFilters {
   subcategoria?: string;
   region?: string;
 }
+
+export interface HorarioDia {
+  dia: number;
+  activo: boolean;
+  inicio: string;
+  fin: string;
+}
+
+export type HorarioSemanal = HorarioDia[];

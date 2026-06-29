@@ -4,6 +4,7 @@ import type {
   WorkerDetail,
   WorkerFilters,
   WorkerProfileInput,
+  HorarioSemanal,
 } from "./types";
 
 export const workersApi = {
@@ -59,5 +60,15 @@ export const workersApi = {
   eliminarCertificado: async (certId: string): Promise<WorkerProfile> => {
     const { data } = await api.delete<WorkerProfile>(`/workers/mi-perfil/certificados/${certId}`);
     return data;
+  },
+
+  getDisponibilidad: async (): Promise<HorarioSemanal> => {
+    const { data } = await api.get<{ horarioSemanal: HorarioSemanal }>("/workers/mi-disponibilidad");
+    return data.horarioSemanal;
+  },
+
+  updateDisponibilidad: async (horarioSemanal: HorarioSemanal): Promise<HorarioSemanal> => {
+    const { data } = await api.put<{ horarioSemanal: HorarioSemanal }>("/workers/mi-disponibilidad", { horarioSemanal });
+    return data.horarioSemanal;
   },
 };
