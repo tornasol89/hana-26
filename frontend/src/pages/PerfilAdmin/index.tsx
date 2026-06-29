@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAdminStats } from "@/features/admin/hooks";
+import { useAdminStats, useAdminUsuarias } from "@/features/admin/hooks";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { PanelTab } from "./PanelTab";
@@ -34,6 +34,9 @@ export default function PerfilAdmin() {
   }, []);
 
   const { data: stats } = useAdminStats();
+  const { data: todasUsuarias = [] } = useAdminUsuarias();
+  // Calculado directo desde la lista real, no desde el stat cacheado
+  const pendientesVerif = todasUsuarias.filter((u) => u.estadoVerificacion !== "aprobado").length;
 
   const { data: disputas = [] } = useQuery({
     queryKey: ["admin", "disputas"],
@@ -121,7 +124,7 @@ export default function PerfilAdmin() {
               {[
                 { label: "Usuarias", val: stats?.totalUsuarias ?? "—" },
                 { label: "Trabajadoras", val: stats?.totalTrabajadoras ?? "—" },
-                { label: "Pendientes", val: stats?.pendientesVerif ?? "—" },
+                { label: "Pendientes", val: pendientesVerif },
               ].map((s) => (
                 <div key={s.label} className="px-4 border-l border-white/[0.07] first:border-0">
                   <p className="text-2xl font-bold font-mono text-violet-300">{s.val}</p>
@@ -161,7 +164,7 @@ export default function PerfilAdmin() {
                   value: "verificacion",
                   icon: ShieldAlert,
                   label: "Verificación",
-                  badge: stats && stats.pendientesVerif > 0 ? stats.pendientesVerif : null,
+                  badge: pendientesVerif > 0 ? pendientesVerif : null,
                   badgeColor: "bg-amber-500",
                 },
                 {

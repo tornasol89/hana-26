@@ -13,7 +13,7 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
-import { useAdminStats } from "@/features/admin/hooks";
+import { useAdminStats, useAdminUsuarias } from "@/features/admin/hooks";
 
 interface Props {
   onNavigate: (tab: "panel" | "usuarios" | "verificacion" | "disputas" | "sugerencias") => void;
@@ -76,6 +76,8 @@ function KPI({
 
 export function PanelTab({ onNavigate }: Props) {
   const { data, isLoading, isError, refetch, isFetching, dataUpdatedAt } = useAdminStats();
+  const { data: todasUsuarias = [] } = useAdminUsuarias();
+  const pendientesVerif = todasUsuarias.filter((u) => u.estadoVerificacion !== "aprobado").length;
 
   const updatedStr = dataUpdatedAt
     ? new Date(dataUpdatedAt).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
@@ -135,9 +137,9 @@ export function PanelTab({ onNavigate }: Props) {
           <KPI icon={Briefcase} value={data.totalTrabajadoras} label="Trabajadoras" delay={0.1} />
           <KPI
             icon={ShieldAlert}
-            value={data.pendientesVerif}
+            value={pendientesVerif}
             label="Pend. verificación"
-            color={data.pendientesVerif > 0 ? "text-red-400" : "text-green-400"}
+            color={pendientesVerif > 0 ? "text-red-400" : "text-green-400"}
             delay={0.15}
           />
         </div>
@@ -203,7 +205,7 @@ export function PanelTab({ onNavigate }: Props) {
             <div className="space-y-2">
               {[
                 { label: `Ver todas las usuarias (${data.totalUsuarias})`, tab: "usuarios" as const, icon: Users },
-                { label: `Revisar verificaciones (${data.pendientesVerif})`, tab: "verificacion" as const, icon: ShieldAlert, alert: data.pendientesVerif > 0 },
+                { label: `Revisar verificaciones (${pendientesVerif})`, tab: "verificacion" as const, icon: ShieldAlert, alert: pendientesVerif > 0 },
                 { label: "Ver sugerencias y reclamos", tab: "sugerencias" as const, icon: MessageSquare },
               ].map((a) => (
                 <button
