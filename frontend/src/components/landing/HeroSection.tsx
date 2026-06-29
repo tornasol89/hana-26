@@ -30,7 +30,7 @@ const HeroSection = () => {
 
           {/* LOGO PROTAGONISTA */}
           <motion.div
-            className="flex flex-col items-center lg:items-start gap-3"
+            className="flex flex-col items-center gap-1"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
@@ -50,17 +50,15 @@ const HeroSection = () => {
               whileHover={{ scale: 1.04 }}
             />
 
-            {/* Nombre + lema */}
-            <div className="text-center lg:text-left">
-              <motion.p
-                className="text-xs font-semibold text-primary/70 tracking-[0.25em] uppercase"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                Hecho por mujeres, para mujeres
-              </motion.p>
-            </div>
+            {/* Lema */}
+            <motion.p
+              className="text-xs font-semibold text-primary/70 tracking-[0.25em] uppercase text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              Hecho por mujeres, para mujeres
+            </motion.p>
           </motion.div>
 
           {/* Titular */}

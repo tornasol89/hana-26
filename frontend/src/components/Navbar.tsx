@@ -15,7 +15,6 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useLogout } from "@/features/auth/hooks";
 import { NotificacionesBell } from "@/components/NotificacionesBell";
-import hanaLogo from "@/assets/hana-logo.png";
 import { AnimatedButtonWrapper } from "@/components/ui/bg-animate-button";
 
 const LINKS_PUBLICOS = [
@@ -70,23 +69,9 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex items-center justify-between h-20">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 shrink-0">
-          <motion.img
-            src={hanaLogo}
-            alt="Hana"
-            className="h-16 w-auto"
-            animate={{
-              filter: [
-                "drop-shadow(0 0 7px rgba(124,58,237,0.35))",
-                "drop-shadow(0 0 14px rgba(124,58,237,0.6))",
-                "drop-shadow(0 0 7px rgba(124,58,237,0.35))",
-              ],
-            }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-            whileHover={{ scale: 1.07, filter: "drop-shadow(0 0 22px rgba(124,58,237,0.75))" }}
-          />
+        <Link to="/" className="flex items-center shrink-0">
           <div className="flex flex-col leading-tight">
-            <span className="text-xs font-semibold text-primary tracking-wide">Hana</span>
+            <span className="text-lg font-bold font-display text-primary tracking-tight">Hana</span>
             <span className="hidden sm:block text-[10px] text-muted-foreground tracking-wide whitespace-nowrap">Hecho por mujeres, para mujeres</span>
           </div>
         </Link>
