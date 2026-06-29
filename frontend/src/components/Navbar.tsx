@@ -74,7 +74,7 @@ const Navbar = () => {
           <motion.img
             src={hanaLogo}
             alt="Hana"
-            className="h-11 w-auto"
+            className="h-14 w-auto"
             animate={{
               filter: [
                 "drop-shadow(0 0 7px rgba(124,58,237,0.35))",
