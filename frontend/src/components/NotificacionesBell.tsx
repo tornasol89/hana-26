@@ -31,11 +31,15 @@ const ICON: Record<TipoNotificacion, React.ReactNode> = {
 
 export function NotificacionesBell() {
   const [open, setOpen] = useState(false);
-  const notificaciones = useNotificaciones();
+  const [vistas, setVistas] = useState<Set<string>>(new Set());
+  const todas = useNotificaciones();
   const navigate = useNavigate();
+
+  const notificaciones = todas.filter((n) => !vistas.has(n.id));
   const count = notificaciones.length;
 
   function handleClick(n: Notificacion) {
+    setVistas((prev) => new Set([...prev, n.id]));
     setOpen(false);
     navigate(`/mi-perfil?tab=reservas&reserva=${n.bookingId}`);
   }
