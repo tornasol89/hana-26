@@ -15,7 +15,6 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useLogout } from "@/features/auth/hooks";
 import { NotificacionesBell } from "@/components/NotificacionesBell";
-import { AnimatedButtonWrapper } from "@/components/ui/bg-animate-button";
 
 const LINKS_PUBLICOS = [
   { to: "/", label: "Inicio" },
@@ -143,16 +142,12 @@ const Navbar = () => {
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <AnimatedButtonWrapper gradient="violet">
-                <Button variant="outline-hero" size="sm" asChild className="w-full">
-                  <Link to="/login">Iniciar Sesión</Link>
-                </Button>
-              </AnimatedButtonWrapper>
-              <AnimatedButtonWrapper gradient="nebula">
-                <Button variant="hero" size="sm" asChild className="w-full">
-                  <Link to="/registro">Registrarse</Link>
-                </Button>
-              </AnimatedButtonWrapper>
+              <Button variant="outline" size="sm" asChild className="border-primary/40 text-primary hover:bg-primary/8 hover:border-primary transition-colors duration-200">
+                <Link to="/login">Iniciar Sesión</Link>
+              </Button>
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/registro">Registrarse</Link>
+              </Button>
             </div>
           )}
         </div>
