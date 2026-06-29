@@ -23,177 +23,172 @@ const HeroSection = () => {
       />
 
       {/* Contenido principal */}
-      <div className="flex-1 container mx-auto px-4 flex flex-col gap-4 lg:gap-6 relative z-10 py-6">
+      <div className="flex-1 container mx-auto px-4 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10 py-8">
 
-        {/* ── LOGO: fila completa centrada (protagonista) ─── */}
-        <motion.div
-          className="flex flex-col items-center gap-2"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="relative flex items-center justify-center">
-            {/* Halo */}
-            <div
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                width: "120%",
-                height: "120%",
-                background:
-                  "radial-gradient(ellipse at center, hsl(var(--primary) / 0.2) 0%, hsl(var(--primary) / 0.08) 50%, transparent 75%)",
-                filter: "blur(24px)",
-              }}
-            />
-            <motion.img
-              src={hanaLogo}
-              alt="Hana"
-              className="relative h-56 sm:h-64 lg:h-80 w-auto"
-              animate={{
-                filter: [
-                  "drop-shadow(0 0 16px rgba(124,58,237,0.35))",
-                  "drop-shadow(0 0 40px rgba(124,58,237,0.7))",
-                  "drop-shadow(0 0 16px rgba(124,58,237,0.35))",
-                ],
-              }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-              whileHover={{ scale: 1.04 }}
-            />
-          </div>
-          <motion.p
-            className="text-xs font-semibold text-primary/70 tracking-[0.25em] uppercase text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
+        {/* ── Columna izquierda ────────────────────────────────── */}
+        <div className="flex flex-col items-center lg:items-start gap-5 lg:gap-6">
+
+          {/* LOGO PROTAGONISTA */}
+          <motion.div
+            className="flex flex-col items-center gap-2"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            Hecho por mujeres, para mujeres
-          </motion.p>
-        </motion.div>
-
-        {/* ── Fila inferior: titular + carrusel ─────────── */}
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-
-          {/* Columna izquierda */}
-          <div className="flex flex-col items-center lg:items-start gap-4 lg:gap-5">
-
-            {/* Titular */}
-            <h1 className="font-display text-center lg:text-left">
-              <motion.span
-                className="block text-base sm:text-xl md:text-2xl font-medium text-foreground/50 tracking-tight leading-snug"
-                initial={{ opacity: 0, x: -18 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.55, delay: 0.35 }}
-              >
-                Tu talento y tu hogar merecen
-              </motion.span>
-
-              <motion.span
-                className="block pr-2"
-                initial={{ opacity: 0, x: -18 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.55, delay: 0.48 }}
-              >
-                <TextGif
-                  text="lo mejor."
-                  gifUrl={HANA_GIFS.galaxy}
-                  fallbackColor="hsl(270 50% 70%)"
-                  className="text-[2.2rem] sm:text-[3rem] md:text-[4rem] lg:text-[4.5rem] font-bold italic leading-none"
-                />
-              </motion.span>
-
-              <motion.span
-                className="block text-sm sm:text-base md:text-lg font-medium text-foreground/45 tracking-tight leading-relaxed mt-1"
-                initial={{ opacity: 0, x: -18 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.55, delay: 0.6 }}
-              >
-                Conectamos profesionales verificadas con personas que cuidan su hogar.
-              </motion.span>
-            </h1>
-
-            {/* Botones */}
-            <motion.div
-              className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.75 }}
-            >
-              <AnimatedButtonWrapper
-                gradient="nebula"
-                className="w-full sm:w-auto shadow-soft hover:shadow-md-elevated transition-all duration-300 hover:-translate-y-0.5"
-              >
-                <Button variant="hero" size="lg" asChild className="w-full">
-                  <Link to="/buscar">
-                    <Search className="mr-2 h-5 w-5" />
-                    Buscar Profesionales
-                  </Link>
-                </Button>
-              </AnimatedButtonWrapper>
-              <Button variant="outline-hero" size="lg" asChild className="w-full sm:w-auto hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
-                <Link to="/registro">
-                  Ofrecer mis Servicios
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </motion.div>
-
-            {/* Trust indicators */}
-            <motion.div
-              className="flex items-center gap-4 sm:gap-6"
+            <div className="relative flex items-center justify-center">
+              <div
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  width: "110%",
+                  height: "110%",
+                  background:
+                    "radial-gradient(ellipse at center, hsl(var(--primary) / 0.18) 0%, hsl(var(--primary) / 0.07) 50%, transparent 75%)",
+                  filter: "blur(18px)",
+                }}
+              />
+              <motion.img
+                src={hanaLogo}
+                alt="Hana"
+                className="relative h-56 sm:h-64 lg:h-72 w-auto"
+                animate={{
+                  filter: [
+                    "drop-shadow(0 0 16px rgba(124,58,237,0.35))",
+                    "drop-shadow(0 0 36px rgba(124,58,237,0.65))",
+                    "drop-shadow(0 0 16px rgba(124,58,237,0.35))",
+                  ],
+                }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.04 }}
+              />
+            </div>
+            <motion.p
+              className="text-xs font-semibold text-primary/70 tracking-[0.25em] uppercase text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.9 }}
+              transition={{ delay: 0.4 }}
             >
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Shield className="h-4 w-4 text-primary shrink-0" />
-                Identidad verificada
-              </div>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 text-accent shrink-0" />
-                Reseñas reales
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Columna derecha: carrusel (solo lg+) */}
-          <motion.div
-            className="hidden lg:flex flex-col gap-4"
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <ThreeDPhotoCarousel />
-            <div className="flex justify-center">
-              <div className="inline-flex items-center gap-3 bg-card rounded-xl px-5 py-3 shadow-card border border-border/60 animate-float">
-                <div className="w-9 h-9 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold shrink-0">
-                  <Star className="h-4 w-4 text-accent-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-card-foreground">+500 profesionales</p>
-                  <p className="text-xs text-muted-foreground">verificadas en Chile</p>
-                </div>
-              </div>
-            </div>
+              Hecho por mujeres, para mujeres
+            </motion.p>
           </motion.div>
 
-          {/* Badge móvil */}
+          {/* Titular */}
+          <h1 className="font-display text-center lg:text-left">
+            <motion.span
+              className="block text-base sm:text-xl md:text-2xl font-medium text-foreground/50 tracking-tight leading-snug"
+              initial={{ opacity: 0, x: -18 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.55, delay: 0.35 }}
+            >
+              Tu talento y tu hogar merecen
+            </motion.span>
+
+            <motion.span
+              className="block pr-2"
+              initial={{ opacity: 0, x: -18 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.55, delay: 0.48 }}
+            >
+              <TextGif
+                text="lo mejor."
+                gifUrl={HANA_GIFS.galaxy}
+                fallbackColor="hsl(270 50% 70%)"
+                className="text-[2.2rem] sm:text-[3rem] md:text-[4rem] lg:text-[4.5rem] font-bold italic leading-none"
+              />
+            </motion.span>
+
+            <motion.span
+              className="block text-sm sm:text-base md:text-lg font-medium text-foreground/45 tracking-tight leading-relaxed mt-1"
+              initial={{ opacity: 0, x: -18 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.55, delay: 0.6 }}
+            >
+              Conectamos profesionales verificadas con personas que cuidan su hogar.
+            </motion.span>
+          </h1>
+
+          {/* Botones */}
           <motion.div
-            className="flex lg:hidden justify-center -mt-4"
-            initial={{ opacity: 0, y: 12 }}
+            className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.5, delay: 0.75 }}
           >
-            <div className="inline-flex items-center gap-3 bg-card rounded-xl px-5 py-3.5 shadow-card border border-border/60">
-              <div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold shrink-0">
-                <Star className="h-5 w-5 text-accent-foreground" />
-              </div>
-              <div>
-                <p className="text-base font-semibold text-card-foreground">+500 profesionales</p>
-                <p className="text-sm text-muted-foreground">verificadas en Chile</p>
-              </div>
+            <AnimatedButtonWrapper
+              gradient="nebula"
+              className="w-full sm:w-auto shadow-soft hover:shadow-md-elevated transition-all duration-300 hover:-translate-y-0.5"
+            >
+              <Button variant="hero" size="lg" asChild className="w-full">
+                <Link to="/buscar">
+                  <Search className="mr-2 h-5 w-5" />
+                  Buscar Profesionales
+                </Link>
+              </Button>
+            </AnimatedButtonWrapper>
+            <Button variant="outline-hero" size="lg" asChild className="w-full sm:w-auto hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
+              <Link to="/registro">
+                Ofrecer mis Servicios
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
+
+          {/* Trust indicators */}
+          <motion.div
+            className="flex items-center gap-4 sm:gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
+          >
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Shield className="h-4 w-4 text-primary shrink-0" />
+              Identidad verificada
+            </div>
+            <div className="w-px h-4 bg-border" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Star className="h-4 w-4 text-accent shrink-0" />
+              Reseñas reales
             </div>
           </motion.div>
         </div>
+
+        {/* ── Columna derecha: carrusel (solo lg+) ──────────── */}
+        <motion.div
+          className="hidden lg:flex flex-col gap-4"
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <ThreeDPhotoCarousel />
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-3 bg-card rounded-xl px-5 py-3 shadow-card border border-border/60 animate-float">
+              <div className="w-9 h-9 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold shrink-0">
+                <Star className="h-4 w-4 text-accent-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-card-foreground">+500 profesionales</p>
+                <p className="text-xs text-muted-foreground">verificadas en Chile</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Badge móvil */}
+        <motion.div
+          className="flex lg:hidden justify-center -mt-4"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+        >
+          <div className="inline-flex items-center gap-3 bg-card rounded-xl px-5 py-3.5 shadow-card border border-border/60">
+            <div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold shrink-0">
+              <Star className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-base font-semibold text-card-foreground">+500 profesionales</p>
+              <p className="text-sm text-muted-foreground">verificadas en Chile</p>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Scroll cue */}
