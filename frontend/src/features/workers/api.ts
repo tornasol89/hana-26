@@ -5,6 +5,7 @@ import type {
   WorkerFilters,
   WorkerProfileInput,
   HorarioSemanal,
+  Disponibilidad,
 } from "./types";
 
 export const workersApi = {
@@ -62,13 +63,13 @@ export const workersApi = {
     return data;
   },
 
-  getDisponibilidad: async (): Promise<HorarioSemanal> => {
-    const { data } = await api.get<{ horarioSemanal: HorarioSemanal }>("/workers/mi-disponibilidad");
-    return data.horarioSemanal;
+  getDisponibilidad: async (): Promise<Disponibilidad> => {
+    const { data } = await api.get<Disponibilidad>("/workers/mi-disponibilidad");
+    return data;
   },
 
-  updateDisponibilidad: async (horarioSemanal: HorarioSemanal): Promise<HorarioSemanal> => {
-    const { data } = await api.put<{ horarioSemanal: HorarioSemanal }>("/workers/mi-disponibilidad", { horarioSemanal });
-    return data.horarioSemanal;
+  updateDisponibilidad: async (payload: Partial<Disponibilidad>): Promise<Disponibilidad> => {
+    const { data } = await api.put<Disponibilidad>("/workers/mi-disponibilidad", payload);
+    return data;
   },
 };

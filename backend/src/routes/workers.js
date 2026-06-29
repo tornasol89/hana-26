@@ -257,27 +257,39 @@ router.delete('/mi-perfil/certificados/:certId', protegerRuta, async (req, res) 
 // GET /api/workers/mi-disponibilidad — obtener horario semanal propio
 router.get('/mi-disponibilidad', protegerRuta, async (req, res) => {
   try {
-    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id }).select('horarioSemanal')
+    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id }).select('horarioSemanal diasBloqueados')
     if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
-    res.json({ horarioSemanal: perfil.horarioSemanal })
+    res.json({ horarioSemanal: perfil.horarioSemanal, diasBloqueados: perfil.diasBloqueados ?? [] })
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al obtener disponibilidad', error: error.message })
   }
 })
 
-// PUT /api/workers/mi-disponibilidad — guardar horario semanal propio
+// PUT /api/workers/mi-disponibilidad — guardar horario semanal y/o días bloqueados
 router.put('/mi-disponibilidad', protegerRuta, async (req, res) => {
   try {
-    const { horarioSemanal } = req.body
-    if (!Array.isArray(horarioSemanal) || horarioSemanal.length !== 7) {
-      return res.status(400).json({ mensaje: 'horarioSemanal debe ser un array de 7 días' })
-    }
+    const { horarioSemanal, diasBloqueados } = req.body
     const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
     if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
 
-    perfil.horarioSemanal = horarioSemanal
+    if (horarioSemanal !== undefined) {
+      if (!Array.isArray(horarioSemanal) || horarioSemanal.length !== 7) {
+        return res.status(400).json({ mensaje: 'horarioSemanal debe ser un array de 7 días' })
+      }
+      perfil.horarioSemanal = horarioSemanal
+    }
+
+    if (diasBloqueados !== undefined) {
+      if (!Array.isArray(diasBloqueados)) {
+        return res.status(400).json({ mensaje: 'diasBloqueados debe ser un array' })
+      }
+      // Solo fechas futuras (hoy incluido) — limpiar pasadas automáticamente
+      const hoy = new Date().toISOString().slice(0, 10)
+      perfil.diasBloqueados = diasBloqueados.filter(d => d >= hoy)
+    }
+
     await perfil.save()
-    res.json({ horarioSemanal: perfil.horarioSemanal })
+    res.json({ horarioSemanal: perfil.horarioSemanal, diasBloqueados: perfil.diasBloqueados })
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al guardar disponibilidad', error: error.message })
   }

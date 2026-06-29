@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/features/auth/utils";
 import { workersApi } from "./api";
-import type { WorkerFilters, WorkerProfileInput, HorarioSemanal } from "./types";
+import type { WorkerFilters, WorkerProfileInput, HorarioSemanal, Disponibilidad } from "./types";
 
 export const workerKeys = {
   all: ["workers"] as const,
@@ -100,7 +100,7 @@ export function useDisponibilidad() {
 export function useUpdateDisponibilidad() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (horario: HorarioSemanal) => workersApi.updateDisponibilidad(horario),
+    mutationFn: (payload: Partial<Disponibilidad>) => workersApi.updateDisponibilidad(payload),
     onSuccess: (data) => {
       queryClient.setQueryData(workerKeys.disponibilidad(), data);
       toast.success("Disponibilidad guardada");
@@ -108,3 +108,6 @@ export function useUpdateDisponibilidad() {
     onError: (error) => toast.error(getErrorMessage(error)),
   });
 }
+
+// Alias para el tipo importado externamente
+export type { HorarioSemanal, Disponibilidad };

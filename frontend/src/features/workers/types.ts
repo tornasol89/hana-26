@@ -96,3 +96,8 @@ export interface HorarioDia {
 }
 
 export type HorarioSemanal = HorarioDia[];
+
+export interface Disponibilidad {
+  horarioSemanal: HorarioSemanal;
+  diasBloqueados: string[];
+}

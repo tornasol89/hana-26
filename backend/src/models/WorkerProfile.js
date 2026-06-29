@@ -79,6 +79,9 @@ const workerProfileSchema = new mongoose.Schema({
     fin:    { type: String, default: '18:00' },
   }],
 
+  // Fechas específicas bloqueadas (formato YYYY-MM-DD)
+  diasBloqueados: [{ type: String }],
+
 }, { timestamps: true })
 
 export default mongoose.model('WorkerProfile', workerProfileSchema)
