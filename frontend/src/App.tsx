@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound.tsx";
 import PerfilAdmin from "./pages/PerfilAdmin";
 import PerfilClientaPublico from "./pages/PerfilClientaPublico";
 import MiCalendario from "./pages/MiCalendario";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             {/* Públicas */}
             <Route path="/" element={<Index />} />
