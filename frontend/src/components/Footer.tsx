@@ -70,14 +70,15 @@ const Footer = () => {
       <div className="container mx-auto px-4 pt-14 pb-8 relative z-10">
 
         {/* Fila principal */}
-        <div className="grid md:grid-cols-5 gap-10 mb-12">
+        <div className="grid md:grid-cols-6 gap-10 mb-12">
 
           {/* Marca */}
-          <div className="md:col-span-1">
+          <div className="md:col-span-2">
             <motion.img
               src={hanaLogo}
               alt="Hana"
-              className="h-10 brightness-[2] saturate-50 mb-4"
+              className="h-24 w-auto mb-3"
+              style={{ filter: "drop-shadow(0 0 12px rgba(124,58,237,0.45))" }}
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             />
@@ -102,7 +103,7 @@ const Footer = () => {
           </div>
 
           {/* Links */}
-          <div className="md:col-span-4 grid grid-cols-2 sm:grid-cols-5 gap-8">
+          <div className="md:col-span-4 grid grid-cols-2 sm:grid-cols-5 gap-8 md:col-start-3">
             <FooterCol title="Plataforma" links={LINKS.plataforma} />
             <FooterCol title="Trabajadoras" links={LINKS.trabajadoras} />
             <FooterCol title="Empresa" links={LINKS.empresa} />
