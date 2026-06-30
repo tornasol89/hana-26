@@ -5,6 +5,7 @@ import Booking from '../models/Booking.js'
 import protegerRuta from '../middleware/auth.js'
 import mongoose from 'mongoose'
 import { uploadCertificado } from '../config/cloudinary.js'
+import { aHoraLocalHHMM, rangoDiaLocalUTC } from '../utils/timezone.js'
 
 function esChilevalora(institucion = '') {
   return institucion.trim().toLowerCase().includes('chilevalora')
@@ -190,11 +191,14 @@ router.get('/:id/horarios-ocupados', async (req, res) => {
       return res.status(400).json({ mensaje: 'ID de trabajadora inválido' })
     }
 
-    const inicio = new Date(`${fecha}T00:00:00.000Z`)
-    const fin    = new Date(`${fecha}T23:59:59.999Z`)
-    if (isNaN(inicio.getTime())) {
+    // Validación de formato (se mantiene igual que antes)
+    const fechaValidacion = new Date(`${fecha}T00:00:00.000Z`)
+    if (isNaN(fechaValidacion.getTime())) {
       return res.status(400).json({ mensaje: 'Fecha inválida' })
     }
+
+    // Rango del día calendario en hora de Chile (no medianoche-a-medianoche UTC)
+    const { inicio, fin } = rangoDiaLocalUTC(fecha)
 
     const reservas = await Booking.find({
       trabajadora: new mongoose.Types.ObjectId(req.params.id),
@@ -203,11 +207,7 @@ router.get('/:id/horarios-ocupados', async (req, res) => {
     }).select('fecha').lean()
 
     const horasOcupadas = reservas
-      .map(r => {
-        if (!r.fecha) return null
-        const local = new Date(r.fecha.getTime() - 3 * 60 * 60 * 1000)
-        return local.toISOString().slice(11, 16)
-      })
+      .map(r => aHoraLocalHHMM(r.fecha))
       .filter(Boolean)
 
     res.json({ horasOcupadas })
