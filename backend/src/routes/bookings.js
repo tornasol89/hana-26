@@ -252,6 +252,11 @@ router.put('/:id/completar', protegerRuta, async (req, res) => {
     const reserva = await Booking.findById(req.params.id)
     if (!reserva) return res.status(404).json({ mensaje: 'Reserva no encontrada' })
 
+    const { esTrabajadora, esClienta } = await identificarRol(reserva, req.usuario.id)
+    if (!esTrabajadora && !esClienta) {
+      return res.status(403).json({ mensaje: 'No tienes permiso para completar esta reserva' })
+    }
+
     reserva.estado = 'completada'
     await reserva.save()
     res.json(reserva)
@@ -259,5 +264,6 @@ router.put('/:id/completar', protegerRuta, async (req, res) => {
     res.status(500).json({ mensaje: 'Error al completar reserva', error: error.message })
   }
 })
+
 
 export default router
