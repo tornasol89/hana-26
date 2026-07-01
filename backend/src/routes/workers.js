@@ -294,21 +294,6 @@ router.delete('/mi-perfil/certificados/:certId', protegerRuta, async (req, res) 
   }
 })
 
-// PUT /api/workers/:id — actualizar por ID (requiere ser dueña)
-router.put('/:id', protegerRuta, async (req, res) => {
-  try {
-    const perfil = await WorkerProfile.findById(req.params.id)
-    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
 
-    if (perfil.usuario.toString() !== req.usuario.id) {
-      return res.status(403).json({ mensaje: 'No tienes permiso para editar este perfil' })
-    }
-
-    const actualizado = await WorkerProfile.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    res.json(actualizado)
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al actualizar perfil', error: error.message })
-  }
-})
 
 export default router

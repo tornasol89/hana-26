@@ -294,12 +294,31 @@ router.get('/perfiles', async (req, res) => {
 // PATCH /api/admin/perfiles/:id — editar perfil profesional
 router.patch('/perfiles/:id', async (req, res) => {
   try {
+    // Único set editable por el admin. NUNCA: usuario (dueño), indiceConfianza,
+    // serviciosCompletados, tasaRespuesta, certificadaChilevalora, metricas
+    // → son derivados/calculados por el sistema.
+    const CAMPOS_EDITABLES = [
+      'categoria', 'subcategoria', 'descripcion',
+      'tarifaHora', 'modalidad', 'nivelExperiencia', 'disponible',
+    ]
+
+    const cambios = {}
+    for (const campo of CAMPOS_EDITABLES) {
+      if (req.body[campo] !== undefined) cambios[campo] = req.body[campo]
+    }
+
     const actualizado = await WorkerProfile.findByIdAndUpdate(
-      req.params.id, req.body, { new: true }
+      req.params.id,
+      cambios,
+      { new: true, runValidators: true }
     )
     if (!actualizado) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
     res.json(actualizado)
   } catch (e) {
+    if (e.name === 'ValidationError') {
+      const primerError = Object.values(e.errors)[0]
+      return res.status(400).json({ mensaje: primerError.message })
+    }
     res.status(500).json({ mensaje: 'Error al actualizar perfil', error: e.message })
   }
 })
