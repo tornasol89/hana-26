@@ -1,10 +1,11 @@
 import express from 'express'
 import Suggestion from '../models/Suggestion.js'
+import { limiterPublico } from '../middleware/rateLimit.js'
 
 const router = express.Router()
 
 // POST /api/sugerencias — pública, no requiere autenticación
-router.post('/', async (req, res) => {
+router.post('/',limiterPublico, async (req, res) => {
   try {
     const { tipo, nombre, email, categoria, mensaje, valoracion } = req.body
 

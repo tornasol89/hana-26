@@ -40,7 +40,7 @@ function formatearUsuario(u) {
 // ─────────────────────────────────────────────────────────────────────────
 
 // POST /api/auth/register
-router.post('/register',limiterLogin, async (req, res) => {
+router.post('/register',limiterRegistro, async (req, res) => {
   try {
     const {
       nombre, apellido, email, password, tipo,
