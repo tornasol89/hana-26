@@ -41,7 +41,7 @@ router.post('/', protegerRuta, async (req, res) => {
 
     res.status(201).json(reservaCompleta)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al crear reserva', error: error.message })
+    res.status(500).json({ mensaje: 'Error al crear reserva' })
   }
 })
 
@@ -77,7 +77,7 @@ router.get('/mis-reservas', protegerRuta, async (req, res) => {
 
     res.json(reservas)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener reservas', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener reservas' })
   }
 })
 
@@ -99,7 +99,7 @@ router.put('/:id/aceptar', protegerRuta, async (req, res) => {
     await reserva.save()
     res.json(reserva)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al aceptar reserva', error: error.message })
+    res.status(500).json({ mensaje: 'Error al aceptar reserva' })
   }
 })
 
@@ -120,7 +120,7 @@ router.put('/:id/rechazar', protegerRuta, async (req, res) => {
     await reserva.save()
     res.json(reserva)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al rechazar reserva', error: error.message })
+    res.status(500).json({ mensaje: 'Error al rechazar reserva' })
   }
 })
 
@@ -168,7 +168,7 @@ router.put('/:id/confirmar-inicio', protegerRuta, async (req, res) => {
     await reserva.save()
     res.json(await populateReserva(reserva._id))
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al confirmar inicio', error: error.message })
+    res.status(500).json({ mensaje: 'Error al confirmar inicio' })
   }
 })
 
@@ -200,7 +200,7 @@ router.put('/:id/confirmar-fin', protegerRuta, async (req, res) => {
     await reserva.save()
     res.json(await populateReserva(reserva._id))
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al confirmar fin', error: error.message })
+    res.status(500).json({ mensaje: 'Error al confirmar fin' })
   }
 })
 
@@ -242,7 +242,7 @@ router.put('/:id/disputar', protegerRuta, async (req, res) => {
     await reserva.save()
     res.json(await populateReserva(reserva._id))
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al crear disputa', error: error.message })
+    res.status(500).json({ mensaje: 'Error al crear disputa' })
   }
 })
 
@@ -261,7 +261,7 @@ router.put('/:id/completar', protegerRuta, async (req, res) => {
     await reserva.save()
     res.json(reserva)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al completar reserva', error: error.message })
+    res.status(500).json({ mensaje: 'Error al completar reserva' })
   }
 })
 

@@ -1,4 +1,3 @@
-// backend/src/utils/index.js
 export { capitalizarNombre, normalizarRut } from './normalize.js';
 export {
   validarRut,
@@ -8,3 +7,4 @@ export {
   EDAD_MINIMA,
 } from './validators.js';
 export { aHoraLocalHHMM, rangoDiaLocalUTC, TIMEZONE_HANA } from './timezone.js';
+export { default as AppError } from './AppError.js';

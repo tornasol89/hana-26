@@ -53,7 +53,7 @@ router.get('/no-leidos', protegerRuta, async (req, res) => {
 
     res.json({ count: grupos.reduce((s, g) => s + g.count, 0), reservas: reservasConMensajes })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al contar no leídos', error: error.message })
+    res.status(500).json({ mensaje: 'Error al contar no leídos' })
   }
 })
 
@@ -69,7 +69,7 @@ router.get('/:reservaId', protegerRuta, async (req, res) => {
 
     res.json(mensajes)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener mensajes', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener mensajes' })
   }
 })
 
@@ -98,7 +98,7 @@ router.post('/:reservaId', protegerRuta, async (req, res) => {
     const mensajePopulado = await mensaje.populate('autor', 'nombre apellido foto tipo')
     res.status(201).json(mensajePopulado)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al enviar mensaje', error: error.message })
+    res.status(500).json({ mensaje: 'Error al enviar mensaje' })
   }
 })
 
@@ -119,7 +119,7 @@ router.put('/:reservaId/leer', protegerRuta, async (req, res) => {
 
     res.json({ ok: true })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al marcar como leídos', error: error.message })
+    res.status(500).json({ mensaje: 'Error al marcar como leídos' })
   }
 })
 

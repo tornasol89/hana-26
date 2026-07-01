@@ -56,7 +56,7 @@ router.post('/', protegerRuta, async (req, res) => {
 
     res.status(201).json(review)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al crear evaluación', error: error.message })
+    res.status(500).json({ mensaje: 'Error al crear evaluación' })
   }
 })
 
@@ -69,7 +69,7 @@ router.get('/reserva/:reservaId', protegerRuta, async (req, res) => {
     })
     res.json({ yaEvaluo: !!review, review })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al verificar evaluación', error: error.message })
+    res.status(500).json({ mensaje: 'Error al verificar evaluación' })
   }
 })
 
@@ -88,7 +88,7 @@ router.get('/:usuarioId', async (req, res) => {
 
     res.json({ promedio, total: reviews.length, reviews })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener evaluaciones', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener evaluaciones' })
   }
 })
 

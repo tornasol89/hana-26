@@ -113,7 +113,7 @@ router.post('/register',limiterRegistro, async (req, res) => {
       return res.status(400).json({ mensaje: primerError.message })
     }
 
-    res.status(500).json({ mensaje: 'Error en el servidor', error: error.message })
+    res.status(500).json({ mensaje: 'Error en el servidor' })
   }
 })
 
@@ -145,7 +145,7 @@ router.post('/login',limiterLogin, async (req, res) => {
     res.json({ token, usuario: formatearUsuario(usuario) })
   } catch (error) {
     console.error('Error en login:', error)
-    res.status(500).json({ mensaje: 'Error en el servidor', error: error.message })
+    res.status(500).json({ mensaje: 'Error en el servidor' })
   }
 })
 
@@ -201,7 +201,7 @@ router.post('/upload-photo', protegerRuta, upload.single('image'), async (req, r
     res.json({ mensaje: 'Foto actualizada', foto: usuario.foto, usuario: formatearUsuario(usuario) })
   } catch (error) {
     console.error('Error al subir foto:', error)
-    res.status(500).json({ mensaje: 'Error al procesar la imagen', error: error.message })
+    res.status(500).json({ mensaje: 'Error al procesar la imagen' })
   }
 })
 
@@ -228,7 +228,7 @@ router.post('/upload-carnet', protegerRuta, uploadDocumento.single('image'), asy
     res.json({ mensaje: 'Documento subido', url: req.file.path, usuario: formatearUsuario(usuario) })
   } catch (error) {
     console.error('Error al subir carnet:', error)
-    res.status(500).json({ mensaje: 'Error al procesar el documento', error: error.message })
+    res.status(500).json({ mensaje: 'Error al procesar el documento' })
   }
 })
 
@@ -278,7 +278,7 @@ router.get('/clienta/:id', protegerRuta, async (req, res) => {
 
     res.json(clienta)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener perfil', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener perfil' })
   }
 })
 

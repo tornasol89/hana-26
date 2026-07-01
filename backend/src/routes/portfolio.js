@@ -58,7 +58,7 @@ router.post('/', protegerRuta, uploadPortfolio.single('foto'), async (req, res) 
 
     res.status(201).json(itemPoblado)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al subir portafolio', error: error.message })
+    res.status(500).json({ mensaje: 'Error al subir portafolio' })
   }
 })
 
@@ -76,7 +76,7 @@ router.get('/mis-items', protegerRuta, async (req, res) => {
 
     res.json(items)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener portafolio', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener portafolio' })
   }
 })
 
@@ -103,7 +103,7 @@ router.get('/para-respaldar', protegerRuta, async (req, res) => {
 
     res.json(items)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener items', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener items' })
   }
 })
 
@@ -117,7 +117,7 @@ router.get('/worker/:workerProfileId', async (req, res) => {
 
     res.json(items)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener portafolio', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener portafolio' })
   }
 })
 
@@ -134,7 +134,7 @@ router.delete('/:id', protegerRuta, async (req, res) => {
     await item.deleteOne()
     res.json({ mensaje: 'Item eliminado' })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al eliminar', error: error.message })
+    res.status(500).json({ mensaje: 'Error al eliminar' })
   }
 })
 
@@ -173,7 +173,7 @@ router.post('/:id/respaldar', protegerRuta, async (req, res) => {
 
     res.json(itemActualizado)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al respaldar', error: error.message })
+    res.status(500).json({ mensaje: 'Error al respaldar' })
   }
 })
 

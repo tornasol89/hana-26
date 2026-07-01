@@ -14,6 +14,7 @@ import statsRoutes       from './routes/stats.js'
 import portfolioRoutes   from './routes/portfolio.js'
 import sugerenciasRoutes from './routes/sugerencias.js'
 import { limiterGeneral } from './middleware/rateLimit.js'
+import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config()
 
@@ -27,7 +28,9 @@ const allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:5173',
   process.env.FRONTEND_URL, // para producción
-].filter(Boolean)
+].filter(Boolean) 
+
+
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -46,10 +49,13 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
+app.use(notFound);      // 404 para rutas no existentes
+app.use(errorHandler);
+
 app.use('/api', limiterGeneral)
 
 // Rutas
-+app.use('/api/auth',     authRoutes)
+app.use('/api/auth',     authRoutes)
 app.use('/api/workers',  workerRoutes)
 app.use('/api/bookings', bookingRoutes)
 app.use('/api/reviews',  reviewRoutes)

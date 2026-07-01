@@ -27,7 +27,7 @@ router.post('/',limiterPublico, async (req, res) => {
 
     res.status(201).json({ mensaje: 'Mensaje recibido', id: nueva._id })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al guardar mensaje', error: error.message })
+    res.status(500).json({ mensaje: 'Error al guardar mensaje' })
   }
 })
 

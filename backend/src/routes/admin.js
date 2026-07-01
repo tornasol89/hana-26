@@ -30,7 +30,7 @@ router.get('/disputas', async (req, res) => {
       .sort({ 'disputa.creadaEn': -1 })
     res.json(disputas)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener disputas', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener disputas' })
   }
 })
 
@@ -83,7 +83,7 @@ router.put('/bookings/:id/resolver-disputa', async (req, res) => {
 
     res.json(reservaActualizada)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al resolver disputa', error: error.message })
+    res.status(500).json({ mensaje: 'Error al resolver disputa' })
   }
 })
 

@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
     res.json(resultado)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener trabajadoras', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener trabajadoras' })
   }
 })
 
@@ -46,7 +46,7 @@ router.get('/mi-perfil', protegerRuta, async (req, res) => {
     }
     res.json(perfil)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener tu perfil', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener tu perfil' })
   }
 })
 
@@ -66,7 +66,7 @@ router.put('/mi-perfil', protegerRuta, async (req, res) => {
 
     res.json(actualizado)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al actualizar perfil', error: error.message })
+    res.status(500).json({ mensaje: 'Error al actualizar perfil' })
   }
 })
 
@@ -81,7 +81,7 @@ router.get('/featured', async (req, res) => {
     const resultado = perfiles.filter(p => p.usuario?.activa !== false)
     res.json(resultado)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener destacadas', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener destacadas' })
   }
 })
 
@@ -92,7 +92,7 @@ router.get('/mi-disponibilidad', protegerRuta, async (req, res) => {
     if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
     res.json({ horarioSemanal: perfil.horarioSemanal, diasBloqueados: perfil.diasBloqueados ?? [] })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener disponibilidad', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener disponibilidad' })
   }
 })
 
@@ -121,7 +121,7 @@ router.put('/mi-disponibilidad', protegerRuta, async (req, res) => {
     await perfil.save()
     res.json({ horarioSemanal: perfil.horarioSemanal, diasBloqueados: perfil.diasBloqueados })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al guardar disponibilidad', error: error.message })
+    res.status(500).json({ mensaje: 'Error al guardar disponibilidad' })
   }
 })
 
@@ -174,7 +174,7 @@ router.get('/:id', async (req, res) => {
 
     res.json({ perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta, certificadaChilevalora })
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener perfil', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener perfil' })
   }
 }) 
 
@@ -213,7 +213,7 @@ router.get('/:id/horarios-ocupados', async (req, res) => {
     res.json({ horasOcupadas })
   } catch (error) {
     console.error('Error en horarios-ocupados:', error)
-    res.status(500).json({ mensaje: 'Error al obtener horarios ocupados', error: error.message })
+    res.status(500).json({ mensaje: 'Error al obtener horarios ocupados' })
   }
 })
 
@@ -239,7 +239,7 @@ router.post('/', protegerRuta, async (req, res) => {
 
     res.status(201).json(perfil)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al crear perfil', error: error.message })
+    res.status(500).json({ mensaje: 'Error al crear perfil' })
   }
 })
 
@@ -266,7 +266,7 @@ router.post('/mi-perfil/certificados', protegerRuta, uploadCertificado.single('i
 
     res.status(201).json(perfil)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al subir certificado', error: error.message })
+    res.status(500).json({ mensaje: 'Error al subir certificado' })
   }
 })
 
@@ -290,7 +290,7 @@ router.delete('/mi-perfil/certificados/:certId', protegerRuta, async (req, res) 
 
     res.json(perfil)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al eliminar certificado', error: error.message })
+    res.status(500).json({ mensaje: 'Error al eliminar certificado' })
   }
 })
 
