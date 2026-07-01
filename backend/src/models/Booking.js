@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { ESTADOS_QUE_OCUPAN } from '../services/disponibilidad/estados.js'
 
 const bookingSchema = new mongoose.Schema({
   clienta: {
@@ -53,5 +54,21 @@ const bookingSchema = new mongoose.Schema({
     creadaEn:          { type: Date,    default: null },
   },
 }, { timestamps: true })
+
+
+// Backstop atómico anti-overbooking: MongoDB rechaza dos reservas activas
+// para la misma trabajadora en el mismo slot. Usa la MISMA constante que el
+// servicio → la app y la BD no pueden divergir.
+bookingSchema.index(
+  { trabajadora: 1, fecha: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      fecha: { $type: 'date' },
+      estado: { $in: ESTADOS_QUE_OCUPAN },
+    },
+    name: 'idx_unico_trabajadora_fecha_activa',
+  }
+)
 
 export default mongoose.model('Booking', bookingSchema)
