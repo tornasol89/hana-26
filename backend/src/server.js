@@ -1,6 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
+import helmet from 'helmet'
 import dotenv from 'dotenv'
 import { connectDB } from './config/db.js'
 import authRoutes    from './routes/auth.js'
@@ -20,11 +21,18 @@ const app = express()
 
 app.set('trust proxy', 1)
 
+app.set('trust proxy', 1)
+
 const allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:5173',
   process.env.FRONTEND_URL, // para producción
 ].filter(Boolean)
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}))
+
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -41,7 +49,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 app.use('/api', limiterGeneral)
 
 // Rutas
-app.use('/api/auth',     authRoutes)
++app.use('/api/auth',     authRoutes)
 app.use('/api/workers',  workerRoutes)
 app.use('/api/bookings', bookingRoutes)
 app.use('/api/reviews',  reviewRoutes)
