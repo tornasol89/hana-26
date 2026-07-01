@@ -1,299 +1,273 @@
 import express from 'express'
-import WorkerProfile from '../models/WorkerProfile.js'
-import Review from '../models/Review.js'
 import Booking from '../models/Booking.js'
+import WorkerProfile from '../models/WorkerProfile.js'
 import protegerRuta from '../middleware/auth.js'
-import mongoose from 'mongoose'
-import { uploadCertificado } from '../config/cloudinary.js'
-import { aHoraLocalHHMM, rangoDiaLocalUTC } from '../utils/timezone.js'
-
-function esChilevalora(institucion = '') {
-  return institucion.trim().toLowerCase().includes('chilevalora')
-}
+import { asegurarSlotLibre } from '../services/disponibilidad/index.js'
 
 const router = express.Router()
 
-// GET /api/workers — listar con filtros opcionales
-router.get('/', async (req, res) => {
+// POST /api/bookings — crear reserva (clienta logueada)
+router.post('/', protegerRuta, async (req, res, next) => {
   try {
-    const { categoria, subcategoria, region } = req.query
-    const filtro = {}
-    if (categoria)    filtro.categoria    = categoria
-    if (subcategoria) filtro.subcategoria = subcategoria
+    const { trabajadora, servicio, fecha, notas, regionServicio, comunaServicio, direccionServicio } = req.body
 
-    const perfiles = await WorkerProfile.find(filtro)
-      .populate('usuario', 'nombre apellido foto region comuna verificada activa')
-
-    const resultado = region
-      ? perfiles.filter(p => p.usuario?.region === region && p.usuario?.activa !== false)
-      : perfiles.filter(p => p.usuario?.activa !== false)
-
-    res.json(resultado)
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener trabajadoras' })
-  }
-})
-
-// ✅ NUEVA: GET /api/workers/mi-perfil — perfil de la trabajadora logueada
-// Debe ir ANTES de /:id para que Express no confunda "mi-perfil" con un ID
-router.get('/mi-perfil', protegerRuta, async (req, res) => {
-  try {
-    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
-      .populate('usuario', 'nombre apellido foto region comuna verificada email rut')
-
-    if (!perfil) {
-      return res.status(404).json({ mensaje: 'No tienes un perfil profesional creado aún' })
-    }
-    res.json(perfil)
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener tu perfil' })
-  }
-})
-
-// ✅ NUEVA: PUT /api/workers/mi-perfil — actualizar perfil propio
-router.put('/mi-perfil', protegerRuta, async (req, res) => {
-  try {
-    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
-    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
-
-    const { categoria, subcategoria, descripcion, tarifaHora, modalidad, nivelExperiencia, disponible } = req.body
-
-    const actualizado = await WorkerProfile.findByIdAndUpdate(
-      perfil._id,
-      { categoria, subcategoria, descripcion, tarifaHora, modalidad, nivelExperiencia, disponible },
-      { new: true }
-    ).populate('usuario', 'nombre apellido foto region comuna verificada email')
-
-    res.json(actualizado)
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al actualizar perfil' })
-  }
-})
-
-// GET /api/workers/featured — top 5 trabajadoras por índice de confianza
-router.get('/featured', async (req, res) => {
-  try {
-    const perfiles = await WorkerProfile.find({ disponible: true })
-      .populate('usuario', 'nombre apellido foto region verificada activa')
-      .sort({ indiceConfianza: -1 })
-      .limit(5)
-
-    const resultado = perfiles.filter(p => p.usuario?.activa !== false)
-    res.json(resultado)
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener destacadas' })
-  }
-})
-
-// GET /api/workers/mi-disponibilidad — obtener horario semanal propio
-router.get('/mi-disponibilidad', protegerRuta, async (req, res) => {
-  try {
-    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id }).select('horarioSemanal diasBloqueados')
-    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
-    res.json({ horarioSemanal: perfil.horarioSemanal, diasBloqueados: perfil.diasBloqueados ?? [] })
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener disponibilidad' })
-  }
-})
-
-// PUT /api/workers/mi-disponibilidad — guardar horario semanal y/o días bloqueados
-router.put('/mi-disponibilidad', protegerRuta, async (req, res) => {
-  try {
-    const { horarioSemanal, diasBloqueados } = req.body
-    const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
-    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
-
-    if (horarioSemanal !== undefined) {
-      if (!Array.isArray(horarioSemanal) || horarioSemanal.length !== 7) {
-        return res.status(400).json({ mensaje: 'horarioSemanal debe ser un array de 7 días' })
-      }
-      perfil.horarioSemanal = horarioSemanal
+    if (!trabajadora) {
+      return res.status(400).json({ mensaje: 'Falta el ID del perfil de la trabajadora' })
     }
 
-    if (diasBloqueados !== undefined) {
-      if (!Array.isArray(diasBloqueados)) {
-        return res.status(400).json({ mensaje: 'diasBloqueados debe ser un array' })
-      }
-      const hoy = new Date().toISOString().slice(0, 10)
-      perfil.diasBloqueados = diasBloqueados.filter(d => d >= hoy)
+    if (!regionServicio) {
+      return res.status(400).json({ mensaje: 'Debes indicar la región donde se realizará el servicio' })
     }
 
-    await perfil.save()
-    res.json({ horarioSemanal: perfil.horarioSemanal, diasBloqueados: perfil.diasBloqueados })
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al guardar disponibilidad' })
-  }
-})
-
-// GET /api/workers/:id — perfil individual público con reseñas y métricas reales
-router.get('/:id', async (req, res) => {
-  if (!req.params.id.match(/^[0-9a-fA-F]{24}$/))
-    return res.status(400).json({ mensaje: 'ID inválido' })
-  try {
-    const perfil = await WorkerProfile.findById(req.params.id)
-      .populate('usuario', 'nombre apellido foto region comuna verificada')
-
-    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
-
-    // Reseñas recibidas por esta trabajadora (solo clienta→trabajadora)
-    const reviews = await Review.find({
-      destinataria: perfil.usuario._id,
-      tipo: 'clienta_a_trabajadora',
-    })
-      .populate('autor', 'nombre apellido foto')
-      .sort({ createdAt: -1 })
-
-    const promedio = reviews.length
-      ? parseFloat((reviews.reduce((acc, r) => acc + r.estrellas, 0) / reviews.length).toFixed(1))
-      : 0
-
-    // Promedios por métrica (en porcentaje sobre 100 para las barras)
-    const metricasPromedio = { puntualidad: 0, confiabilidad: 0, calidad: 0, comunicacion: 0, precio: 0 }
-    if (reviews.length > 0) {
-      const keys = Object.keys(metricasPromedio)
-      keys.forEach(k => {
-        const vals = reviews.map(r => r.metricas?.[k] || 0).filter(v => v > 0)
-        if (vals.length) {
-          metricasPromedio[k] = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 20)
-        }
-      })
+    if (!comunaServicio) {
+      return res.status(400).json({ mensaje: 'Debes indicar la comuna donde se realizará el servicio' })
     }
 
-    // Servicios completados reales
-    const serviciosCompletados = await Booking.countDocuments({
-      trabajadora: perfil._id,
-      estado: 'completada',
+    // Anti-overbooking (CP-RT-08b): guard de dominio antes de escribir.
+    await asegurarSlotLibre({ trabajadora, fecha })
+
+    const reserva = await Booking.create({
+      clienta:           req.usuario.id,
+      trabajadora:       trabajadora,
+      servicio:          servicio || 'Servicio Hana',
+      fecha:             fecha || null,
+      descripcion:       notas || '',
+      estado:            'pendiente',
+      regionServicio:    regionServicio,
+      comunaServicio:    comunaServicio,
+      direccionServicio: direccionServicio || '',
     })
 
-    // Tasa de respuesta: reservas respondidas (aceptadas+rechazadas) / total recibidas
-    const totalReservas = await Booking.countDocuments({ trabajadora: perfil._id })
-    const respondidas   = await Booking.countDocuments({ trabajadora: perfil._id, estado: { $in: ['aceptada', 'rechazada', 'completada'] } })
-    const tasaRespuesta = totalReservas > 0 ? Math.round((respondidas / totalReservas) * 100) : 100
+    // Populate para devolver datos completos
+    const reservaCompleta = await Booking.findById(reserva._id)
+      .populate('clienta', 'nombre apellido email foto')
+      .populate({ path: 'trabajadora', populate: { path: 'usuario', select: 'nombre apellido email foto' } })
 
-    const certificadaChilevalora = (perfil.certificados || []).some(c => esChilevalora(c.institucion))
-
-    res.json({ perfil, reviews, promedio, metricasPromedio, serviciosCompletados, tasaRespuesta, certificadaChilevalora })
+    res.status(201).json(reservaCompleta)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener perfil' })
-  }
-}) 
-
-// GET /api/workers/:id/horarios-ocupados?fecha=YYYY-MM-DD
-router.get('/:id/horarios-ocupados', async (req, res) => {
-  try {
-    const { fecha } = req.query
-    if (!fecha) {
-      return res.status(400).json({ mensaje: 'Falta el parámetro fecha (YYYY-MM-DD)' })
-    }
-
-    // Validar el id antes de query a Mongo
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ mensaje: 'ID de trabajadora inválido' })
-    }
-
-    // Validación de formato (se mantiene igual que antes)
-    const fechaValidacion = new Date(`${fecha}T00:00:00.000Z`)
-    if (isNaN(fechaValidacion.getTime())) {
-      return res.status(400).json({ mensaje: 'Fecha inválida' })
-    }
-
-    // Rango del día calendario en hora de Chile (no medianoche-a-medianoche UTC)
-    const { inicio, fin } = rangoDiaLocalUTC(fecha)
-
-    const reservas = await Booking.find({
-      trabajadora: new mongoose.Types.ObjectId(req.params.id),
-      fecha: { $gte: inicio, $lte: fin },
-      estado: { $in: ['pendiente', 'aceptada', 'completada'] },
-    }).select('fecha').lean()
-
-    const horasOcupadas = reservas
-      .map(r => aHoraLocalHHMM(r.fecha))
-      .filter(Boolean)
-
-    res.json({ horasOcupadas })
-  } catch (error) {
-    console.error('Error en horarios-ocupados:', error)
-    res.status(500).json({ mensaje: 'Error al obtener horarios ocupados' })
+    next(error) // AppError(409) del guard y duplicate-key (11000) del índice → los mapea errorHandler
   }
 })
 
-// POST /api/workers — crear perfil (requiere login)
-router.post('/', protegerRuta, async (req, res) => {
+// GET /api/bookings/mis-reservas — reservas de la usuaria logueada
+// Acepta ?modo=clienta|trabajadora para usuarios con perfil dual
+router.get('/mis-reservas', protegerRuta, async (req, res) => {
   try {
-    const { categoria, subcategoria, descripcion, tarifaHora, modalidad, nivelExperiencia } = req.body
+    let reservas = []
+    const rolesUsuario = [req.usuario.tipo, ...(req.usuario.rolesAdicionales || [])]
+    const modo = req.query.modo || req.usuario.tipo
 
-    const perfilExiste = await WorkerProfile.findOne({ usuario: req.usuario.id })
-    if (perfilExiste) {
-      return res.status(400).json({ mensaje: 'Ya tienes un perfil de trabajadora' })
+    if (modo === 'clienta' && rolesUsuario.includes('clienta')) {
+      reservas = await Booking.find({ clienta: req.usuario.id })
+        .populate('clienta', 'nombre apellido foto')
+        .populate({
+          path: 'trabajadora',
+          populate: { path: 'usuario', select: 'nombre apellido foto' }
+        })
+        .sort({ createdAt: -1 })
+
+    } else if (modo === 'trabajadora' && rolesUsuario.includes('trabajadora')) {
+      const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
+      if (!perfil) return res.json([])
+
+      reservas = await Booking.find({ trabajadora: perfil._id })
+        .populate('clienta', 'nombre apellido foto email verificada estadoVerificacion')
+        .populate({
+          path: 'trabajadora',
+          populate: { path: 'usuario', select: 'nombre apellido foto' }
+        })
+        .sort({ createdAt: -1 })
     }
 
-    const perfil = await WorkerProfile.create({
-      usuario:          req.usuario.id,
-      categoria,
-      subcategoria:     subcategoria     || '',
-      descripcion:      descripcion      || '',
-      tarifaHora:       tarifaHora       || 0,
-      modalidad:        modalidad        || '',
-      nivelExperiencia: nivelExperiencia || '',
-    })
-
-    res.status(201).json(perfil)
+    res.json(reservas)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al crear perfil' })
+    res.status(500).json({ mensaje: 'Error al obtener reservas' })
   }
 })
 
-// POST /api/workers/mi-perfil/certificados — subir certificado con imagen
-router.post('/mi-perfil/certificados', protegerRuta, uploadCertificado.single('imagen'), async (req, res) => {
+// PUT /api/bookings/:id/aceptar — trabajadora acepta
+router.put('/:id/aceptar', protegerRuta, async (req, res) => {
   try {
+    const reserva = await Booking.findById(req.params.id)
+      .populate('trabajadora')
+
+    if (!reserva) return res.status(404).json({ mensaje: 'Reserva no encontrada' })
+
+    // Verificar que la trabajadora logueada es la dueña
     const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
-    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
-
-    const { nombre, institucion } = req.body
-    if (!nombre || !institucion) {
-      return res.status(400).json({ mensaje: 'Nombre e institución son obligatorios' })
+    if (!perfil || reserva.trabajadora._id.toString() !== perfil._id.toString()) {
+      return res.status(403).json({ mensaje: 'No tienes permiso para aceptar esta reserva' })
     }
 
-    const nuevoCert = {
-      nombre:    nombre.trim(),
-      institucion: institucion.trim(),
-      urlImagen: req.file?.path ?? '',
-    }
-
-    perfil.certificados.push(nuevoCert)
-    perfil.certificadaChilevalora = perfil.certificados.some(c => esChilevalora(c.institucion))
-    await perfil.save()
-
-    res.status(201).json(perfil)
+    reserva.estado = 'aceptada'
+    await reserva.save()
+    res.json(reserva)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al subir certificado' })
+    res.status(500).json({ mensaje: 'Error al aceptar reserva' })
   }
 })
 
-// DELETE /api/workers/mi-perfil/certificados/:certId — eliminar certificado propio
-router.delete('/mi-perfil/certificados/:certId', protegerRuta, async (req, res) => {
+// PUT /api/bookings/:id/rechazar — trabajadora rechaza
+router.put('/:id/rechazar', protegerRuta, async (req, res) => {
   try {
+    const reserva = await Booking.findById(req.params.id)
+      .populate('trabajadora')
+
+    if (!reserva) return res.status(404).json({ mensaje: 'Reserva no encontrada' })
+
     const perfil = await WorkerProfile.findOne({ usuario: req.usuario.id })
-    if (!perfil) return res.status(404).json({ mensaje: 'Perfil no encontrado' })
-
-    const antes = perfil.certificados.length
-    perfil.certificados = perfil.certificados.filter(
-      c => c._id.toString() !== req.params.certId
-    )
-
-    if (perfil.certificados.length === antes) {
-      return res.status(404).json({ mensaje: 'Certificado no encontrado' })
+    if (!perfil || reserva.trabajadora._id.toString() !== perfil._id.toString()) {
+      return res.status(403).json({ mensaje: 'No tienes permiso para rechazar esta reserva' })
     }
 
-    perfil.certificadaChilevalora = perfil.certificados.some(c => esChilevalora(c.institucion))
-    await perfil.save()
-
-    res.json(perfil)
+    reserva.estado = 'rechazada'
+    await reserva.save()
+    res.json(reserva)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al eliminar certificado' })
+    res.status(500).json({ mensaje: 'Error al rechazar reserva' })
   }
 })
 
+// ─── Helper: identificar rol del usuario logueado en una reserva ─────────────
+async function identificarRol(reserva, usuarioId) {
+  const { default: WorkerProfileModel } = await import('../models/WorkerProfile.js')
+  const perfil = await WorkerProfileModel.findOne({ usuario: usuarioId })
+  const esTrabajadora = perfil && reserva.trabajadora.toString() === perfil._id.toString()
+  const esClienta = reserva.clienta.toString() === usuarioId
+  return { esTrabajadora, esClienta, perfilId: perfil?._id }
+}
+
+// ─── Helper: populate completo de reserva ─────────────────────────────────────
+async function populateReserva(id) {
+  return Booking.findById(id)
+    .populate('clienta', 'nombre apellido email foto verificada estadoVerificacion')
+    .populate({ path: 'trabajadora', populate: { path: 'usuario', select: 'nombre apellido foto' } })
+}
+
+// PUT /api/bookings/:id/confirmar-inicio ──────────────────────────────────────
+router.put('/:id/confirmar-inicio', protegerRuta, async (req, res) => {
+  try {
+    const reserva = await Booking.findById(req.params.id)
+    if (!reserva) return res.status(404).json({ mensaje: 'Reserva no encontrada' })
+
+    const estadosValidos = ['aceptada', 'en_disputa']
+    if (!estadosValidos.includes(reserva.estado)) {
+      return res.status(400).json({ mensaje: 'Solo se puede confirmar el inicio de reservas aceptadas' })
+    }
+
+    const { esTrabajadora, esClienta } = await identificarRol(reserva, req.usuario.id)
+    if (!esTrabajadora && !esClienta) {
+      return res.status(403).json({ mensaje: 'Sin permiso' })
+    }
+
+    if (esTrabajadora) reserva.inicioConfirmadoPor.trabajadora = new Date()
+    else              reserva.inicioConfirmadoPor.clienta     = new Date()
+
+    // Ambos confirmaron → en_curso (resuelve disputa de inicio si la había)
+    if (reserva.inicioConfirmadoPor.trabajadora && reserva.inicioConfirmadoPor.clienta) {
+      reserva.estado = 'en_curso'
+      if (reserva.disputa?.fase === 'inicio') reserva.disputa.activa = false
+    }
+
+    await reserva.save()
+    res.json(await populateReserva(reserva._id))
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al confirmar inicio' })
+  }
+})
+
+// PUT /api/bookings/:id/confirmar-fin ─────────────────────────────────────────
+router.put('/:id/confirmar-fin', protegerRuta, async (req, res) => {
+  try {
+    const reserva = await Booking.findById(req.params.id)
+    if (!reserva) return res.status(404).json({ mensaje: 'Reserva no encontrada' })
+
+    const estadosValidos = ['en_curso', 'en_disputa']
+    if (!estadosValidos.includes(reserva.estado)) {
+      return res.status(400).json({ mensaje: 'Solo se puede confirmar el fin de servicios en curso' })
+    }
+
+    const { esTrabajadora, esClienta } = await identificarRol(reserva, req.usuario.id)
+    if (!esTrabajadora && !esClienta) {
+      return res.status(403).json({ mensaje: 'Sin permiso' })
+    }
+
+    if (esTrabajadora) reserva.finConfirmadoPor.trabajadora = new Date()
+    else              reserva.finConfirmadoPor.clienta     = new Date()
+
+    // Ambos confirmaron → completada (resuelve disputa de fin si la había)
+    if (reserva.finConfirmadoPor.trabajadora && reserva.finConfirmadoPor.clienta) {
+      reserva.estado = 'completada'
+      if (reserva.disputa?.fase === 'fin') reserva.disputa.activa = false
+    }
+
+    await reserva.save()
+    res.json(await populateReserva(reserva._id))
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al confirmar fin' })
+  }
+})
+
+// PUT /api/bookings/:id/disputar ──────────────────────────────────────────────
+// Crea o actualiza una disputa. Se puede llamar en cualquier fase activa.
+router.put('/:id/disputar', protegerRuta, async (req, res) => {
+  try {
+    const { fase, motivo } = req.body
+
+    if (!['inicio', 'fin'].includes(fase)) {
+      return res.status(400).json({ mensaje: 'fase debe ser "inicio" o "fin"' })
+    }
+    if (!motivo?.trim()) {
+      return res.status(400).json({ mensaje: 'Debes explicar qué pasó' })
+    }
+
+    const reserva = await Booking.findById(req.params.id)
+    if (!reserva) return res.status(404).json({ mensaje: 'Reserva no encontrada' })
+
+    // Estados donde tiene sentido abrir una disputa
+    const estadosPermitidos = ['aceptada', 'en_curso', 'en_disputa']
+    if (!estadosPermitidos.includes(reserva.estado)) {
+      return res.status(400).json({ mensaje: 'No se puede abrir una disputa en el estado actual' })
+    }
+
+    const { esTrabajadora, esClienta } = await identificarRol(reserva, req.usuario.id)
+    if (!esTrabajadora && !esClienta) {
+      return res.status(403).json({ mensaje: 'Sin permiso' })
+    }
+
+    reserva.estado             = 'en_disputa'
+    reserva.disputa.activa     = true
+    reserva.disputa.fase       = fase
+    if (!reserva.disputa.creadaEn) reserva.disputa.creadaEn = new Date()
+
+    if (esTrabajadora) reserva.disputa.motivoTrabajadora = motivo.trim()
+    else              reserva.disputa.motivoClienta      = motivo.trim()
+
+    await reserva.save()
+    res.json(await populateReserva(reserva._id))
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al crear disputa' })
+  }
+})
+
+// PUT /api/bookings/:id/completar — marcar como completada
+router.put('/:id/completar', protegerRuta, async (req, res) => {
+  try {
+    const reserva = await Booking.findById(req.params.id)
+    if (!reserva) return res.status(404).json({ mensaje: 'Reserva no encontrada' })
+
+    const { esTrabajadora, esClienta } = await identificarRol(reserva, req.usuario.id)
+    if (!esTrabajadora && !esClienta) {
+      return res.status(403).json({ mensaje: 'No tienes permiso para completar esta reserva' })
+    }
+
+    reserva.estado = 'completada'
+    await reserva.save()
+    res.json(reserva)
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al completar reserva' })
+  }
+})
 
 
 export default router

@@ -2,46 +2,40 @@ import express from 'express'
 import Booking from '../models/Booking.js'
 import WorkerProfile from '../models/WorkerProfile.js'
 import protegerRuta from '../middleware/auth.js'
+import { asegurarSlotLibre } from '../services/disponibilidad/index.js'
 
 const router = express.Router()
 
-// POST /api/bookings — crear reserva (clienta logueada)
-router.post('/', protegerRuta, async (req, res) => {
+router.post('/', protegerRuta, async (req, res, next) => {
   try {
     const { trabajadora, servicio, fecha, notas, regionServicio, comunaServicio, direccionServicio } = req.body
 
-    if (!trabajadora) {
-      return res.status(400).json({ mensaje: 'Falta el ID del perfil de la trabajadora' })
-    }
+    if (!trabajadora)     return res.status(400).json({ mensaje: 'Falta el ID del perfil de la trabajadora' })
+    if (!regionServicio)  return res.status(400).json({ mensaje: 'Debes indicar la región donde se realizará el servicio' })
+    if (!comunaServicio)  return res.status(400).json({ mensaje: 'Debes indicar la comuna donde se realizará el servicio' })
 
-    if (!regionServicio) {
-      return res.status(400).json({ mensaje: 'Debes indicar la región donde se realizará el servicio' })
-    }
-
-    if (!comunaServicio) {
-      return res.status(400).json({ mensaje: 'Debes indicar la comuna donde se realizará el servicio' })
-    }
+    // Anti-overbooking (CP-RT-08b): guard de dominio antes de escribir.
+    await asegurarSlotLibre({ trabajadora, fecha })
 
     const reserva = await Booking.create({
       clienta:           req.usuario.id,
-      trabajadora:       trabajadora,
+      trabajadora,
       servicio:          servicio || 'Servicio Hana',
       fecha:             fecha || null,
       descripcion:       notas || '',
       estado:            'pendiente',
-      regionServicio:    regionServicio,
-      comunaServicio:    comunaServicio,
+      regionServicio,
+      comunaServicio,
       direccionServicio: direccionServicio || '',
     })
 
-    // Populate para devolver datos completos
     const reservaCompleta = await Booking.findById(reserva._id)
       .populate('clienta', 'nombre apellido email foto')
       .populate({ path: 'trabajadora', populate: { path: 'usuario', select: 'nombre apellido email foto' } })
 
     res.status(201).json(reservaCompleta)
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al crear reserva' })
+    next(error) // AppError(409) del guard y duplicate-key (11000) del índice → ambos los mapea errorHandler
   }
 })
 
