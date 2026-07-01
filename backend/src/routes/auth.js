@@ -5,6 +5,7 @@ import User from '../models/User.js'
 import upload, { uploadDocumento } from '../config/cloudinary.js'
 import protegerRuta from '../middleware/auth.js'
 import { validarFechaNacimiento, calcularEdad } from '../utils/validators.js'
+import { limiterLogin, limiterRegistro } from '../middleware/rateLimit.js'
 
 const router = express.Router()
 
@@ -39,7 +40,7 @@ function formatearUsuario(u) {
 // ─────────────────────────────────────────────────────────────────────────
 
 // POST /api/auth/register
-router.post('/register', async (req, res) => {
+router.post('/register',limiterLogin, async (req, res) => {
   try {
     const {
       nombre, apellido, email, password, tipo,
@@ -117,7 +118,7 @@ router.post('/register', async (req, res) => {
 })
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login',limiterLogin, async (req, res) => {
   try {
     const { email, password } = req.body
 
@@ -280,5 +281,7 @@ router.get('/clienta/:id', protegerRuta, async (req, res) => {
     res.status(500).json({ mensaje: 'Error al obtener perfil', error: error.message })
   }
 })
+
+
 
 export default router
