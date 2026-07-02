@@ -1,23 +1,4 @@
-// backend/scripts/migrate-region-metropolitana.js
-//
-// Migración (#B7): normaliza valores de región inconsistentes en Mongo.
-//
-// Problema: algunas usuarias/reservas antiguas tienen guardado un valor de
-// región que no coincide EXACTAMENTE con la lista canónica de
-// frontend/src/config/constants.ts (REGIONES_CHILE), ej. "Región Metropolitana"
-// en vez de "Metropolitana de Santiago". Esto rompe el Select de Registro/
-// MiPerfil (no encuentra match, queda en blanco), el filtro exacto del
-// buscador, y las agregaciones de región del dashboard admin.
-//
-// Alcance: colección `users` (campo region) y `bookings` (campo regionServicio).
-// Valores no reconocidos se REPORTAN pero NO se modifican — hay que agregarlos
-// a ALIAS_REGION a mano antes de aplicarlos.
-//
-// Uso:
-//   node scripts/migrate-region-metropolitana.js          ← dry-run
-//   node scripts/migrate-region-metropolitana.js --apply  ← aplica cambios
-
-import mongoose from 'mongoose'
+cd import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 
 dotenv.config()

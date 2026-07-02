@@ -36,7 +36,7 @@ export function errorHandler(err, req, res, next) {
   }
 
   if (err.esOperacional) {
-    return res.status(err.statusCode).json({ error: err.message });
+    return res.status(err.statusCode).json({ mensaje: err.message });
   }
 
   return res.status(err.statusCode || 500).json({

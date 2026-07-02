@@ -6,5 +6,4 @@ export {
   validarFechaNacimiento,
   EDAD_MINIMA,
 } from './validators.js';
-export { aHoraLocalHHMM, rangoDiaLocalUTC, TIMEZONE_HANA } from './timezone.js';
-export { default as AppError } from './AppError.js';
+export { cifrar, descifrar, pareceCifrado } from './crypto.js';

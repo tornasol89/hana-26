@@ -1,7 +1,5 @@
 import express from 'express'
-import mongoose from 'mongoose'
 import cors from 'cors'
-import helmet from 'helmet'
 import dotenv from 'dotenv'
 import { connectDB } from './config/db.js'
 import authRoutes    from './routes/auth.js'
@@ -9,33 +7,21 @@ import workerRoutes  from './routes/workers.js'
 import bookingRoutes from './routes/bookings.js'
 import reviewRoutes  from './routes/reviews.js'
 import messageRoutes from './routes/messages.js'
-import adminRoutes       from './routes/admin.js'
-import statsRoutes       from './routes/stats.js'
-import portfolioRoutes   from './routes/portfolio.js'
-import sugerenciasRoutes from './routes/sugerencias.js'
-import { limiterGeneral } from './middleware/rateLimit.js'
-import { notFound, errorHandler } from './middleware/errorHandler.js';
+import adminRoutes     from './routes/admin.js'
+import statsRoutes     from './routes/stats.js'
+import portfolioRoutes from './routes/portfolio.js'
+import mongoose from 'mongoose'
+import multer from 'multer'
 
 dotenv.config()
 
 const app = express()
 
-app.set('trust proxy', 1)
-
-app.set('trust proxy', 1)
-
 const allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:5173',
   process.env.FRONTEND_URL, // para producción
-].filter(Boolean) 
-
-
-
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
-}))
-
+].filter(Boolean)
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -49,34 +35,34 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-app.use(notFound);      // 404 para rutas no existentes
-app.use(errorHandler);
-
-app.use('/api', limiterGeneral)
-
 // Rutas
 app.use('/api/auth',     authRoutes)
 app.use('/api/workers',  workerRoutes)
 app.use('/api/bookings', bookingRoutes)
 app.use('/api/reviews',  reviewRoutes)
 app.use('/api/messages', messageRoutes)
-app.use('/api/admin',       adminRoutes)
-app.use('/api/stats',       statsRoutes)
-app.use('/api/portfolio',   portfolioRoutes)
-app.use('/api/sugerencias', sugerenciasRoutes)
+app.use('/api/admin',     adminRoutes)
+app.use('/api/stats',     statsRoutes)
+app.use('/api/portfolio', portfolioRoutes)
 
 app.get('/', (req, res) => res.json({ mensaje: 'API de Hana funcionando ✅' }))
 
-app.get('/api/health', (req, res) => {
-  const dbState = mongoose.connection.readyState
-  // 0=desconectado, 1=conectado, 2=conectando, 3=desconectando
-  res.json({
-    status: dbState === 1 ? 'ok' : 'error',
-    db: dbState === 1 ? 'connected' : 'disconnected',
-    dbState,
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-  })
+// ── Manejador de errores de subida (multer) ───────────────────────────────────
+// Debe ir DESPUÉS de las rutas. Traduce errores de multer a JSON limpio.
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ mensaje: 'El archivo supera el tamaño máximo permitido' })
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(400).json({ mensaje: 'Solo se permite subir un archivo por vez' })
+    }
+    return res.status(400).json({ mensaje: `Error al subir el archivo: ${err.message}` })
+  }
+  if (err?.code === 'TIPO_ARCHIVO_INVALIDO') {
+    return res.status(400).json({ mensaje: err.message })
+  }
+  next(err)
 })
 
 const PORT = process.env.PORT || 5000

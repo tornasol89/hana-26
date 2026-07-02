@@ -10,6 +10,31 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
+// ── Límites y filtros de subida ───────────────────────────────────────────────
+const MB = 1024 * 1024
+
+const LIMITE_IMAGEN      = 5  * MB   // perfil y portafolio (se redimensionan igual)
+const LIMITE_DOCUMENTO   = 8  * MB   // carnet: necesita legibilidad
+const LIMITE_CERTIFICADO = 10 * MB   // acepta PDF, que pesa más
+
+const MIME_IMAGEN      = ['image/jpeg', 'image/png']            // jpg y jpeg → image/jpeg
+const MIME_CERTIFICADO = ['image/jpeg', 'image/png', 'application/pdf']
+
+// Factory: rechaza tipos no permitidos con un error identificable en server.js
+function crearFileFilter(mimesPermitidos) {
+  return (req, file, cb) => {
+    if (mimesPermitidos.includes(file.mimetype)) {
+      cb(null, true)
+    } else {
+      const error = new Error('Tipo de archivo no permitido. Solo se aceptan: ' + mimesPermitidos.join(', '))
+      error.code = 'TIPO_ARCHIVO_INVALIDO'
+      cb(error, false)
+    }
+  }
+}
+
+// ── Storages ──────────────────────────────────────────────────────────────────
+
 // Para fotos de perfil (recorte cuadrado 500×500)
 const perfilStorage = new CloudinaryStorage({
   cloudinary,
@@ -49,9 +74,29 @@ const portfolioStorage = new CloudinaryStorage({
   },
 })
 
-export const uploadFoto          = multer({ storage: perfilStorage })
-export const uploadDocumento     = multer({ storage: documentoStorage })
-export const uploadCertificado   = multer({ storage: certificadoStorage })
-export const uploadPortfolio     = multer({ storage: portfolioStorage })
+// ── Instancias multer (ahora con límites y filtro) ────────────────────────────
+export const uploadFoto = multer({
+  storage:    perfilStorage,
+  limits:     { fileSize: LIMITE_IMAGEN, files: 1 },
+  fileFilter: crearFileFilter(MIME_IMAGEN),
+})
+
+export const uploadDocumento = multer({
+  storage:    documentoStorage,
+  limits:     { fileSize: LIMITE_DOCUMENTO, files: 1 },
+  fileFilter: crearFileFilter(MIME_IMAGEN),
+})
+
+export const uploadCertificado = multer({
+  storage:    certificadoStorage,
+  limits:     { fileSize: LIMITE_CERTIFICADO, files: 1 },
+  fileFilter: crearFileFilter(MIME_CERTIFICADO),
+})
+
+export const uploadPortfolio = multer({
+  storage:    portfolioStorage,
+  limits:     { fileSize: LIMITE_IMAGEN, files: 1 },
+  fileFilter: crearFileFilter(MIME_IMAGEN),
+})
 
 export default uploadFoto

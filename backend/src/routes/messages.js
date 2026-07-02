@@ -76,8 +76,11 @@ router.get('/:reservaId', protegerRuta, async (req, res) => {
 // POST /api/messages/:reservaId — enviar un mensaje
 router.post('/:reservaId', protegerRuta, async (req, res) => {
   try {
+    
     const { texto } = req.body
-    if (!texto?.trim()) return res.status(400).json({ mensaje: 'El mensaje no puede estar vacío' })
+    const limpio = texto?.trim()
+    if (!limpio) return res.status(400).json({ mensaje: 'El mensaje no puede estar vacío' })
+    if (limpio.length > 1000) return res.status(400).json({ mensaje: 'El mensaje supera los 1000 caracteres' })  
 
     const reserva = await esParticipante(req.params.reservaId, req.usuario.id)
     if (!reserva) return res.status(403).json({ mensaje: 'No tienes acceso a esta conversación' })
